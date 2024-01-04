@@ -1,7 +1,6 @@
 import createHttpError from "http-errors";
 import { isNil } from "lodash";
 import * as z from "zod";
-import { AnyZodObject, ZodError } from "zod";
 
 function getMin<T>(array: T[]): T | null {
   return array.reduce(
@@ -55,7 +54,7 @@ type UpdateOneApiExecutor<PARAMS, BODY, FIELD_REQUEST> = (
 
 type GetManyApiHandlerConfig<
   DISPATCHER_OPTIONS,
-  QUERY_ZOD extends AnyZodObject,
+  QUERY_ZOD extends z.AnyZodObject,
   FIELD_REQUEST
 > = {
   queryZod: QUERY_ZOD;
@@ -66,7 +65,7 @@ type GetManyApiHandlerConfig<
 
 type GetOneApiHandlerConfig<
   DISPATCHER_OPTIONS,
-  PARAMS_ZOD extends AnyZodObject,
+  PARAMS_ZOD extends z.AnyZodObject,
   FIELD_REQUEST
 > = {
   paramsZod: PARAMS_ZOD;
@@ -77,7 +76,7 @@ type GetOneApiHandlerConfig<
 
 type CreateOneApiHandlerConfig<
   DISPATCHER_OPTIONS,
-  BODY_ZOD extends AnyZodObject,
+  BODY_ZOD extends z.AnyZodObject,
   FIELD_REQUEST
 > = {
   bodyZod: BODY_ZOD;
@@ -88,12 +87,12 @@ type CreateOneApiHandlerConfig<
 
 type UpdateOneApiHandlerConfig<
   DISPATCHER_OPTIONS,
-  PARAMS_ZOD extends AnyZodObject,
+  PARAMS_ZOD extends z.AnyZodObject,
   BODY,
   FIELD_REQUEST
 > = {
   paramsZod: PARAMS_ZOD;
-  bodyZod: AnyZodObject;
+  bodyZod: z.AnyZodObject;
   apiExecutor: UpdateOneApiExecutor<z.infer<PARAMS_ZOD>, BODY, FIELD_REQUEST>;
   authenticator: Authenticator<DISPATCHER_OPTIONS>;
   options?: DISPATCHER_OPTIONS;
@@ -103,7 +102,7 @@ type UpdateOneApiHandlerConfig<
 
 function handleGetMany<
   DISPATCHER_OPTIONS,
-  QUERY_ZOD extends AnyZodObject,
+  QUERY_ZOD extends z.AnyZodObject,
   FIELD_REQUEST
 >(
   config: GetManyApiHandlerConfig<DISPATCHER_OPTIONS, QUERY_ZOD, FIELD_REQUEST>
@@ -133,7 +132,7 @@ const handleSearch = handleGetMany;
 
 function handleGetOne<
   DISPATCHER_OPTIONS,
-  PARAMS_ZOD extends AnyZodObject,
+  PARAMS_ZOD extends z.AnyZodObject,
   FIELD_REQUEST
 >(
   config: GetOneApiHandlerConfig<DISPATCHER_OPTIONS, PARAMS_ZOD, FIELD_REQUEST>
@@ -161,7 +160,7 @@ function handleGetOne<
 
 function handleCreateOne<
   DISPATCHER_OPTIONS,
-  BODY_ZOD extends AnyZodObject,
+  BODY_ZOD extends z.AnyZodObject,
   FIELD_REQUEST
 >(
   config: CreateOneApiHandlerConfig<DISPATCHER_OPTIONS, BODY_ZOD, FIELD_REQUEST>
@@ -189,7 +188,7 @@ function handleCreateOne<
 
 function handleUpdateOne<
   DISPATCHER_OPTIONS,
-  PARAMS_ZOD extends AnyZodObject,
+  PARAMS_ZOD extends z.AnyZodObject,
   BODY,
   FIELD_REQUEST
 >(
@@ -306,7 +305,7 @@ function record<REQUEST_CONTEXT, PARSED, RESULT>(
 }
 
 function handle(error: unknown): Response {
-  if (error instanceof ZodError) {
+  if (error instanceof z.ZodError) {
     return Response.json({ error: error.message }, { status: 400 });
   }
   if (error instanceof createHttpError.HttpError) {
@@ -319,19 +318,19 @@ export {
   Authenticator,
   CreateOneApiExecutor,
   CreateOneApiHandlerConfig,
+  dispatch,
   GetManyApiExecutor,
   GetManyApiHandlerConfig,
-  GetOneApiExecutor,
-  GetOneApiHandlerConfig,
-  UpdateOneApiExecutor,
-  UpdateOneApiHandlerConfig,
-  dispatch,
   getMax,
   getMin,
+  GetOneApiExecutor,
+  GetOneApiHandlerConfig,
   handleCreateOne,
   handleDeleteOne,
   handleGetMany,
   handleGetOne,
   handleSearch,
   handleUpdateOne,
+  UpdateOneApiExecutor,
+  UpdateOneApiHandlerConfig,
 };
