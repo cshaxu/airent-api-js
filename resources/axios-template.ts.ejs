@@ -99,7 +99,7 @@ function presentOneResponse<S extends <%= entity.strings.fieldRequestClass %>>(r
 
 async function getMany<S extends <%= entity.strings.fieldRequestClass %>>(query: <%= entity.api.strings.getManyQuery %>, fieldRequest: S): Promise<<%= entity.api.strings.manyResponse %><S>> {
   const requestBody = { query, fieldRequest };
-  const path = `<%= getApiBasePath() %>/getMany`;
+  const path = `<%= getApiBasePath() %>/get-many`;
   const { data } = await axios.post(path, requestBody);
   return presentManyResponse(data, fieldRequest);
 }
@@ -108,7 +108,7 @@ async function getMany<S extends <%= entity.strings.fieldRequestClass %>>(query:
 
 async function getOne<S extends <%= entity.strings.fieldRequestClass %>>(params: <%= entity.api.strings.getOneParams %>, fieldRequest: S): Promise<<%= entity.api.strings.oneResponse %><S>> {
   const requestBody = { params, fieldRequest };
-  const path = `<%= getApiBasePath() %>/getOne`;
+  const path = `<%= getApiBasePath() %>/get-one`;
   const { data } = await axios.post(path, requestBody);
   return presentOneResponse(data, fieldRequest);
 }
@@ -117,7 +117,7 @@ async function getOne<S extends <%= entity.strings.fieldRequestClass %>>(params:
 
 async function createOne<S extends <%= entity.strings.fieldRequestClass %>>(body: <%= entity.api.strings.createOneBody %>, fieldRequest: S): Promise<<%= entity.api.strings.oneResponse %><S>> {
   const requestBody = { body, fieldRequest };
-  const path = `<%= getApiBasePath() %>/createOne`;
+  const path = `<%= getApiBasePath() %>/create-one`;
   const { data } = await axios.post(path, requestBody);
   return presentOneResponse(data, fieldRequest);
 }
@@ -126,7 +126,7 @@ async function createOne<S extends <%= entity.strings.fieldRequestClass %>>(body
 
 async function updateOne<S extends <%= entity.strings.fieldRequestClass %>>(params: <%= entity.api.strings.getOneParams %>, body: <%= entity.api.strings.updateOneBody %>, fieldRequest: S): Promise<<%= entity.api.strings.oneResponse %><S>> {
   const requestBody = { params, body, fieldRequest };
-  const path = `<%= getApiBasePath() %>/updateOne`;
+  const path = `<%= getApiBasePath() %>/update-one`;
   const { data } = await axios.post(path, requestBody);
   return presentOneResponse(data, fieldRequest);
 }
@@ -135,7 +135,7 @@ async function updateOne<S extends <%= entity.strings.fieldRequestClass %>>(para
 
 async function deleteOne<S extends <%= entity.strings.fieldRequestClass %>>(params: <%= entity.api.strings.getOneParams %>, fieldRequest: S): Promise<<%= entity.api.strings.oneResponse %><S>> {
   const requestBody = { params, fieldRequest };
-  const path = `<%= getApiBasePath() %>/deleteOne`;
+  const path = `<%= getApiBasePath() %>/delete-one`;
   const { data } = await axios.post(path, requestBody);
   return presentOneResponse(data, fieldRequest);
 }
