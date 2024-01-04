@@ -1,0 +1,35 @@
+name: User
+api:
+  request:
+    import: "../../../test-resources/user-type"
+  service:
+    import: "../../../test-resources/user-service"
+  cursors:
+    - createdAt
+  methods:
+    - getMany
+    - getOne
+    - createOne
+    - updateOne
+    - deleteOne
+model: UserModel
+types:
+  - name: UserModel
+    define: "{ id: string; createdAt: Date; name: string; email: string }"
+fields:
+  - id: 1
+    name: id
+    type: string
+    strategy: primitive
+  - id: 2
+    name: createdAt
+    type: Date
+    strategy: primitive
+  - id: 2
+    name: name
+    type: string
+    strategy: primitive
+  - id: 3
+    name: email
+    type: string
+    strategy: primitive

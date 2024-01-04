@@ -1,0 +1,52 @@
+{
+  "name": "airent-api",
+  "version": "0.1.4",
+  "description": "Airent Api Extension",
+  "main": "./lib/index.js",
+  "bin": {
+    "airent-api": "./bin/index.js"
+  },
+  "scripts": {
+    "build": "rm -rf ./lib && tsc -p tsconfig.json",
+    "test": "rm -rf ./test-output && airent"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cshaxu/airent-api-js.git"
+  },
+  "keywords": [
+    "api",
+    "backend",
+    "data",
+    "entity",
+    "framework",
+    "orm",
+    "pojo",
+    "presentation"
+  ],
+  "author": "cshaxu",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/cshaxu/airent-api-js/issues"
+  },
+  "homepage": "https://github.com/cshaxu/airent-api-js#readme",
+  "files": [
+    "bin",
+    "lib",
+    "resources"
+  ],
+  "dependencies": {
+    "http-errors": "^2.0.0",
+    "lodash": "^4.17.21",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "@types/async-lock": "^1.4.2",
+    "@types/http-errors": "^2.0.4",
+    "@types/lodash": "^4.14.202",
+    "@types/node": "^20.10.1",
+    "airent": "github:cshaxu/airent-js#67f999223741f1b57392f16ac25276e73f784982",
+    "axios": "^1.6.4",
+    "typescript": "^5.3.2"
+  }
+}

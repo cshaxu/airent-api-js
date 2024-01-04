@@ -1,0 +1,198 @@
+<%
+function getApiBasePath() {
+  const kababCased = utils.toKababCase(utils.pluralize(entity.name));
+  return `${config.apiPath}/${kababCased}`;
+}
+
+function isDateTypeField(field) {
+  return field.strings.fieldClass === "Date";
+}
+
+function getAxiosName(entity) {
+  return `${utils.toTitleCase(entity.name)}ApiAxios`;
+}
+
+function presentEntityTypeField(field) {
+  const presenter = `${getAxiosName(field._type._entity)}.present`;
+  if (utils.isArrayField(field)) {
+    return `one.${field.name}.map((nested: any) => ${presenter}(nested, fieldRequest.${field.name}!))`;
+  }
+  const presentOne = `${presenter}(one.${field.name}, fieldRequest.${field.name}!)`;
+  if (utils.isNullableField(field)) {
+    return `one.${field.name} === null ? null : ${presentOne}`;
+  }
+  return presentOne;
+}
+
+function presentDateTypeField(field) {
+  const presentOne = `new Date(one.${field.name})`;
+  if (utils.isArrayField(field)) {
+    return `one.${field.name}.map(new Date)`;
+  }
+  if (utils.isNullableField(field)) {
+    return `one.${field.name} === null ? null : ${presentOne}`;
+  }
+  return presentOne;
+}
+-%>
+<% if (utils.isPresentableEntity(entity)) { -%>
+import { Select } from 'airent';
+import {
+  <%= entity.strings.responseClass %>,
+  <%= entity.strings.fieldRequestClass %>,
+  <%_ if (entity.api) { -%>
+  <%= entity.api.strings.manyResponse %>,
+  <%= entity.api.strings.oneResponse %>,
+  <%_ } -%>
+} from '<%= config.clientTypePath %>/<%= entity.strings.typePackage %>';
+  <%_ entity.types.filter(utils.isPresentableEntityType).filter((t) => t.name !== entity.name).forEach((type) => { -%>
+import <%= getAxiosName(type._entity) %> from './<%= `${utils.toKababCase(type.name)}-api-axios` %>';
+  <%_ }); -%>
+  <%_ if (entity.api) { -%>
+<%- config.axiosImport %>
+    <%_ if (entity.api.booleans.hasGetMany || entity.api.booleans.hasGetOneRequest || entity.api.booleans.hasCreateOne || entity.api.booleans.hasUpdateOne) { -%>
+import {
+      <%_ if (entity.api.booleans.hasGetMany) { -%>
+  <%= entity.api.strings.getManyQuery %>,
+      <%_ } -%>
+      <%_ if (entity.api.booleans.hasGetOneRequest) { -%>
+  <%= entity.api.strings.getOneParams %>,
+      <%_ } -%>
+      <%_ if (entity.api.booleans.hasCreateOne) { -%>
+  <%= entity.api.strings.createOneBody %>,
+      <%_ } -%>
+      <%_ if (entity.api.booleans.hasUpdateOne) { -%>
+  <%= entity.api.strings.updateOneBody %>,
+      <%_ } -%>
+} from '<%= entity.api.request.import %>';
+    <%_ } -%>
+  <%_ } -%>
+
+function present<S extends <%= entity.strings.fieldRequestClass %>>(one: any, fieldRequest: S): Select<<%= entity.strings.responseClass %>, S> {
+  return {
+    ...one,
+  <%_ entity.fields.filter(utils.isPresentableField).filter(isDateTypeField).forEach((field) => { -%>
+    ...(one.<%= field.name %> !== undefined && fieldRequest.<%= field.name %> === true && { <%= field.name %>: <%- presentDateTypeField(field) %> }),
+  <%_ }); -%>
+  <%_ entity.fields.filter(utils.isPresentableField).filter(utils.isEntityTypeField).forEach((field) => { -%>
+    ...(one.<%= field.name %> !== undefined && fieldRequest.<%= field.name %> !== undefined && { <%= field.name %>: <%- presentEntityTypeField(field) %> }),
+  <%_ }); -%>
+  };
+}
+  <%_ if (entity.api) { -%>
+
+function presentManyResponse<S extends <%= entity.strings.fieldRequestClass %>>(response: any, fieldRequest: S): <%= entity.api.strings.manyResponse %><S> {
+  const cursor = {
+    ...response.cursor,
+    <%_ entity.fields.filter((f) => f.strings.minVar && f.strings.maxVar && isDateTypeField(f)).forEach((field) => { -%>
+    <%= field.strings.minVar %>: new Date(response.cursor.<%= field.strings.minVar %>),
+    <%= field.strings.maxVar %>: new Date(response.cursor.<%= field.strings.maxVar %>),
+    <%_ }); -%>
+  };
+  return { cursor, <%= entity.api.strings.manyEntsVar %>: response.<%= entity.api.strings.manyEntsVar %>.map((one: any) => present(one, fieldRequest)) };
+}
+
+function presentOneResponse<S extends <%= entity.strings.fieldRequestClass %>>(response: any, fieldRequest: S): <%= entity.api.strings.oneResponse %><S> {
+  return { <%= entity.api.strings.oneEntVar %>: present(response.<%= entity.api.strings.oneEntVar %>, fieldRequest) };
+}
+    <%_ if (entity.api.booleans.hasGetMany) { -%>
+
+async function getMany<S extends <%= entity.strings.fieldRequestClass %>>(query: <%= entity.api.strings.getManyQuery %>, fieldRequest: S): Promise<<%= entity.api.strings.manyResponse %><S>> {
+  const requestBody = { query, fieldRequest };
+  const path = `<%= getApiBasePath() %>/getMany`;
+  const { data } = await axios.post(path, requestBody);
+  return presentManyResponse(data, fieldRequest);
+}
+    <%_ } -%>
+    <%_ if (entity.api.booleans.hasGetOne) { -%>
+
+async function getOne<S extends <%= entity.strings.fieldRequestClass %>>(params: <%= entity.api.strings.getOneParams %>, fieldRequest: S): Promise<<%= entity.api.strings.oneResponse %><S>> {
+  const requestBody = { params, fieldRequest };
+  const path = `<%= getApiBasePath() %>/getOne`;
+  const { data } = await axios.post(path, requestBody);
+  return presentOneResponse(data, fieldRequest);
+}
+    <%_ } -%>
+    <%_ if (entity.api.booleans.hasCreateOne) { -%>
+
+async function createOne<S extends <%= entity.strings.fieldRequestClass %>>(body: <%= entity.api.strings.createOneBody %>, fieldRequest: S): Promise<<%= entity.api.strings.oneResponse %><S>> {
+  const requestBody = { body, fieldRequest };
+  const path = `<%= getApiBasePath() %>/createOne`;
+  const { data } = await axios.post(path, requestBody);
+  return presentOneResponse(data, fieldRequest);
+}
+    <%_ } -%>
+    <%_ if (entity.api.booleans.hasUpdateOne) { -%>
+
+async function updateOne<S extends <%= entity.strings.fieldRequestClass %>>(params: <%= entity.api.strings.getOneParams %>, body: <%= entity.api.strings.updateOneBody %>, fieldRequest: S): Promise<<%= entity.api.strings.oneResponse %><S>> {
+  const requestBody = { params, body, fieldRequest };
+  const path = `<%= getApiBasePath() %>/updateOne`;
+  const { data } = await axios.post(path, requestBody);
+  return presentOneResponse(data, fieldRequest);
+}
+    <%_ } -%>
+    <%_ if (entity.api.booleans.hasDeleteOne) { -%>
+
+async function deleteOne<S extends <%= entity.strings.fieldRequestClass %>>(params: <%= entity.api.strings.getOneParams %>, fieldRequest: S): Promise<<%= entity.api.strings.oneResponse %><S>> {
+  const requestBody = { params, fieldRequest };
+  const path = `<%= getApiBasePath() %>/deleteOne`;
+  const { data } = await axios.post(path, requestBody);
+  return presentOneResponse(data, fieldRequest);
+}
+    <%_ } -%>
+  <%_ } -%>
+
+  <%_ if (entity.deprecated) { -%>
+/** @deprecated */
+  <%_ } -%>
+const <%= getAxiosName(entity) %> = {
+  <%_ if (utils.isPresentableEntity(entity)) { -%>
+    <%_ if (entity.deprecated) { -%>
+  /** @deprecated */
+    <%_ } -%>
+  present,
+  <%_ } -%>
+  <%_ if (utils.isPresentableEntity(entity) && entity.api) { -%>
+    <%_ if (entity.deprecated) { -%>
+  /** @deprecated */
+    <%_ } -%>
+  presentManyResponse,
+    <%_ if (entity.deprecated) { -%>
+  /** @deprecated */
+    <%_ } -%>
+  presentOneResponse,
+    <%_ if (entity.api.booleans.hasGetMany) { -%>
+      <%_ if (entity.deprecated) { -%>
+  /** @deprecated */
+      <%_ } -%>
+  getMany,
+    <%_ } -%>
+    <%_ if (entity.api.booleans.hasGetOne) { -%>
+      <%_ if (entity.deprecated) { -%>
+  /** @deprecated */
+      <%_ } -%>
+  getOne,
+    <%_ } -%>
+    <%_ if (entity.api.booleans.hasCreateOne) { -%>
+      <%_ if (entity.deprecated) { -%>
+  /** @deprecated */
+      <%_ } -%>
+  createOne,
+    <%_ } -%>
+    <%_ if (entity.api.booleans.hasUpdateOne) { -%>
+      <%_ if (entity.deprecated) { -%>
+  /** @deprecated */
+      <%_ } -%>
+  updateOne,
+    <%_ } -%>
+    <%_ if (entity.api.booleans.hasDeleteOne) { -%>
+      <%_ if (entity.deprecated) { -%>
+  /** @deprecated */
+      <%_ } -%>
+  deleteOne,
+    <%_ } -%>
+  <%_ } -%>
+};
+
+export default <%= getAxiosName(entity) %>;
+<% } -%>

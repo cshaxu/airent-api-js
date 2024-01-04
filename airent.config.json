@@ -1,0 +1,30 @@
+{
+  "type": "commonjs",
+  "schemaPath": "test-schemas",
+  "entityPath": "test-output/entities",
+  "augmentors": [
+    "resources/augmentor.js"
+  ],
+  "templates": [
+    {
+      "name": "resources/axios-template.ts.ejs",
+      "outputPath": "test-output/clients/generated/{kababEntityName}-api-axios.ts",
+      "skippable": false
+    },
+    {
+      "name": "resources/action-template.ts.ejs",
+      "outputPath": "{entityPath}/generated/{kababEntityName}-action.ts",
+      "skippable": false
+    },
+    {
+      "name": "resources/service-template.ts.ejs",
+      "outputPath": "{entityPath}/generated/{kababEntityName}-service.ts",
+      "skippable": false
+    }
+  ],
+  "airentApiPackage": "../../../src",
+  "axiosImport": "import axios from 'axios';",
+  "requestContextImport": "import { RequestContext } from '../../../test-resources/rc';",
+  "clientTypePath": "../../entities/generated",
+  "apiPath": "/api/data"
+}
