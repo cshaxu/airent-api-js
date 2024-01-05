@@ -85,10 +85,10 @@ export async function <%= entity.api.strings.getManyAction %><S extends <%= enti
   rc: RequestContext,
   fieldRequest: S,
 ): Promise<<%= entity.api.strings.manyResponse %><S>> {
-  const service = new <%= entity.api.strings.serviceClass %>(rc);
-  await service.beforeGetMany(query);
-  const many = await service.getMany(query);
-  await service.afterGetMany(many, query);
+  const service = new <%= entity.api.strings.serviceClass %>();
+  await service.beforeGetMany(query, rc);
+  const many = await service.getMany(query, rc);
+  await service.afterGetMany(many, query, rc);
   return await <%= `build${entity.api.strings.manyResponse}` %>(many, fieldRequest);
 }
     <%_ } -%>
@@ -102,10 +102,10 @@ export async function <%= entity.api.strings.getOneAction %><S extends <%= entit
   rc: RequestContext,
   fieldRequest: S,
 ): Promise<<%= entity.api.strings.oneResponse %><S>> {
-  const service = new <%= entity.api.strings.serviceClass %>(rc);
-  await service.beforeGetOne(params);
-  const one = await service.getOne(params);
-  await service.afterGetOne(one, params);
+  const service = new <%= entity.api.strings.serviceClass %>();
+  await service.beforeGetOne(params, rc);
+  const one = await service.getOne(params, rc);
+  await service.afterGetOne(one, params, rc);
   return await <%= `build${entity.api.strings.oneResponse}` %>(one, fieldRequest);
 }
     <%_ } -%>
@@ -119,10 +119,10 @@ export async function <%= entity.api.strings.createOneAction %><S extends <%= en
   rc: RequestContext,
   fieldRequest: S,
 ): Promise<<%= entity.api.strings.oneResponse %><S>> {
-  const service = new <%= entity.api.strings.serviceClass %>(rc);
-  await service.beforeCreateOne(body);
-  const one = await service.createOne(body);
-  await service.afterCreateOne(one, body);
+  const service = new <%= entity.api.strings.serviceClass %>();
+  await service.beforeCreateOne(body, rc);
+  const one = await service.createOne(body, rc);
+  await service.afterCreateOne(one, body, rc);
   return await <%= `build${entity.api.strings.oneResponse}` %>(one, fieldRequest);
 }
     <%_ } -%>
@@ -137,11 +137,11 @@ export async function <%= entity.api.strings.updateOneAction %><S extends <%= en
   rc: RequestContext,
   fieldRequest: S,
 ): Promise<<%= entity.api.strings.oneResponse %><S>> {
-  const service = new <%= entity.api.strings.serviceClass %>(rc);
-  const one = await service.getOne(params);
-  await service.beforeUpdateOne(one, body);
-  const updatedOne = await service.updateOne(one, body);
-  await service.afterUpdateOne(updatedOne, body);
+  const service = new <%= entity.api.strings.serviceClass %>();
+  const one = await service.getOne(params, rc);
+  await service.beforeUpdateOne(one, body, rc);
+  const updatedOne = await service.updateOne(one, body, rc);
+  await service.afterUpdateOne(updatedOne, body, rc);
   return await <%= `build${entity.api.strings.oneResponse}` %>(updatedOne, fieldRequest);
 }
     <%_ } -%>
@@ -155,11 +155,11 @@ export async function <%= entity.api.strings.deleteOneAction %><S extends <%= en
   rc: RequestContext,
   fieldRequest: S
 ): Promise<<%= entity.api.strings.oneResponse %><S>> {
-  const service = new <%= entity.api.strings.serviceClass %>(rc);
-  const one = await service.getOne(params);
-  await service.beforeDeleteOne(one);
-  const deletedOne = await service.deleteOne(one);
-  await service.afterDeleteOne(deletedOne);
+  const service = new <%= entity.api.strings.serviceClass %>();
+  const one = await service.getOne(params, rc);
+  await service.beforeDeleteOne(one, rc);
+  const deletedOne = await service.deleteOne(one, rc);
+  await service.afterDeleteOne(deletedOne, rc);
   return await <%= `build${entity.api.strings.oneResponse}` %>(deletedOne, fieldRequest);
 }
     <%_ } -%>

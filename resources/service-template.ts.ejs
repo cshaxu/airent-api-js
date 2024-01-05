@@ -32,52 +32,47 @@ import {
 /** @deprecated */
   <%_ } -%>
 export abstract class <%= `${entity.api.strings.serviceClass}Base` %> {
-  protected rc: RequestContext;
-
-  public constructor(rc: RequestContext) {
-    this.rc = rc;
-  }
   <%_ if (entity.api.booleans.hasGetMany) { -%>
 
-  public async beforeGetMany(query: <%= entity.api.strings.getManyQuery %>): Promise<void> {}
+  public async beforeGetMany(query: <%= entity.api.strings.getManyQuery %>, rc: RequestContext): Promise<void> {}
 
-  public async afterGetMany(many: <%= entity.strings.entityClass %>[], query: <%= entity.api.strings.getManyQuery %>): Promise<void> {}
+  public async afterGetMany(many: <%= entity.strings.entityClass %>[], query: <%= entity.api.strings.getManyQuery %>, rc: RequestContext): Promise<void> {}
 
-  public abstract getMany(query: <%= entity.api.strings.getManyQuery %>): Promise<<%= entity.strings.entityClass %>[]>;
+  public abstract getMany(query: <%= entity.api.strings.getManyQuery %>, rc: RequestContext): Promise<<%= entity.strings.entityClass %>[]>;
   <%_ } -%>
   <%_ if (entity.api.booleans.hasGetOne) { -%>
 
-  public async beforeGetOne(params: <%= entity.api.strings.getOneParams %>): Promise<void> {}
+  public async beforeGetOne(params: <%= entity.api.strings.getOneParams %>, rc: RequestContext): Promise<void> {}
 
-  public async afterGetOne(one: <%= entity.strings.entityClass %>, params: <%= entity.api.strings.getOneParams %>): Promise<void> {}
+  public async afterGetOne(one: <%= entity.strings.entityClass %>, params: <%= entity.api.strings.getOneParams %>, rc: RequestContext): Promise<void> {}
   <%_ } -%>
   <%_ if (entity.api.booleans.hasGetOneRequest) { -%>
 
-  public abstract getOne(params: <%= entity.api.strings.getOneParams %>): Promise<<%= entity.strings.entityClass %>>;
+  public abstract getOne(params: <%= entity.api.strings.getOneParams %>, rc: RequestContext): Promise<<%= entity.strings.entityClass %>>;
   <%_ } -%>
   <%_ if (entity.api.booleans.hasCreateOne) { -%>
 
-  public async beforeCreateOne(body: <%= entity.api.strings.createOneBody %>): Promise<void> {}
+  public async beforeCreateOne(body: <%= entity.api.strings.createOneBody %>, rc: RequestContext): Promise<void> {}
 
-  public async afterCreateOne(createdOne: <%= entity.strings.entityClass %>, body: <%= entity.api.strings.createOneBody %>): Promise<void> {}
+  public async afterCreateOne(createdOne: <%= entity.strings.entityClass %>, body: <%= entity.api.strings.createOneBody %>, rc: RequestContext): Promise<void> {}
 
-  public abstract createOne(body: <%= entity.api.strings.createOneBody %>): Promise<<%= entity.strings.entityClass %>>;
+  public abstract createOne(body: <%= entity.api.strings.createOneBody %>, rc: RequestContext): Promise<<%= entity.strings.entityClass %>>;
   <%_ } -%>
   <%_ if (entity.api.booleans.hasUpdateOne) { -%>
 
-  public async beforeUpdateOne(one: <%= entity.strings.entityClass %>, body: <%= entity.api.strings.updateOneBody %>): Promise<void> {}
+  public async beforeUpdateOne(one: <%= entity.strings.entityClass %>, body: <%= entity.api.strings.updateOneBody %>, rc: RequestContext): Promise<void> {}
 
-  public async afterUpdateOne(updatedOne: <%= entity.strings.entityClass %>, body: <%= entity.api.strings.updateOneBody %>): Promise<void> {}
+  public async afterUpdateOne(updatedOne: <%= entity.strings.entityClass %>, body: <%= entity.api.strings.updateOneBody %>, rc: RequestContext): Promise<void> {}
 
-  public abstract updateOne(one: <%= entity.strings.entityClass %>, body: <%= entity.api.strings.updateOneBody %>): Promise<<%= entity.strings.entityClass %>>;
+  public abstract updateOne(one: <%= entity.strings.entityClass %>, body: <%= entity.api.strings.updateOneBody %>, rc: RequestContext): Promise<<%= entity.strings.entityClass %>>;
   <%_ } -%>
   <%_ if (entity.api.booleans.hasDeleteOne) { -%>
 
-  public async beforeDeleteOne(one: <%= entity.strings.entityClass %>): Promise<void> {}
+  public async beforeDeleteOne(one: <%= entity.strings.entityClass %>, rc: RequestContext): Promise<void> {}
 
-  public async afterDeleteOne(deletedOne: <%= entity.strings.entityClass %>): Promise<void> {}
+  public async afterDeleteOne(deletedOne: <%= entity.strings.entityClass %>, rc: RequestContext): Promise<void> {}
 
-  public abstract deleteOne(one: <%= entity.strings.entityClass %>): Promise<<%= entity.strings.entityClass %>>;
+  public abstract deleteOne(one: <%= entity.strings.entityClass %>, rc: RequestContext): Promise<<%= entity.strings.entityClass %>>;
   <%_ } -%>
 }
 <% } -%>

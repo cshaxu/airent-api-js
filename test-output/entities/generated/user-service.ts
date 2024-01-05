@@ -11,39 +11,34 @@ import {
 } from '../../../test-resources/user-type';
 
 export abstract class UserServiceBase {
-  protected rc: RequestContext;
 
-  public constructor(rc: RequestContext) {
-    this.rc = rc;
-  }
+  public async beforeGetMany(query: GetManyUsersQuery, rc: RequestContext): Promise<void> {}
 
-  public async beforeGetMany(query: GetManyUsersQuery): Promise<void> {}
+  public async afterGetMany(many: UserEntity[], query: GetManyUsersQuery, rc: RequestContext): Promise<void> {}
 
-  public async afterGetMany(many: UserEntity[], query: GetManyUsersQuery): Promise<void> {}
+  public abstract getMany(query: GetManyUsersQuery, rc: RequestContext): Promise<UserEntity[]>;
 
-  public abstract getMany(query: GetManyUsersQuery): Promise<UserEntity[]>;
+  public async beforeGetOne(params: GetOneUserParams, rc: RequestContext): Promise<void> {}
 
-  public async beforeGetOne(params: GetOneUserParams): Promise<void> {}
+  public async afterGetOne(one: UserEntity, params: GetOneUserParams, rc: RequestContext): Promise<void> {}
 
-  public async afterGetOne(one: UserEntity, params: GetOneUserParams): Promise<void> {}
+  public abstract getOne(params: GetOneUserParams, rc: RequestContext): Promise<UserEntity>;
 
-  public abstract getOne(params: GetOneUserParams): Promise<UserEntity>;
+  public async beforeCreateOne(body: CreateOneUserBody, rc: RequestContext): Promise<void> {}
 
-  public async beforeCreateOne(body: CreateOneUserBody): Promise<void> {}
+  public async afterCreateOne(createdOne: UserEntity, body: CreateOneUserBody, rc: RequestContext): Promise<void> {}
 
-  public async afterCreateOne(createdOne: UserEntity, body: CreateOneUserBody): Promise<void> {}
+  public abstract createOne(body: CreateOneUserBody, rc: RequestContext): Promise<UserEntity>;
 
-  public abstract createOne(body: CreateOneUserBody): Promise<UserEntity>;
+  public async beforeUpdateOne(one: UserEntity, body: UpdateOneUserBody, rc: RequestContext): Promise<void> {}
 
-  public async beforeUpdateOne(one: UserEntity, body: UpdateOneUserBody): Promise<void> {}
+  public async afterUpdateOne(updatedOne: UserEntity, body: UpdateOneUserBody, rc: RequestContext): Promise<void> {}
 
-  public async afterUpdateOne(updatedOne: UserEntity, body: UpdateOneUserBody): Promise<void> {}
+  public abstract updateOne(one: UserEntity, body: UpdateOneUserBody, rc: RequestContext): Promise<UserEntity>;
 
-  public abstract updateOne(one: UserEntity, body: UpdateOneUserBody): Promise<UserEntity>;
+  public async beforeDeleteOne(one: UserEntity, rc: RequestContext): Promise<void> {}
 
-  public async beforeDeleteOne(one: UserEntity): Promise<void> {}
+  public async afterDeleteOne(deletedOne: UserEntity, rc: RequestContext): Promise<void> {}
 
-  public async afterDeleteOne(deletedOne: UserEntity): Promise<void> {}
-
-  public abstract deleteOne(one: UserEntity): Promise<UserEntity>;
+  public abstract deleteOne(one: UserEntity, rc: RequestContext): Promise<UserEntity>;
 }
