@@ -1,4 +1,4 @@
-<% if (utils.isPresentableEntity(entity) && entity.api) { -%>
+<% if (utils.isPresentableEntity(entity) && entity.api.methods) { -%>
   <%_ if (!entity.types.some((t) => t.name === 'RequestContext')) { -%>
 <%- config.requestContextImport %>
   <%_ } -%>
@@ -11,22 +11,20 @@ import {
   <%= type.name %>,
   <%_ }); -%>
 } from './<%= entity.strings.typePackage %>';
-  <%_ if (entity.api.booleans.hasGetMany || entity.api.booleans.hasCreateOne || entity.api.booleans.hasUpdateOne) { -%>
 import {
-    <%_ if (entity.api.booleans.hasGetMany) { -%>
+  <%_ if (entity.api.booleans.hasGetMany) { -%>
   <%= entity.api.strings.getManyQuery %>,
-    <%_ } -%>
-    <%_ if (entity.api.booleans.hasGetOneRequest) { -%>
-  <%= entity.api.strings.getOneParams %>,
-    <%_ } -%>
-    <%_ if (entity.api.booleans.hasCreateOne) { -%>
-  <%= entity.api.strings.createOneBody %>,
-    <%_ } -%>
-    <%_ if (entity.api.booleans.hasUpdateOne) { -%>
-  <%= entity.api.strings.updateOneBody %>,
-    <%_ } -%>
-} from '<%= entity.api.request.import %>';
   <%_ } -%>
+  <%_ if (entity.api.booleans.hasGetOneRequest) { -%>
+  <%= entity.api.strings.getOneParams %>,
+  <%_ } -%>
+  <%_ if (entity.api.booleans.hasCreateOne) { -%>
+  <%= entity.api.strings.createOneBody %>,
+  <%_ } -%>
+  <%_ if (entity.api.booleans.hasUpdateOne) { -%>
+  <%= entity.api.strings.updateOneBody %>,
+  <%_ } -%>
+} from '<%= entity.api.request.import %>';
 
   <%_ if (entity.deprecated) { -%>
 /** @deprecated */

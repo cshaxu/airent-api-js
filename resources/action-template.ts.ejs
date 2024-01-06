@@ -1,4 +1,4 @@
-<% if (utils.isPresentableEntity(entity) && entity.api) { -%>
+<% if (utils.isPresentableEntity(entity)) { -%>
 import { getMax, getMin } from '<%= config.airentApiPackage ?? 'airent-api' %>';
 import {
   <%= entity.strings.fieldRequestClass %>,
@@ -13,27 +13,27 @@ import { <%= type.strings.externalClass %> } from '<%= type.strings.externalPack
   <%_ entity.types.filter(utils.isCustomType).forEach((type) => { -%>
 import { <%= type.name %> } from './<%= entity.strings.typePackage %>';
   <%_ }); -%>
-  <%_ if (entity.api) { -%>
-    <%_ if (!entity.types.some((t) => t.name === 'RequestContext')) { -%>
+  <%_ if (!entity.types.some((t) => t.name === 'RequestContext')) { -%>
 <%- config.requestContextImport %>
-    <%_ } -%>
+  <%_ } -%>
+  <%_ if (entity.api.service?.import) { -%>
 import { <%= entity.api.strings.serviceClass %> } from '<%= entity.api.service.import %>';
-    <%_ if (entity.api.booleans.hasGetMany || entity.api.booleans.hasCreateOne || entity.api.booleans.hasUpdateOne) { -%>
+  <%_ } -%>
+  <%_ if (entity.api.methods) { -%>
 import {
-      <%_ if (entity.api.booleans.hasGetMany) { -%>
+    <%_ if (entity.api.booleans.hasGetMany) { -%>
   <%= entity.api.strings.getManyQuery %>,
-      <%_ } -%>
-      <%_ if (entity.api.booleans.hasGetOneRequest) { -%>
-  <%= entity.api.strings.getOneParams %>,
-      <%_ } -%>
-      <%_ if (entity.api.booleans.hasCreateOne) { -%>
-  <%= entity.api.strings.createOneBody %>,
-      <%_ } -%>
-      <%_ if (entity.api.booleans.hasUpdateOne) { -%>
-  <%= entity.api.strings.updateOneBody %>,
-      <%_ } -%>
-} from '<%= entity.api.request.import %>';
     <%_ } -%>
+    <%_ if (entity.api.booleans.hasGetOneRequest) { -%>
+  <%= entity.api.strings.getOneParams %>,
+    <%_ } -%>
+    <%_ if (entity.api.booleans.hasCreateOne) { -%>
+  <%= entity.api.strings.createOneBody %>,
+    <%_ } -%>
+    <%_ if (entity.api.booleans.hasUpdateOne) { -%>
+  <%= entity.api.strings.updateOneBody %>,
+    <%_ } -%>
+} from '<%= entity.api.request.import %>';
   <%_ } -%>
 
 // api response builders
@@ -70,16 +70,15 @@ export async function <%= `build${entity.api.strings.oneResponse}` %><S extends 
   const <%= entity.api.strings.oneEntVar %> = await one.present(fieldRequest);
   return { <%= entity.api.strings.oneEntVar %> };
 }
-  <%_ if (entity.api) { -%>
-    <%_ if (entity.api.methods) { -%>
+  <%_ if (entity.api.methods) { -%>
 
 // api executors
-    <%_ } -%>
-    <%_ if (entity.api.booleans.hasGetMany) { -%>
+  <%_ } -%>
+  <%_ if (entity.api.booleans.hasGetMany) { -%>
 
-      <%_ if (entity.deprecated) { -%>
+    <%_ if (entity.deprecated) { -%>
 /** @deprecated */
-      <%_ } -%>
+    <%_ } -%>
 export async function <%= entity.api.strings.getManyAction %><S extends <%= entity.strings.fieldRequestClass %>>(
   query: <%= entity.api.strings.getManyQuery %>,
   rc: RequestContext,
@@ -91,12 +90,12 @@ export async function <%= entity.api.strings.getManyAction %><S extends <%= enti
   await service.afterGetMany(many, query, rc);
   return await <%= `build${entity.api.strings.manyResponse}` %>(many, fieldRequest);
 }
-    <%_ } -%>
-    <%_ if (entity.api.booleans.hasGetOne) { -%>
+  <%_ } -%>
+  <%_ if (entity.api.booleans.hasGetOne) { -%>
 
-      <%_ if (entity.deprecated) { -%>
+    <%_ if (entity.deprecated) { -%>
 /** @deprecated */
-      <%_ } -%>
+    <%_ } -%>
 export async function <%= entity.api.strings.getOneAction %><S extends <%= entity.strings.fieldRequestClass %>>(
   params: <%= entity.api.strings.getOneParams %>,
   rc: RequestContext,
@@ -108,12 +107,12 @@ export async function <%= entity.api.strings.getOneAction %><S extends <%= entit
   await service.afterGetOne(one, params, rc);
   return await <%= `build${entity.api.strings.oneResponse}` %>(one, fieldRequest);
 }
-    <%_ } -%>
-    <%_ if (entity.api.booleans.hasCreateOne) { -%>
-      
-      <%_ if (entity.deprecated) { -%>
+  <%_ } -%>
+  <%_ if (entity.api.booleans.hasCreateOne) { -%>
+
+    <%_ if (entity.deprecated) { -%>
 /** @deprecated */
-      <%_ } -%>
+    <%_ } -%>
 export async function <%= entity.api.strings.createOneAction %><S extends <%= entity.strings.fieldRequestClass %>>(
   body: <%= entity.api.strings.createOneBody %>,
   rc: RequestContext,
@@ -125,12 +124,12 @@ export async function <%= entity.api.strings.createOneAction %><S extends <%= en
   await service.afterCreateOne(one, body, rc);
   return await <%= `build${entity.api.strings.oneResponse}` %>(one, fieldRequest);
 }
-    <%_ } -%>
-    <%_ if (entity.api.booleans.hasUpdateOne) { -%>
+  <%_ } -%>
+  <%_ if (entity.api.booleans.hasUpdateOne) { -%>
 
-      <%_ if (entity.deprecated) { -%>
+    <%_ if (entity.deprecated) { -%>
 /** @deprecated */
-      <%_ } -%>
+    <%_ } -%>
 export async function <%= entity.api.strings.updateOneAction %><S extends <%= entity.strings.fieldRequestClass %>>(
   params: <%= entity.api.strings.getOneParams %>,
   body: <%= entity.api.strings.updateOneBody %>,
@@ -144,16 +143,16 @@ export async function <%= entity.api.strings.updateOneAction %><S extends <%= en
   await service.afterUpdateOne(updatedOne, body, rc);
   return await <%= `build${entity.api.strings.oneResponse}` %>(updatedOne, fieldRequest);
 }
-    <%_ } -%>
-    <%_ if (entity.api.booleans.hasDeleteOne) { -%>
+  <%_ } -%>
+  <%_ if (entity.api.booleans.hasDeleteOne) { -%>
 
-      <%_ if (entity.deprecated) { -%>
+    <%_ if (entity.deprecated) { -%>
 /** @deprecated */
-      <%_ } -%>
+    <%_ } -%>
 export async function <%= entity.api.strings.deleteOneAction %><S extends <%= entity.strings.fieldRequestClass %>>(
   params: <%= entity.api.strings.getOneParams %>,
   rc: RequestContext,
-  fieldRequest: S
+  fieldRequest: S,
 ): Promise<<%= entity.api.strings.oneResponse %><S>> {
   const service = new <%= entity.api.strings.serviceClass %>();
   const one = await service.getOne(params, rc);
@@ -162,6 +161,5 @@ export async function <%= entity.api.strings.deleteOneAction %><S extends <%= en
   await service.afterDeleteOne(deletedOne, rc);
   return await <%= `build${entity.api.strings.oneResponse}` %>(deletedOne, fieldRequest);
 }
-    <%_ } -%>
   <%_ } -%>
 <% } -%>

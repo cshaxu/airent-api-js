@@ -67,7 +67,7 @@ export async function getOneUser<S extends UserFieldRequest>(
   await service.afterGetOne(one, params, rc);
   return await buildOneUserResponse(one, fieldRequest);
 }
-      
+
 export async function createOneUser<S extends UserFieldRequest>(
   body: CreateOneUserBody,
   rc: RequestContext,
@@ -97,7 +97,7 @@ export async function updateOneUser<S extends UserFieldRequest>(
 export async function deleteOneUser<S extends UserFieldRequest>(
   params: GetOneUserParams,
   rc: RequestContext,
-  fieldRequest: S
+  fieldRequest: S,
 ): Promise<OneUserResponse<S>> {
   const service = new UserService();
   const one = await service.getOne(params, rc);

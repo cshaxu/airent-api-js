@@ -23,9 +23,8 @@ function hasApiMethod(entity, methodName) {
 function addStrings(entity, isVerbose) {
   const pluralEntName = utils.toTitleCase(utils.pluralize(entity.name));
   const singularEntName = utils.toTitleCase(entity.name);
-  if (!entity.api) {
-    return;
-  } else if (isVerbose) {
+  entity.api = entity.api ?? {};
+  if (isVerbose) {
     console.log(
       `[AIRENT-API/INFO] augmenting ${entity.name} - add strings ...`
     );
@@ -69,7 +68,7 @@ function addStrings(entity, isVerbose) {
 
 function buildBeforeType(entity) /* Code[] */ {
   const lines = [];
-  if (!utils.isPresentableEntity(entity) || !entity.api) {
+  if (!utils.isPresentableEntity(entity)) {
     return lines;
   }
   lines.push("import { Select } from 'airent';");
@@ -78,7 +77,7 @@ function buildBeforeType(entity) /* Code[] */ {
 
 function buildAfterType(entity) /* Code[] */ {
   const lines = [];
-  if (!utils.isPresentableEntity(entity) || !entity.api) {
+  if (!utils.isPresentableEntity(entity)) {
     return lines;
   }
   lines.push("");
