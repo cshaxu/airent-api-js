@@ -1,6 +1,6 @@
 import { UserServiceBase } from "../test-output/entities/generated/user-service";
 import { UserEntity } from "../test-output/entities/user";
-import { RequestContext } from "./rc";
+import { RequestContext } from "./framework";
 import {
   CreateOneUserBody,
   GetManyUsersQuery,

@@ -1,0 +1,96 @@
+<% if (entity.api.methods) { -%>
+import {
+  <%_ if (entity.api.booleans.hasGetMany) { -%>
+  handleGetMany,
+  <%_ } -%>
+  <%_ if (entity.api.booleans.hasGetOne) { -%>
+  handleGetOne,
+  <%_ } -%>
+  <%_ if (entity.api.booleans.hasCreateOne) { -%>
+  handleCreateOne,
+  <%_ } -%>
+  <%_ if (entity.api.booleans.hasUpdateOne) { -%>
+  handleUpdateOne,
+  <%_ } -%>
+  <%_ if (entity.api.booleans.hasDeleteOne) { -%>
+  handleDeleteOne,
+  <%_ } -%>
+} from '<%= config.airentApiPackage ?? 'airent-api' %>';
+import * as <%= entity.api.strings.actionClass %> from './<%= utils.toKababCase(entity.name) %>-action<%= utils.getModuleSuffix(config) %>';
+import {
+  <%_ if (entity.api.booleans.hasGetMany) { -%>
+<%= entity.api.strings.getManyQuery %>,
+  <%_ } -%>
+  <%_ if (entity.api.booleans.hasGetOneRequest) { -%>
+<%= entity.api.strings.getOneParams %>,
+  <%_ } -%>
+  <%_ if (entity.api.booleans.hasCreateOne) { -%>
+<%= entity.api.strings.createOneBody %>,
+  <%_ } -%>
+  <%_ if (entity.api.booleans.hasUpdateOne) { -%>
+<%= entity.api.strings.updateOneBody %>,
+  <%_ } -%>
+} from '<%= entity.api.request.import %>';
+<%- config.authenticatorImport %>
+  <%_ if (entity.api.booleans.hasGetMany) { -%>
+
+    <%_ if (entity.deprecated) { -%>
+/** @deprecated */
+    <%_ } -%>
+export const <%= entity.api.strings.getManyHandler %> = handleGetMany({
+  queryZod: <%= entity.api.strings.getManyQuery %>,
+  apiExecutor: <%= entity.api.strings.actionClass %>.<%= entity.api.strings.getManyAction %>,
+  authenticator,
+  options: <%= entity.api.methods.getMany ?? '{}' %>,
+});
+  <%_ } -%>
+  <%_ if (entity.api.booleans.hasGetOne) { -%>
+
+    <%_ if (entity.deprecated) { -%>
+/** @deprecated */
+    <%_ } -%>
+export const <%= entity.api.strings.getOneHandler %> = handleGetOne({
+  paramsZod: <%= entity.api.strings.getOneParams %>,
+  apiExecutor: <%= entity.api.strings.actionClass %>.<%= entity.api.strings.getOneAction %>,
+  authenticator,
+  options: <%= entity.api.methods.getOne ?? '{}' %>,
+});
+  <%_ } -%>
+  <%_ if (entity.api.booleans.hasCreateOne) { -%>
+
+    <%_ if (entity.deprecated) { -%>
+/** @deprecated */
+    <%_ } -%>
+export const <%= entity.api.strings.createOneHandler %> = handleCreateOne({
+  bodyZod: <%= entity.api.strings.createOneBody %>,
+  apiExecutor: <%= entity.api.strings.actionClass %>.<%= entity.api.strings.createOneAction %>,
+  authenticator,
+  options: <%= entity.api.methods.createOne ?? '{}' %>,
+});
+  <%_ } -%>
+  <%_ if (entity.api.booleans.hasUpdateOne) { -%>
+
+    <%_ if (entity.deprecated) { -%>
+/** @deprecated */
+    <%_ } -%>
+export const <%= entity.api.strings.updateOneHandler %> = handleUpdateOne({
+  paramsZod: <%= entity.api.strings.getOneParams %>,
+  bodyZod: <%= entity.api.strings.updateOneBody %>,
+  apiExecutor: <%= entity.api.strings.actionClass %>.<%= entity.api.strings.updateOneAction %>,
+  authenticator,
+  options: <%= entity.api.methods.updateOne ?? '{}' %>,
+});
+  <%_ } -%>
+  <%_ if (entity.api.booleans.hasDeleteOne) { -%>
+
+    <%_ if (entity.deprecated) { -%>
+/** @deprecated */
+    <%_ } -%>
+export const <%= entity.api.strings.deleteOneHandler %> = handleDeleteOne({
+  paramsZod: <%= entity.api.strings.getOneParams %>,
+  apiExecutor: <%= entity.api.strings.actionClass %>.<%= entity.api.strings.deleteOneAction %>,
+  authenticator,
+  options: <%= entity.api.methods.deleteOne ?? '{}' %>,
+});
+  <%_ } -%>
+<% } -%>

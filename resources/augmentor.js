@@ -15,7 +15,7 @@ function isCursorField(field) {
 }
 
 function hasApiMethod(entity, methodName) {
-  return !!entity.api?.methods?.includes(methodName);
+  return Object.keys(entity.api?.methods ?? {}).includes(methodName);
 }
 
 // augment entity - add api strings
@@ -32,6 +32,7 @@ function addStrings(entity, isVerbose) {
   entity.api.strings = {
     manyEntsVar: utils.toCamelCase(utils.pluralize(entity.name)),
     oneEntVar: utils.toCamelCase(entity.name),
+    handlersClass: `${singularEntName}Handlers`,
     actionClass: `${singularEntName}Action`,
     serviceClass: `${singularEntName}Service`,
     manyCursor: `Many${pluralEntName}Cursor`,
@@ -46,6 +47,11 @@ function addStrings(entity, isVerbose) {
     createOneAction: `createOne${singularEntName}`,
     updateOneAction: `updateOne${singularEntName}`,
     deleteOneAction: `deleteOne${singularEntName}`,
+    getManyHandler: `handleGetMany${pluralEntName}`,
+    getOneHandler: `handleGetOne${singularEntName}`,
+    createOneHandler: `handleCreateOne${singularEntName}`,
+    updateOneHandler: `handleUpdateOne${singularEntName}`,
+    deleteOneHandler: `handleDeleteOne${singularEntName}`,
   };
   const hasGetOne = hasApiMethod(entity, "getOne");
   const hasUpdateOne = hasApiMethod(entity, "updateOne");

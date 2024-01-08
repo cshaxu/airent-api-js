@@ -7,11 +7,11 @@ api:
   cursors:
     - createdAt
   methods:
-    - getMany
-    - getOne
-    - createOne
-    - updateOne
-    - deleteOne
+    getMany: "{ requireAdmin: true }"
+    getOne: "{ requireLogin: false }"
+    createOne: "{ requireLogin: false }"
+    updateOne: "{ requireLogin: true }"
+    deleteOne: "{ requireLogin: true }"
 model: UserModel
 types:
   - name: UserModel

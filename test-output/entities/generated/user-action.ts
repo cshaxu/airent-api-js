@@ -7,7 +7,7 @@ import {
 } from './user-type';
 import { UserEntity } from '../user';
 import { UserModel } from './user-type';
-import { RequestContext } from '../../../test-resources/rc';
+import { RequestContext } from '../../../test-resources/framework';
 import { UserService } from '../../../test-resources/user-service';
 import {
   GetManyUsersQuery,

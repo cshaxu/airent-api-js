@@ -12,6 +12,11 @@
       "skippable": false
     },
     {
+      "name": "resources/handlers-template.ts.ejs",
+      "outputPath": "{entityPath}/generated/{kababEntityName}-handlers.ts",
+      "skippable": false
+    },
+    {
       "name": "resources/action-template.ts.ejs",
       "outputPath": "{entityPath}/generated/{kababEntityName}-action.ts",
       "skippable": false
@@ -24,7 +29,8 @@
   ],
   "airentApiPackage": "../../../src",
   "axiosImport": "import axios from 'axios';",
-  "requestContextImport": "import { RequestContext } from '../../../test-resources/rc';",
+  "requestContextImport": "import { RequestContext } from '../../../test-resources/framework';",
+  "authenticatorImport": "import { authenticator } from '../../../test-resources/framework';",
   "clientTypePath": "../../entities/generated",
   "apiPath": "/api/data"
 }

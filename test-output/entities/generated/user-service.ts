@@ -1,4 +1,4 @@
-import { RequestContext } from '../../../test-resources/rc';
+import { RequestContext } from '../../../test-resources/framework';
 import { UserEntity } from '../user';
 import {
   UserModel,

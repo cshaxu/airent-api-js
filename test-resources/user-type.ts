@@ -1,7 +1,19 @@
-export type GetManyUsersQuery = { ids: string[]; createdAtBefore: Date };
+import * as z from "zod";
 
-export type GetOneUserParams = { id: string };
+export const GetManyUsersQuery = z.object({
+  ids: z.string().array(),
+  createdAtBefore: z.date(),
+});
+export type GetManyUsersQuery = z.infer<typeof GetManyUsersQuery>;
 
-export type CreateOneUserBody = { name: string; email: string };
+export const GetOneUserParams = z.object({ id: z.string() });
+export type GetOneUserParams = z.infer<typeof GetOneUserParams>;
 
-export type UpdateOneUserBody = { name: string; email: string };
+export const CreateOneUserBody = z.object({
+  name: z.string(),
+  email: z.string().email(),
+});
+export type CreateOneUserBody = z.infer<typeof CreateOneUserBody>;
+
+export const UpdateOneUserBody = z.object({ name: z.string() });
+export type UpdateOneUserBody = z.infer<typeof UpdateOneUserBody>;
