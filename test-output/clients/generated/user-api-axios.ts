@@ -35,35 +35,35 @@ function presentOneResponse<S extends UserFieldRequest>(response: any, fieldRequ
 
 async function getMany<S extends UserFieldRequest>(query: GetManyUsersQuery, fieldRequest: S): Promise<ManyUsersResponse<S>> {
   const requestBody = { query, fieldRequest };
-  const path = `/api/data/users/get-many`;
+  const path = '/api/data/get-many-users';
   const { data } = await axios.post(path, requestBody);
   return presentManyResponse(data, fieldRequest);
 }
 
 async function getOne<S extends UserFieldRequest>(params: GetOneUserParams, fieldRequest: S): Promise<OneUserResponse<S>> {
   const requestBody = { params, fieldRequest };
-  const path = `/api/data/users/get-one`;
+  const path = '/api/data/get-one-user';
   const { data } = await axios.post(path, requestBody);
   return presentOneResponse(data, fieldRequest);
 }
 
 async function createOne<S extends UserFieldRequest>(body: CreateOneUserBody, fieldRequest: S): Promise<OneUserResponse<S>> {
   const requestBody = { body, fieldRequest };
-  const path = `/api/data/users/create-one`;
+  const path = '/api/data/create-one-user';
   const { data } = await axios.post(path, requestBody);
   return presentOneResponse(data, fieldRequest);
 }
 
 async function updateOne<S extends UserFieldRequest>(params: GetOneUserParams, body: UpdateOneUserBody, fieldRequest: S): Promise<OneUserResponse<S>> {
   const requestBody = { params, body, fieldRequest };
-  const path = `/api/data/users/update-one`;
+  const path = '/api/data/update-one-user';
   const { data } = await axios.post(path, requestBody);
   return presentOneResponse(data, fieldRequest);
 }
 
 async function deleteOne<S extends UserFieldRequest>(params: GetOneUserParams, fieldRequest: S): Promise<OneUserResponse<S>> {
   const requestBody = { params, fieldRequest };
-  const path = `/api/data/users/delete-one`;
+  const path = '/api/data/delete-one-user';
   const { data } = await axios.post(path, requestBody);
   return presentOneResponse(data, fieldRequest);
 }
