@@ -1,8 +1,8 @@
 export type RequestContext = {};
 
 export async function authenticator(
-  headers: Headers,
-  options?: {}
+  _headers: Headers,
+  _options?: {}
 ): Promise<RequestContext> {
   return {};
 }

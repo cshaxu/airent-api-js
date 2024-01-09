@@ -18,10 +18,10 @@ function getMax<T>(array: T[]): T | null {
   );
 }
 
-type Authenticator<DISPATCHER_OPTIONS> = (
+type Authenticator<OPTIONS, REQUEST_CONTEXT> = (
   headers: Headers,
-  options?: DISPATCHER_OPTIONS
-) => Promise<any>;
+  options?: OPTIONS
+) => Promise<REQUEST_CONTEXT>;
 
 // api executor types
 
@@ -53,40 +53,40 @@ type UpdateOneApiExecutor<PARAMS, BODY, FIELD_REQUEST> = (
 // rpc api handler config types
 
 type GetManyApiHandlerConfig<
-  DISPATCHER_OPTIONS,
+  OPTIONS,
   QUERY_ZOD extends z.AnyZodObject,
   FIELD_REQUEST
 > = {
   queryZod: QUERY_ZOD;
-  authenticator: Authenticator<DISPATCHER_OPTIONS>;
+  authenticator: Authenticator<OPTIONS, any>;
   apiExecutor: GetManyApiExecutor<z.infer<QUERY_ZOD>, FIELD_REQUEST>;
-  options?: DISPATCHER_OPTIONS;
+  options?: OPTIONS;
 };
 
 type GetOneApiHandlerConfig<
-  DISPATCHER_OPTIONS,
+  OPTIONS,
   PARAMS_ZOD extends z.AnyZodObject,
   FIELD_REQUEST
 > = {
   paramsZod: PARAMS_ZOD;
   apiExecutor: GetOneApiExecutor<z.infer<PARAMS_ZOD>, FIELD_REQUEST>;
-  authenticator: Authenticator<DISPATCHER_OPTIONS>;
-  options?: DISPATCHER_OPTIONS;
+  authenticator: Authenticator<OPTIONS, any>;
+  options?: OPTIONS;
 };
 
 type CreateOneApiHandlerConfig<
-  DISPATCHER_OPTIONS,
+  OPTIONS,
   BODY_ZOD extends z.AnyZodObject,
   FIELD_REQUEST
 > = {
   bodyZod: BODY_ZOD;
   apiExecutor: CreateOneApiExecutor<z.infer<BODY_ZOD>, FIELD_REQUEST>;
-  authenticator: Authenticator<DISPATCHER_OPTIONS>;
-  options?: DISPATCHER_OPTIONS;
+  authenticator: Authenticator<OPTIONS, any>;
+  options?: OPTIONS;
 };
 
 type UpdateOneApiHandlerConfig<
-  DISPATCHER_OPTIONS,
+  OPTIONS,
   PARAMS_ZOD extends z.AnyZodObject,
   BODY,
   FIELD_REQUEST
@@ -94,18 +94,18 @@ type UpdateOneApiHandlerConfig<
   paramsZod: PARAMS_ZOD;
   bodyZod: z.AnyZodObject;
   apiExecutor: UpdateOneApiExecutor<z.infer<PARAMS_ZOD>, BODY, FIELD_REQUEST>;
-  authenticator: Authenticator<DISPATCHER_OPTIONS>;
-  options?: DISPATCHER_OPTIONS;
+  authenticator: Authenticator<OPTIONS, any>;
+  options?: OPTIONS;
 };
 
 // api handlers
 
 function handleGetMany<
-  DISPATCHER_OPTIONS,
+  OPTIONS,
   QUERY_ZOD extends z.AnyZodObject,
   FIELD_REQUEST
 >(
-  config: GetManyApiHandlerConfig<DISPATCHER_OPTIONS, QUERY_ZOD, FIELD_REQUEST>
+  config: GetManyApiHandlerConfig<OPTIONS, QUERY_ZOD, FIELD_REQUEST>
 ): (request: Request) => Promise<Response> {
   const validator = async (request: Request) => {
     const { query: queryRaw, fieldRequest } = await request.json();
@@ -118,24 +118,22 @@ function handleGetMany<
     parsed: { query: z.infer<QUERY_ZOD>; fieldRequest: FIELD_REQUEST },
     rc: any
   ) => config.apiExecutor(parsed.query, rc, parsed.fieldRequest);
-  return (request: Request) =>
-    dispatch(
-      config.authenticator,
-      validator,
-      executor,
-      request,
-      config.options
-    );
+  return handle({
+    authenticator: config.authenticator,
+    validator,
+    executor,
+    options: config.options,
+  });
 }
 
 const handleSearch = handleGetMany;
 
 function handleGetOne<
-  DISPATCHER_OPTIONS,
+  OPTIONS,
   PARAMS_ZOD extends z.AnyZodObject,
   FIELD_REQUEST
 >(
-  config: GetOneApiHandlerConfig<DISPATCHER_OPTIONS, PARAMS_ZOD, FIELD_REQUEST>
+  config: GetOneApiHandlerConfig<OPTIONS, PARAMS_ZOD, FIELD_REQUEST>
 ): (request: Request) => Promise<Response> {
   const validator = async (request: Request) => {
     const { params: paramsRaw, fieldRequest } = await request.json();
@@ -148,22 +146,20 @@ function handleGetOne<
     parsed: { params: z.infer<PARAMS_ZOD>; fieldRequest: FIELD_REQUEST },
     rc: any
   ) => config.apiExecutor(parsed.params, rc, parsed.fieldRequest);
-  return (request: Request) =>
-    dispatch(
-      config.authenticator,
-      validator,
-      executor,
-      request,
-      config.options
-    );
+  return handle({
+    authenticator: config.authenticator,
+    validator,
+    executor,
+    options: config.options,
+  });
 }
 
 function handleCreateOne<
-  DISPATCHER_OPTIONS,
+  OPTIONS,
   BODY_ZOD extends z.AnyZodObject,
   FIELD_REQUEST
 >(
-  config: CreateOneApiHandlerConfig<DISPATCHER_OPTIONS, BODY_ZOD, FIELD_REQUEST>
+  config: CreateOneApiHandlerConfig<OPTIONS, BODY_ZOD, FIELD_REQUEST>
 ): (request: Request) => Promise<Response> {
   const validator = async (request: Request) => {
     const { body: bodyRaw, fieldRequest } = await request.json();
@@ -176,28 +172,21 @@ function handleCreateOne<
     parsed: { body: z.infer<BODY_ZOD>; fieldRequest: FIELD_REQUEST },
     rc: any
   ) => config.apiExecutor(parsed.body, rc, parsed.fieldRequest);
-  return (request: Request) =>
-    dispatch(
-      config.authenticator,
-      validator,
-      executor,
-      request,
-      config.options
-    );
+  return handle({
+    authenticator: config.authenticator,
+    validator,
+    executor,
+    options: config.options,
+  });
 }
 
 function handleUpdateOne<
-  DISPATCHER_OPTIONS,
+  OPTIONS,
   PARAMS_ZOD extends z.AnyZodObject,
   BODY,
   FIELD_REQUEST
 >(
-  config: UpdateOneApiHandlerConfig<
-    DISPATCHER_OPTIONS,
-    PARAMS_ZOD,
-    BODY,
-    FIELD_REQUEST
-  >
+  config: UpdateOneApiHandlerConfig<OPTIONS, PARAMS_ZOD, BODY, FIELD_REQUEST>
 ): (request: Request) => Promise<Response> {
   const validator = async (request: Request) => {
     const {
@@ -219,42 +208,42 @@ function handleUpdateOne<
     },
     rc: any
   ) => config.apiExecutor(parsed.params, parsed.body, rc, parsed.fieldRequest);
-  return (request: Request) =>
-    dispatch(
-      config.authenticator,
-      validator,
-      executor,
-      request,
-      config.options
-    );
+  return handle({
+    authenticator: config.authenticator,
+    validator,
+    executor,
+    options: config.options,
+  });
 }
 
 const handleDeleteOne = handleGetOne;
 
+type HandlerConfig<OPTIONS, REQUEST_CONTEXT, PARSED, RESULT> = {
+  authenticator: Authenticator<OPTIONS, REQUEST_CONTEXT>;
+  validator: (request: Request, rc: REQUEST_CONTEXT) => Promise<PARSED>;
+  executor: (parsed: PARSED, rc: REQUEST_CONTEXT) => Promise<RESULT>;
+  options?: OPTIONS;
+};
+
 // Note: request => validate => execute => response
-async function dispatch<DISPATCHER_OPTIONS, REQUEST_CONTEXT, PARSED, RESULT>(
-  authenticate: (
-    headers: Headers,
-    options?: DISPATCHER_OPTIONS
-  ) => Promise<REQUEST_CONTEXT>,
-  validate: (request: Request, rc: REQUEST_CONTEXT) => Promise<PARSED>,
-  execute: (parsed: PARSED, rc: REQUEST_CONTEXT) => Promise<RESULT>,
-  request: Request,
-  options?: DISPATCHER_OPTIONS
-): Promise<Response> {
-  let rc = null;
-  let parsed = null;
-  let result = null;
-  try {
-    kill();
-    rc = await authenticate(request.headers, options);
-    parsed = await validate(request, rc);
-    result = await execute(parsed, rc);
-    return respond(result);
-  } catch (error) {
-    record(error, request, rc, parsed, result);
-    return handle(error);
-  }
+function handle<OPTIONS, REQUEST_CONTEXT, PARSED, RESULT>(
+  config: HandlerConfig<OPTIONS, REQUEST_CONTEXT, PARSED, RESULT>
+): (request: Request) => Promise<Response> {
+  return async (request: Request) => {
+    let rc = null;
+    let parsed = null;
+    let result = null;
+    try {
+      kill();
+      rc = await config.authenticator(request.headers, config.options);
+      parsed = await config.validator(request, rc);
+      result = await config.executor(parsed, rc);
+      return respond(result);
+    } catch (error) {
+      record(error, request, rc, parsed, result);
+      return cover(error);
+    }
+  };
 }
 
 function kill(): void {
@@ -304,7 +293,7 @@ function record<REQUEST_CONTEXT, PARSED, RESULT>(
   );
 }
 
-function handle(error: unknown): Response {
+function cover(error: unknown): Response {
   if (error instanceof z.ZodError) {
     return Response.json({ error: error.message }, { status: 400 });
   }
@@ -318,19 +307,20 @@ export {
   Authenticator,
   CreateOneApiExecutor,
   CreateOneApiHandlerConfig,
-  dispatch,
   GetManyApiExecutor,
   GetManyApiHandlerConfig,
-  getMax,
-  getMin,
   GetOneApiExecutor,
   GetOneApiHandlerConfig,
+  HandlerConfig,
+  UpdateOneApiExecutor,
+  UpdateOneApiHandlerConfig,
+  getMax,
+  getMin,
+  handle,
   handleCreateOne,
   handleDeleteOne,
   handleGetMany,
   handleGetOne,
   handleSearch,
   handleUpdateOne,
-  UpdateOneApiExecutor,
-  UpdateOneApiHandlerConfig,
 };
