@@ -32,6 +32,9 @@ import {
   <%_ } -%>
 } from '<%= entity.api.request.import %>';
 <%- config.authenticatorImport %>
+  <%_ if (config.errorHandlerImport) { -%>
+<%- config.errorHandlerImport %>
+  <%_ } -%>
   <%_ if (entity.api.booleans.hasGetMany) { -%>
 
     <%_ if (entity.deprecated) { -%>
@@ -39,8 +42,11 @@ import {
     <%_ } -%>
 export const <%= entity.api.strings.getManyHandler %> = handleGetMany({
   queryZod: <%= entity.api.strings.getManyQuery %>,
-  apiExecutor: <%= entity.api.strings.actionClass %>.<%= entity.api.strings.getManyAction %>,
+  action: <%= entity.api.strings.actionClass %>.<%= entity.api.strings.getManyAction %>,
   authenticator,
+    <%_ if (config.errorHandlerImport) { -%>
+  errorHandler,
+    <%_ } -%>
   options: <%= entity.api.methods.getMany ?? '{}' %>,
 });
   <%_ } -%>
@@ -51,8 +57,11 @@ export const <%= entity.api.strings.getManyHandler %> = handleGetMany({
     <%_ } -%>
 export const <%= entity.api.strings.getOneHandler %> = handleGetOne({
   paramsZod: <%= entity.api.strings.getOneParams %>,
-  apiExecutor: <%= entity.api.strings.actionClass %>.<%= entity.api.strings.getOneAction %>,
+  action: <%= entity.api.strings.actionClass %>.<%= entity.api.strings.getOneAction %>,
   authenticator,
+    <%_ if (config.errorHandlerImport) { -%>
+  errorHandler,
+    <%_ } -%>
   options: <%= entity.api.methods.getOne ?? '{}' %>,
 });
   <%_ } -%>
@@ -63,8 +72,11 @@ export const <%= entity.api.strings.getOneHandler %> = handleGetOne({
     <%_ } -%>
 export const <%= entity.api.strings.createOneHandler %> = handleCreateOne({
   bodyZod: <%= entity.api.strings.createOneBody %>,
-  apiExecutor: <%= entity.api.strings.actionClass %>.<%= entity.api.strings.createOneAction %>,
+  action: <%= entity.api.strings.actionClass %>.<%= entity.api.strings.createOneAction %>,
   authenticator,
+    <%_ if (config.errorHandlerImport) { -%>
+  errorHandler,
+    <%_ } -%>
   options: <%= entity.api.methods.createOne ?? '{}' %>,
 });
   <%_ } -%>
@@ -76,8 +88,11 @@ export const <%= entity.api.strings.createOneHandler %> = handleCreateOne({
 export const <%= entity.api.strings.updateOneHandler %> = handleUpdateOne({
   paramsZod: <%= entity.api.strings.getOneParams %>,
   bodyZod: <%= entity.api.strings.updateOneBody %>,
-  apiExecutor: <%= entity.api.strings.actionClass %>.<%= entity.api.strings.updateOneAction %>,
+  action: <%= entity.api.strings.actionClass %>.<%= entity.api.strings.updateOneAction %>,
   authenticator,
+    <%_ if (config.errorHandlerImport) { -%>
+  errorHandler,
+    <%_ } -%>
   options: <%= entity.api.methods.updateOne ?? '{}' %>,
 });
   <%_ } -%>
@@ -88,8 +103,11 @@ export const <%= entity.api.strings.updateOneHandler %> = handleUpdateOne({
     <%_ } -%>
 export const <%= entity.api.strings.deleteOneHandler %> = handleDeleteOne({
   paramsZod: <%= entity.api.strings.getOneParams %>,
-  apiExecutor: <%= entity.api.strings.actionClass %>.<%= entity.api.strings.deleteOneAction %>,
+  action: <%= entity.api.strings.actionClass %>.<%= entity.api.strings.deleteOneAction %>,
   authenticator,
+    <%_ if (config.errorHandlerImport) { -%>
+  errorHandler,
+    <%_ } -%>
   options: <%= entity.api.methods.deleteOne ?? '{}' %>,
 });
   <%_ } -%>

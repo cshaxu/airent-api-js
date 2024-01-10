@@ -31,6 +31,7 @@
   "axiosImport": "import axios from 'axios';",
   "requestContextImport": "import { RequestContext } from '../../../test-resources/framework';",
   "authenticatorImport": "import { authenticator } from '../../../test-resources/framework';",
+  "errorHandlerImport": "import { errorHandler } from '../../../test-resources/framework';",
   "clientTypePath": "../../entities/generated",
   "apiPath": "/api/data"
 }

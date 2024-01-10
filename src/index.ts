@@ -23,27 +23,37 @@ type Authenticator<OPTIONS, REQUEST_CONTEXT> = (
   options?: OPTIONS
 ) => Promise<REQUEST_CONTEXT>;
 
-// api executor types
+type ErrorContext = {
+  method: string;
+  url: string;
+  rc: any;
+  parsed: any;
+  result: any;
+};
 
-type GetManyApiExecutor<QUERY, FIELD_REQUEST> = (
+type ErrorHandler = (error: any, ec: ErrorContext) => Response;
+
+// api action types
+
+type GetManyAction<QUERY, FIELD_REQUEST> = (
   query: QUERY,
   rc: any,
   fieldRequest: FIELD_REQUEST
 ) => Promise<any>;
 
-type GetOneApiExecutor<PARAMS, FIELD_REQUEST> = (
+type GetOneAction<PARAMS, FIELD_REQUEST> = (
   params: PARAMS,
   rc: any,
   fieldRequest: FIELD_REQUEST
 ) => Promise<any>;
 
-type CreateOneApiExecutor<BODY, FIELD_REQUEST> = (
+type CreateOneAction<BODY, FIELD_REQUEST> = (
   body: BODY,
   rc: any,
   fieldRequest: FIELD_REQUEST
 ) => Promise<any>;
 
-type UpdateOneApiExecutor<PARAMS, BODY, FIELD_REQUEST> = (
+type UpdateOneAction<PARAMS, BODY, FIELD_REQUEST> = (
   params: PARAMS,
   body: BODY,
   rc: any,
@@ -58,10 +68,8 @@ type GetManyApiHandlerConfig<
   FIELD_REQUEST
 > = {
   queryZod: QUERY_ZOD;
-  authenticator: Authenticator<OPTIONS, any>;
-  apiExecutor: GetManyApiExecutor<z.infer<QUERY_ZOD>, FIELD_REQUEST>;
-  options?: OPTIONS;
-};
+  action: GetManyAction<z.infer<QUERY_ZOD>, FIELD_REQUEST>;
+} & Omit<HandlerConfig<OPTIONS, any, any, any>, "validator" | "executor">;
 
 type GetOneApiHandlerConfig<
   OPTIONS,
@@ -69,10 +77,8 @@ type GetOneApiHandlerConfig<
   FIELD_REQUEST
 > = {
   paramsZod: PARAMS_ZOD;
-  apiExecutor: GetOneApiExecutor<z.infer<PARAMS_ZOD>, FIELD_REQUEST>;
-  authenticator: Authenticator<OPTIONS, any>;
-  options?: OPTIONS;
-};
+  action: GetOneAction<z.infer<PARAMS_ZOD>, FIELD_REQUEST>;
+} & Omit<HandlerConfig<OPTIONS, any, any, any>, "validator" | "executor">;
 
 type CreateOneApiHandlerConfig<
   OPTIONS,
@@ -80,10 +86,8 @@ type CreateOneApiHandlerConfig<
   FIELD_REQUEST
 > = {
   bodyZod: BODY_ZOD;
-  apiExecutor: CreateOneApiExecutor<z.infer<BODY_ZOD>, FIELD_REQUEST>;
-  authenticator: Authenticator<OPTIONS, any>;
-  options?: OPTIONS;
-};
+  action: CreateOneAction<z.infer<BODY_ZOD>, FIELD_REQUEST>;
+} & Omit<HandlerConfig<OPTIONS, any, any, any>, "validator" | "executor">;
 
 type UpdateOneApiHandlerConfig<
   OPTIONS,
@@ -93,10 +97,8 @@ type UpdateOneApiHandlerConfig<
 > = {
   paramsZod: PARAMS_ZOD;
   bodyZod: z.AnyZodObject;
-  apiExecutor: UpdateOneApiExecutor<z.infer<PARAMS_ZOD>, BODY, FIELD_REQUEST>;
-  authenticator: Authenticator<OPTIONS, any>;
-  options?: OPTIONS;
-};
+  action: UpdateOneAction<z.infer<PARAMS_ZOD>, BODY, FIELD_REQUEST>;
+} & Omit<HandlerConfig<OPTIONS, any, any, any>, "validator" | "executor">;
 
 // api handlers
 
@@ -109,6 +111,12 @@ function handleGetMany<
 ): (request: Request) => Promise<Response> {
   const validator = async (request: Request) => {
     const { query: queryRaw, fieldRequest } = await request.json();
+    if (queryRaw === undefined) {
+      throw createHttpError.BadRequest("Missing `query`");
+    }
+    if (fieldRequest === undefined) {
+      throw createHttpError.BadRequest("Missing `fieldRequest`");
+    }
     const query = (await config.queryZod.parseAsync(
       queryRaw
     )) as z.infer<QUERY_ZOD>;
@@ -117,13 +125,8 @@ function handleGetMany<
   const executor = (
     parsed: { query: z.infer<QUERY_ZOD>; fieldRequest: FIELD_REQUEST },
     rc: any
-  ) => config.apiExecutor(parsed.query, rc, parsed.fieldRequest);
-  return handle({
-    authenticator: config.authenticator,
-    validator,
-    executor,
-    options: config.options,
-  });
+  ) => config.action(parsed.query, rc, parsed.fieldRequest);
+  return handle({ ...config, validator, executor });
 }
 
 const handleSearch = handleGetMany;
@@ -137,6 +140,12 @@ function handleGetOne<
 ): (request: Request) => Promise<Response> {
   const validator = async (request: Request) => {
     const { params: paramsRaw, fieldRequest } = await request.json();
+    if (paramsRaw === undefined) {
+      throw createHttpError.BadRequest("Missing `params`");
+    }
+    if (fieldRequest === undefined) {
+      throw createHttpError.BadRequest("Missing `fieldRequest`");
+    }
     const params = (await config.paramsZod.parseAsync(
       paramsRaw
     )) as z.infer<PARAMS_ZOD>;
@@ -145,13 +154,8 @@ function handleGetOne<
   const executor = (
     parsed: { params: z.infer<PARAMS_ZOD>; fieldRequest: FIELD_REQUEST },
     rc: any
-  ) => config.apiExecutor(parsed.params, rc, parsed.fieldRequest);
-  return handle({
-    authenticator: config.authenticator,
-    validator,
-    executor,
-    options: config.options,
-  });
+  ) => config.action(parsed.params, rc, parsed.fieldRequest);
+  return handle({ ...config, validator, executor });
 }
 
 function handleCreateOne<
@@ -163,6 +167,12 @@ function handleCreateOne<
 ): (request: Request) => Promise<Response> {
   const validator = async (request: Request) => {
     const { body: bodyRaw, fieldRequest } = await request.json();
+    if (bodyRaw === undefined) {
+      throw createHttpError.BadRequest("Missing `body`");
+    }
+    if (fieldRequest === undefined) {
+      throw createHttpError.BadRequest("Missing `fieldRequest`");
+    }
     const body = (await config.bodyZod.parseAsync(
       bodyRaw
     )) as z.infer<BODY_ZOD>;
@@ -171,13 +181,8 @@ function handleCreateOne<
   const executor = (
     parsed: { body: z.infer<BODY_ZOD>; fieldRequest: FIELD_REQUEST },
     rc: any
-  ) => config.apiExecutor(parsed.body, rc, parsed.fieldRequest);
-  return handle({
-    authenticator: config.authenticator,
-    validator,
-    executor,
-    options: config.options,
-  });
+  ) => config.action(parsed.body, rc, parsed.fieldRequest);
+  return handle({ ...config, validator, executor, code: 201 });
 }
 
 function handleUpdateOne<
@@ -194,6 +199,15 @@ function handleUpdateOne<
       body: bodyRaw,
       fieldRequest,
     } = await request.json();
+    if (paramsRaw === undefined) {
+      throw createHttpError.BadRequest("Missing `params`");
+    }
+    if (bodyRaw === undefined) {
+      throw createHttpError.BadRequest("Missing `body`");
+    }
+    if (fieldRequest === undefined) {
+      throw createHttpError.BadRequest("Missing `fieldRequest`");
+    }
     const params = (await config.paramsZod.parseAsync(
       paramsRaw
     )) as z.infer<PARAMS_ZOD>;
@@ -207,13 +221,8 @@ function handleUpdateOne<
       fieldRequest: FIELD_REQUEST;
     },
     rc: any
-  ) => config.apiExecutor(parsed.params, parsed.body, rc, parsed.fieldRequest);
-  return handle({
-    authenticator: config.authenticator,
-    validator,
-    executor,
-    options: config.options,
-  });
+  ) => config.action(parsed.params, parsed.body, rc, parsed.fieldRequest);
+  return handle({ ...config, validator, executor });
 }
 
 const handleDeleteOne = handleGetOne;
@@ -222,7 +231,9 @@ type HandlerConfig<OPTIONS, REQUEST_CONTEXT, PARSED, RESULT> = {
   authenticator: Authenticator<OPTIONS, REQUEST_CONTEXT>;
   validator: (request: Request, rc: REQUEST_CONTEXT) => Promise<PARSED>;
   executor: (parsed: PARSED, rc: REQUEST_CONTEXT) => Promise<RESULT>;
+  errorHandler?: ErrorHandler;
   options?: OPTIONS;
+  code?: number;
 };
 
 // Note: request => validate => execute => response
@@ -238,10 +249,15 @@ function handle<OPTIONS, REQUEST_CONTEXT, PARSED, RESULT>(
       rc = await config.authenticator(request.headers, config.options);
       parsed = await config.validator(request, rc);
       result = await config.executor(parsed, rc);
-      return respond(result);
+      return respond(result, config.code);
     } catch (error) {
-      record(error, request, rc, parsed, result);
-      return cover(error);
+      if (config.errorHandler === undefined) {
+        throw error;
+      } else {
+        const { method, url } = request;
+        const ec = { method, url, rc, parsed, result };
+        return config.errorHandler(error, ec);
+      }
     }
   };
 }
@@ -252,12 +268,12 @@ function kill(): void {
   }
 }
 
-function respond<RESULT>(result: RESULT): Response {
+function respond<RESULT>(result: RESULT, status: number = 200): Response {
   if (isReadableStream(result)) {
     const headers = { "Content-Type": "text/plain" };
     return new Response(result as ReadableStream, { headers });
   }
-  return Response.json(result, { status: 200 });
+  return Response.json(result, { status });
 }
 
 function isReadableStream(object: any): boolean {
@@ -274,45 +290,18 @@ function isReadableStream(object: any): boolean {
 
 const isFunction = (object: any) => typeof object === "function";
 
-function record<REQUEST_CONTEXT, PARSED, RESULT>(
-  error: any,
-  request: Request,
-  rc: REQUEST_CONTEXT | null,
-  parsed: PARSED,
-  result: RESULT
-): void {
-  const { method, url } = request;
-  const requestLog = { method, url, rc, parsed, result };
-  const errorLog = {
-    ...(error?.name && { name: error?.name }),
-    ...(error?.message && { message: error?.message }),
-    ...(error?.stack && { stack: error?.stack }),
-  };
-  console.error(
-    `[ERROR] ${JSON.stringify({ request: requestLog, error: errorLog })}`
-  );
-}
-
-function cover(error: unknown): Response {
-  if (error instanceof z.ZodError) {
-    return Response.json({ error: error.message }, { status: 400 });
-  }
-  if (error instanceof createHttpError.HttpError) {
-    return Response.json({ error: error.message }, { status: error.status });
-  }
-  return Response.json({ error: "Internal server error" }, { status: 500 });
-}
-
 export {
   Authenticator,
-  CreateOneApiExecutor,
+  CreateOneAction,
   CreateOneApiHandlerConfig,
-  GetManyApiExecutor,
+  ErrorContext,
+  ErrorHandler,
+  GetManyAction,
   GetManyApiHandlerConfig,
-  GetOneApiExecutor,
+  GetOneAction,
   GetOneApiHandlerConfig,
   HandlerConfig,
-  UpdateOneApiExecutor,
+  UpdateOneAction,
   UpdateOneApiHandlerConfig,
   getMax,
   getMin,

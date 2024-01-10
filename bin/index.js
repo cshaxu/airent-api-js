@@ -106,6 +106,18 @@ async function configureApiServer(config) {
       "import { RequestContext } from '@/types/server';"
     );
   }
+  if (config.authenticatorImport === undefined) {
+    config.authenticatorImport = await askQuestion(
+      'Statement to import "authenticator"',
+      "import { authenticator } from '@/framework';"
+    );
+  }
+  if (config.errorHandlerImport === undefined) {
+    config.errorHandlerImport = await askQuestion(
+      'Statement to import "errorHandler"',
+      "import { errorHandler } from '@/framework';"
+    );
+  }
 }
 
 async function configureApiClient(config) {

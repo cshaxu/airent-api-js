@@ -13,39 +13,45 @@ CreateOneUserBody,
 UpdateOneUserBody,
 } from '../../../test-resources/user-type';
 import { authenticator } from '../../../test-resources/framework';
+import { errorHandler } from '../../../test-resources/framework';
 
 export const handleGetManyUsers = handleGetMany({
   queryZod: GetManyUsersQuery,
-  apiExecutor: UserAction.getManyUsers,
+  action: UserAction.getManyUsers,
   authenticator,
+  errorHandler,
   options: { requireAdmin: true },
 });
 
 export const handleGetOneUser = handleGetOne({
   paramsZod: GetOneUserParams,
-  apiExecutor: UserAction.getOneUser,
+  action: UserAction.getOneUser,
   authenticator,
+  errorHandler,
   options: { requireLogin: false },
 });
 
 export const handleCreateOneUser = handleCreateOne({
   bodyZod: CreateOneUserBody,
-  apiExecutor: UserAction.createOneUser,
+  action: UserAction.createOneUser,
   authenticator,
+  errorHandler,
   options: { requireLogin: false },
 });
 
 export const handleUpdateOneUser = handleUpdateOne({
   paramsZod: GetOneUserParams,
   bodyZod: UpdateOneUserBody,
-  apiExecutor: UserAction.updateOneUser,
+  action: UserAction.updateOneUser,
   authenticator,
+  errorHandler,
   options: { requireLogin: true },
 });
 
 export const handleDeleteOneUser = handleDeleteOne({
   paramsZod: GetOneUserParams,
-  apiExecutor: UserAction.deleteOneUser,
+  action: UserAction.deleteOneUser,
   authenticator,
+  errorHandler,
   options: { requireLogin: true },
 });
