@@ -37,7 +37,7 @@ export class UserEntityBase extends BaseEntity<
     this.name = model.name;
     this.email = model.email;
 
-    this.initialize();
+    this.initialize(model);
   }
 
   public async present<S extends UserFieldRequest>(fieldRequest: S): Promise<Select<UserResponse, S>> {

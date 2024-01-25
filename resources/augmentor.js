@@ -145,8 +145,10 @@ function addCode(entity, isVerbose) {
   if (isVerbose) {
     console.log(`[AIRENT-API/INFO] augmenting ${entity.name} - add code ...`);
   }
-  entity.code.beforeType = buildBeforeType(entity);
-  entity.code.afterType = buildAfterType(entity);
+  const beforeType = buildBeforeType(entity);
+  const afterType = buildAfterType(entity);
+  entity.code.beforeType.push(...beforeType);
+  entity.code.afterType.push(...afterType);
 }
 
 function augment(data, isVerbose) {
