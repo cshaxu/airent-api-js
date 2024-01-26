@@ -44,7 +44,7 @@ const AIRENT_API_RESOURCES_PATH = "node_modules/airent-api/resources";
 const API_AUGMENTOR_PATH = `${AIRENT_API_RESOURCES_PATH}/augmentor.js`;
 const API_CLIENT_AXIOS_TEMPLATE_PATH = `${AIRENT_API_RESOURCES_PATH}/axios-template.ts.ejs`;
 const API_SERVER_HANDLERS_TEMPLATE_PATH = `${AIRENT_API_RESOURCES_PATH}/handlers-template.ts.ejs`;
-const API_SERVER_ACTION_TEMPLATE_PATH = `${AIRENT_API_RESOURCES_PATH}/action-template.ts.ejs`;
+const API_SERVER_ACTIONS_TEMPLATE_PATH = `${AIRENT_API_RESOURCES_PATH}/actions-template.ts.ejs`;
 const API_SERVER_SERVICE_TEMPLATE_PATH = `${AIRENT_API_RESOURCES_PATH}/service-template.ts.ejs`;
 
 async function loadConfig() {
@@ -60,15 +60,15 @@ async function configureApiServer(config) {
   const isApiServerHandlersEnabled =
     templates.find((t) => t.name === API_SERVER_HANDLERS_TEMPLATE_PATH) !==
     undefined;
-  const isApiServerActionEnabled =
-    templates.find((t) => t.name === API_SERVER_ACTION_TEMPLATE_PATH) !==
+  const isApiServerActionsEnabled =
+    templates.find((t) => t.name === API_SERVER_ACTIONS_TEMPLATE_PATH) !==
     undefined;
   const isApiServerServiceEnabled =
     templates.find((t) => t.name === API_SERVER_SERVICE_TEMPLATE_PATH) !==
     undefined;
   const isApiServerEnabled =
     isApiServerHandlersEnabled &&
-    isApiServerActionEnabled &&
+    isApiServerActionsEnabled &&
     isApiServerServiceEnabled;
   const shouldEnableApiServer = await getShouldEnable(
     "Api Server",
@@ -85,10 +85,10 @@ async function configureApiServer(config) {
       skippable: false,
     });
   }
-  if (!isApiServerActionEnabled) {
+  if (!isApiServerActionsEnabled) {
     templates.push({
-      name: API_SERVER_ACTION_TEMPLATE_PATH,
-      outputPath: "{entityPath}/generated/{kababEntityName}-action.ts",
+      name: API_SERVER_ACTIONS_TEMPLATE_PATH,
+      outputPath: "{entityPath}/generated/{kababEntityName}-actions.ts",
       skippable: false,
     });
   }

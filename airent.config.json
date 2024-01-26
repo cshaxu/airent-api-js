@@ -17,8 +17,8 @@
       "skippable": false
     },
     {
-      "name": "resources/action-template.ts.ejs",
-      "outputPath": "{entityPath}/generated/{kababEntityName}-action.ts",
+      "name": "resources/actions-template.ts.ejs",
+      "outputPath": "{entityPath}/generated/{kababEntityName}-actions.ts",
       "skippable": false
     },
     {

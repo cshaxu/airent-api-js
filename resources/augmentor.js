@@ -33,7 +33,7 @@ function addStrings(entity, isVerbose) {
     manyEntsVar: utils.toCamelCase(utils.pluralize(entity.name)),
     oneEntVar: utils.toCamelCase(entity.name),
     handlersClass: `${singularEntName}Handlers`,
-    actionClass: `${singularEntName}Action`,
+    actionClass: `${singularEntName}Actions`,
     serviceClass: `${singularEntName}Service`,
     manyCursor: `Many${pluralEntName}Cursor`,
     manyResponse: `Many${pluralEntName}Response`,

@@ -5,19 +5,19 @@ import {
   handleUpdateOne,
   handleDeleteOne,
 } from '../../../src';
-import * as UserAction from './user-action';
+import * as UserActions from './user-actions';
 import {
-GetManyUsersQuery,
-GetOneUserParams,
-CreateOneUserBody,
-UpdateOneUserBody,
+  GetManyUsersQuery,
+  GetOneUserParams,
+  CreateOneUserBody,
+  UpdateOneUserBody,
 } from '../../../test-resources/user-type';
 import { authenticator } from '../../../test-resources/framework';
 import { errorHandler } from '../../../test-resources/framework';
 
 export const handleGetManyUsers = handleGetMany({
   queryZod: GetManyUsersQuery,
-  action: UserAction.getManyUsers,
+  action: UserActions.getManyUsers,
   authenticator,
   errorHandler,
   options: { requireAdmin: true },
@@ -25,7 +25,7 @@ export const handleGetManyUsers = handleGetMany({
 
 export const handleGetOneUser = handleGetOne({
   paramsZod: GetOneUserParams,
-  action: UserAction.getOneUser,
+  action: UserActions.getOneUser,
   authenticator,
   errorHandler,
   options: { requireLogin: false },
@@ -33,7 +33,7 @@ export const handleGetOneUser = handleGetOne({
 
 export const handleCreateOneUser = handleCreateOne({
   bodyZod: CreateOneUserBody,
-  action: UserAction.createOneUser,
+  action: UserActions.createOneUser,
   authenticator,
   errorHandler,
   options: { requireLogin: false },
@@ -42,7 +42,7 @@ export const handleCreateOneUser = handleCreateOne({
 export const handleUpdateOneUser = handleUpdateOne({
   paramsZod: GetOneUserParams,
   bodyZod: UpdateOneUserBody,
-  action: UserAction.updateOneUser,
+  action: UserActions.updateOneUser,
   authenticator,
   errorHandler,
   options: { requireLogin: true },
@@ -50,7 +50,7 @@ export const handleUpdateOneUser = handleUpdateOne({
 
 export const handleDeleteOneUser = handleDeleteOne({
   paramsZod: GetOneUserParams,
-  action: UserAction.deleteOneUser,
+  action: UserActions.deleteOneUser,
   authenticator,
   errorHandler,
   options: { requireLogin: true },
