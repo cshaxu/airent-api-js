@@ -1,5 +1,5 @@
 <% if (utils.isPresentableEntity(entity)) { -%>
-import { getMax, getMin } from '<%= config.airentApiPackage ?? 'airent-api' %>';
+import { getMax, getMin } from '<%= config.airentApiPackage ?? '@airent/api' %>';
 import {
   <%= entity.strings.fieldRequestClass %>,
   <%=entity.strings.responseClass %>,

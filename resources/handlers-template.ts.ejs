@@ -15,7 +15,7 @@ import {
   <%_ if (entity.api.booleans.hasDeleteOne) { -%>
   handleDeleteOne,
   <%_ } -%>
-} from '<%= config.airentApiPackage ?? 'airent-api' %>';
+} from '<%= config.airentApiPackage ?? '@airent/api' %>';
 import * as <%= entity.api.strings.actionClass %> from './<%= utils.toKababCase(entity.name) %>-actions<%= utils.getModuleSuffix(config) %>';
 import {
   <%_ if (entity.api.booleans.hasGetMany) { -%>

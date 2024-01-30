@@ -39,7 +39,7 @@ async function getShouldEnable(name, isEnabled) {
 const PROJECT_PATH = process.cwd();
 const CONFIG_FILE_PATH = path.join(PROJECT_PATH, "airent.config.json");
 
-const AIRENT_API_RESOURCES_PATH = "node_modules/airent-api/resources";
+const AIRENT_API_RESOURCES_PATH = "node_modules/@airent/api/resources";
 
 const API_AUGMENTOR_PATH = `${AIRENT_API_RESOURCES_PATH}/augmentor.js`;
 const API_CLIENT_AXIOS_TEMPLATE_PATH = `${AIRENT_API_RESOURCES_PATH}/axios-template.ts.ejs`;

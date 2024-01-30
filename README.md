@@ -1,4 +1,4 @@
-# airent-api-js
+# @airent/api
 
 Airent API Plugin - Generate your API backend and API client with ease
 
@@ -15,7 +15,7 @@ Airent API Plugin - Generate your API backend and API client with ease
 First, install with npm:
 
 ```bash
-npm install airent-api
+npm install @airent/api
 ```
 
 Then, update the configuration file `airent.config.js` with the following command:
