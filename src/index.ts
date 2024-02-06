@@ -64,7 +64,7 @@ type UpdateOneAction<PARAMS, BODY, FIELD_REQUEST> = (
 
 type GetManyApiHandlerConfig<
   OPTIONS,
-  QUERY_ZOD extends z.AnyZodObject,
+  QUERY_ZOD extends z.ZodTypeAny,
   FIELD_REQUEST
 > = {
   queryZod: QUERY_ZOD;
@@ -73,7 +73,7 @@ type GetManyApiHandlerConfig<
 
 type GetOneApiHandlerConfig<
   OPTIONS,
-  PARAMS_ZOD extends z.AnyZodObject,
+  PARAMS_ZOD extends z.ZodTypeAny,
   FIELD_REQUEST
 > = {
   paramsZod: PARAMS_ZOD;
@@ -82,7 +82,7 @@ type GetOneApiHandlerConfig<
 
 type CreateOneApiHandlerConfig<
   OPTIONS,
-  BODY_ZOD extends z.AnyZodObject,
+  BODY_ZOD extends z.ZodTypeAny,
   FIELD_REQUEST
 > = {
   bodyZod: BODY_ZOD;
@@ -91,22 +91,18 @@ type CreateOneApiHandlerConfig<
 
 type UpdateOneApiHandlerConfig<
   OPTIONS,
-  PARAMS_ZOD extends z.AnyZodObject,
+  PARAMS_ZOD extends z.ZodTypeAny,
   BODY,
   FIELD_REQUEST
 > = {
   paramsZod: PARAMS_ZOD;
-  bodyZod: z.AnyZodObject;
+  bodyZod: z.ZodTypeAny;
   action: UpdateOneAction<z.infer<PARAMS_ZOD>, BODY, FIELD_REQUEST>;
 } & Omit<HandlerConfig<OPTIONS, any, any, any>, "validator" | "executor">;
 
 // api handlers
 
-function handleGetMany<
-  OPTIONS,
-  QUERY_ZOD extends z.AnyZodObject,
-  FIELD_REQUEST
->(
+function handleGetMany<OPTIONS, QUERY_ZOD extends z.ZodTypeAny, FIELD_REQUEST>(
   config: GetManyApiHandlerConfig<OPTIONS, QUERY_ZOD, FIELD_REQUEST>
 ): (request: Request) => Promise<Response> {
   const validator = async (request: Request) => {
@@ -131,11 +127,7 @@ function handleGetMany<
 
 const handleSearch = handleGetMany;
 
-function handleGetOne<
-  OPTIONS,
-  PARAMS_ZOD extends z.AnyZodObject,
-  FIELD_REQUEST
->(
+function handleGetOne<OPTIONS, PARAMS_ZOD extends z.ZodTypeAny, FIELD_REQUEST>(
   config: GetOneApiHandlerConfig<OPTIONS, PARAMS_ZOD, FIELD_REQUEST>
 ): (request: Request) => Promise<Response> {
   const validator = async (request: Request) => {
@@ -158,11 +150,7 @@ function handleGetOne<
   return handle({ ...config, validator, executor });
 }
 
-function handleCreateOne<
-  OPTIONS,
-  BODY_ZOD extends z.AnyZodObject,
-  FIELD_REQUEST
->(
+function handleCreateOne<OPTIONS, BODY_ZOD extends z.ZodTypeAny, FIELD_REQUEST>(
   config: CreateOneApiHandlerConfig<OPTIONS, BODY_ZOD, FIELD_REQUEST>
 ): (request: Request) => Promise<Response> {
   const validator = async (request: Request) => {
@@ -187,7 +175,7 @@ function handleCreateOne<
 
 function handleUpdateOne<
   OPTIONS,
-  PARAMS_ZOD extends z.AnyZodObject,
+  PARAMS_ZOD extends z.ZodTypeAny,
   BODY,
   FIELD_REQUEST
 >(

@@ -14,28 +14,28 @@ type GetManyAction<QUERY, FIELD_REQUEST> = (query: QUERY, rc: any, fieldRequest:
 type GetOneAction<PARAMS, FIELD_REQUEST> = (params: PARAMS, rc: any, fieldRequest: FIELD_REQUEST) => Promise<any>;
 type CreateOneAction<BODY, FIELD_REQUEST> = (body: BODY, rc: any, fieldRequest: FIELD_REQUEST) => Promise<any>;
 type UpdateOneAction<PARAMS, BODY, FIELD_REQUEST> = (params: PARAMS, body: BODY, rc: any, fieldRequest: FIELD_REQUEST) => Promise<any>;
-type GetManyApiHandlerConfig<OPTIONS, QUERY_ZOD extends z.AnyZodObject, FIELD_REQUEST> = {
+type GetManyApiHandlerConfig<OPTIONS, QUERY_ZOD extends z.ZodTypeAny, FIELD_REQUEST> = {
     queryZod: QUERY_ZOD;
     action: GetManyAction<z.infer<QUERY_ZOD>, FIELD_REQUEST>;
 } & Omit<HandlerConfig<OPTIONS, any, any, any>, "validator" | "executor">;
-type GetOneApiHandlerConfig<OPTIONS, PARAMS_ZOD extends z.AnyZodObject, FIELD_REQUEST> = {
+type GetOneApiHandlerConfig<OPTIONS, PARAMS_ZOD extends z.ZodTypeAny, FIELD_REQUEST> = {
     paramsZod: PARAMS_ZOD;
     action: GetOneAction<z.infer<PARAMS_ZOD>, FIELD_REQUEST>;
 } & Omit<HandlerConfig<OPTIONS, any, any, any>, "validator" | "executor">;
-type CreateOneApiHandlerConfig<OPTIONS, BODY_ZOD extends z.AnyZodObject, FIELD_REQUEST> = {
+type CreateOneApiHandlerConfig<OPTIONS, BODY_ZOD extends z.ZodTypeAny, FIELD_REQUEST> = {
     bodyZod: BODY_ZOD;
     action: CreateOneAction<z.infer<BODY_ZOD>, FIELD_REQUEST>;
 } & Omit<HandlerConfig<OPTIONS, any, any, any>, "validator" | "executor">;
-type UpdateOneApiHandlerConfig<OPTIONS, PARAMS_ZOD extends z.AnyZodObject, BODY, FIELD_REQUEST> = {
+type UpdateOneApiHandlerConfig<OPTIONS, PARAMS_ZOD extends z.ZodTypeAny, BODY, FIELD_REQUEST> = {
     paramsZod: PARAMS_ZOD;
-    bodyZod: z.AnyZodObject;
+    bodyZod: z.ZodTypeAny;
     action: UpdateOneAction<z.infer<PARAMS_ZOD>, BODY, FIELD_REQUEST>;
 } & Omit<HandlerConfig<OPTIONS, any, any, any>, "validator" | "executor">;
-declare function handleGetMany<OPTIONS, QUERY_ZOD extends z.AnyZodObject, FIELD_REQUEST>(config: GetManyApiHandlerConfig<OPTIONS, QUERY_ZOD, FIELD_REQUEST>): (request: Request) => Promise<Response>;
+declare function handleGetMany<OPTIONS, QUERY_ZOD extends z.ZodTypeAny, FIELD_REQUEST>(config: GetManyApiHandlerConfig<OPTIONS, QUERY_ZOD, FIELD_REQUEST>): (request: Request) => Promise<Response>;
 declare const handleSearch: typeof handleGetMany;
-declare function handleGetOne<OPTIONS, PARAMS_ZOD extends z.AnyZodObject, FIELD_REQUEST>(config: GetOneApiHandlerConfig<OPTIONS, PARAMS_ZOD, FIELD_REQUEST>): (request: Request) => Promise<Response>;
-declare function handleCreateOne<OPTIONS, BODY_ZOD extends z.AnyZodObject, FIELD_REQUEST>(config: CreateOneApiHandlerConfig<OPTIONS, BODY_ZOD, FIELD_REQUEST>): (request: Request) => Promise<Response>;
-declare function handleUpdateOne<OPTIONS, PARAMS_ZOD extends z.AnyZodObject, BODY, FIELD_REQUEST>(config: UpdateOneApiHandlerConfig<OPTIONS, PARAMS_ZOD, BODY, FIELD_REQUEST>): (request: Request) => Promise<Response>;
+declare function handleGetOne<OPTIONS, PARAMS_ZOD extends z.ZodTypeAny, FIELD_REQUEST>(config: GetOneApiHandlerConfig<OPTIONS, PARAMS_ZOD, FIELD_REQUEST>): (request: Request) => Promise<Response>;
+declare function handleCreateOne<OPTIONS, BODY_ZOD extends z.ZodTypeAny, FIELD_REQUEST>(config: CreateOneApiHandlerConfig<OPTIONS, BODY_ZOD, FIELD_REQUEST>): (request: Request) => Promise<Response>;
+declare function handleUpdateOne<OPTIONS, PARAMS_ZOD extends z.ZodTypeAny, BODY, FIELD_REQUEST>(config: UpdateOneApiHandlerConfig<OPTIONS, PARAMS_ZOD, BODY, FIELD_REQUEST>): (request: Request) => Promise<Response>;
 declare const handleDeleteOne: typeof handleGetOne;
 type HandlerConfig<OPTIONS, REQUEST_CONTEXT, PARSED, RESULT> = {
     authenticator: Authenticator<OPTIONS, REQUEST_CONTEXT>;
