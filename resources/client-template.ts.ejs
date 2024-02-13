@@ -3,12 +3,12 @@ function isDateTypeField(field) {
   return field.strings.fieldClass === "Date";
 }
 
-function getAxiosName(entity) {
-  return `${utils.toTitleCase(entity.name)}ApiAxios`;
+function getApiClientName(entity) {
+  return `${utils.toTitleCase(entity.name)}ApiClient`;
 }
 
 function presentEntityTypeField(field) {
-  const presenter = `${getAxiosName(field._type._entity)}.present`;
+  const presenter = `${getApiClientName(field._type._entity)}.present`;
   if (utils.isArrayField(field)) {
     return `one.${field.name}.map((nested: any) => ${presenter}(nested, fieldRequest.${field.name}!))`;
   }
@@ -39,10 +39,15 @@ import {
   <%= entity.api.strings.oneResponse %>,
 } from '<%= config.clientTypePath %>/<%= entity.strings.typePackage %>';
   <%_ entity.types.filter(utils.isPresentableEntityType).filter((t) => t.name !== entity.name).forEach((type) => { -%>
-import <%= getAxiosName(type._entity) %> from './<%= `${utils.toKababCase(type.name)}-api-axios` %>';
+import <%= getApiClientName(type._entity) %> from './<%= `${utils.toKababCase(type.name)}-api-client` %>';
   <%_ }); -%>
   <%_ if (entity.api.methods) { -%>
-<%- config.axiosImport %>
+<% if (config.fetchOptionsImport?.length > 0) { -%>
+<%- config.fetchOptionsImport %>
+<% } -%>
+<% if (config.baseUrlImport?.length > 0) { -%>
+<%- config.baseUrlImport %>
+<% } -%>
 import {
     <%_ if (entity.api.booleans.hasGetMany) { -%>
   <%= entity.api.strings.getManyQuery %>,
@@ -59,7 +64,10 @@ import {
 } from '<%= entity.api.request.import %>';
   <%_ } -%>
 
-function present<S extends <%= entity.strings.fieldRequestClass %>>(one: any, fieldRequest: S): Select<<%= entity.strings.responseClass %>, S> {
+function present<S extends <%= entity.strings.fieldRequestClass %>>(
+  one: any,
+  fieldRequest: S
+): Select<<%= entity.strings.responseClass %>, S> {
   return {
     ...one,
   <%_ entity.fields.filter(utils.isPresentableField).filter(isDateTypeField).forEach((field) => { -%>
@@ -71,7 +79,10 @@ function present<S extends <%= entity.strings.fieldRequestClass %>>(one: any, fi
   };
 }
 
-function presentManyResponse<S extends <%= entity.strings.fieldRequestClass %>>(response: any, fieldRequest: S): <%= entity.api.strings.manyResponse %><S> {
+function presentManyResponse<S extends <%= entity.strings.fieldRequestClass %>>(
+  response: { cursor: any, <%= entity.api.strings.manyEntsVar %>: any[] },
+  fieldRequest: S
+): <%= entity.api.strings.manyResponse %><S> {
   const cursor = {
     ...response.cursor,
     <%_ entity.fields.filter((f) => f.strings.minVar && f.strings.maxVar && isDateTypeField(f)).forEach((field) => { -%>
@@ -79,62 +90,104 @@ function presentManyResponse<S extends <%= entity.strings.fieldRequestClass %>>(
     <%= field.strings.maxVar %>: new Date(response.cursor.<%= field.strings.maxVar %>),
     <%_ }); -%>
   };
-  return { cursor, <%= entity.api.strings.manyEntsVar %>: response.<%= entity.api.strings.manyEntsVar %>.map((one: any) => present(one, fieldRequest)) };
+  return { cursor, <%= entity.api.strings.manyEntsVar %>: response.<%= entity.api.strings.manyEntsVar %>.map((one) => present(one, fieldRequest)) };
 }
 
-function presentOneResponse<S extends <%= entity.strings.fieldRequestClass %>>(response: any, fieldRequest: S): <%= entity.api.strings.oneResponse %><S> {
+function presentOneResponse<S extends <%= entity.strings.fieldRequestClass %>>(
+  response: { <%= entity.api.strings.oneEntVar %>: any },
+  fieldRequest: S
+): <%= entity.api.strings.oneResponse %><S> {
   return { <%= entity.api.strings.oneEntVar %>: present(response.<%= entity.api.strings.oneEntVar %>, fieldRequest) };
 }
+  <%_ if (entity.api.methods) { -%>
+
+    <%_ if (entity.api.booleans.hasGetMany) { -%>
+const GET_MANY_PATH = '<%= config.apiPath %>/get-many-<%= utils.toKababCase(utils.pluralize(entity.name)) %>';
+    <%_ } -%>
+    <%_ if (entity.api.booleans.hasGetOne) { -%>
+const GET_ONE_PATH = '<%= config.apiPath %>/get-one-<%= utils.toKababCase(entity.name) %>';
+    <%_ } -%>
+    <%_ if (entity.api.booleans.hasCreateOne) { -%>
+const CREATE_ONE_PATH = '<%= config.apiPath %>/create-one-<%= utils.toKababCase(entity.name) %>';
+    <%_ } -%>
+    <%_ if (entity.api.booleans.hasUpdateOne) { -%>
+const UPDATE_ONE_PATH = '<%= config.apiPath %>/update-one-<%= utils.toKababCase(entity.name) %>';
+    <%_ } -%>
+    <%_ if (entity.api.booleans.hasDeleteOne) { -%>
+const DELETE_ONE_PATH = '<%= config.apiPath %>/delete-one-<%= utils.toKababCase(entity.name) %>';
+    <%_ } -%>
+
+const callApi = (
+  path: string, 
+  body: Record<string, any>,
+  options: RequestInit = {}
+) =>
+  fetch(<%- config.baseUrlImport?.length > 0 ? '`${baseUrl ?? \'\'}${path}`' : 'path' %>, {
+    <%_ if (config.fetchOptionsImport?.length > 0) { -%>
+    ...fetchOptions,
+    <%_ } -%>
+    ...options,
+    method: 'POST',
+    body: JSON.stringify(body),
+  }).then((r) => r.json());
+
+  <%_ } -%>
   <%_ if (entity.api.booleans.hasGetMany) { -%>
 
-async function getMany<S extends <%= entity.strings.fieldRequestClass %>>(query: <%= entity.api.strings.getManyQuery %>, fieldRequest: S): Promise<<%= entity.api.strings.manyResponse %><S>> {
-  const requestBody = { query, fieldRequest };
-  const path = '<%= config.apiPath %>/get-many-<%= utils.toKababCase(utils.pluralize(entity.name)) %>';
-  const { data } = await axios.post(path, requestBody);
-  return presentManyResponse(data, fieldRequest);
-}
+const getMany = <S extends <%= entity.strings.fieldRequestClass %>>(
+  query: <%= entity.api.strings.getManyQuery %>,
+  fieldRequest: S,
+  options: RequestInit = {}
+) =>
+  callApi(GET_MANY_PATH, { query, fieldRequest }, options)
+    .then((r) => presentManyResponse(r, fieldRequest));
   <%_ } -%>
   <%_ if (entity.api.booleans.hasGetOne) { -%>
 
-async function getOne<S extends <%= entity.strings.fieldRequestClass %>>(params: <%= entity.api.strings.getOneParams %>, fieldRequest: S): Promise<<%= entity.api.strings.oneResponse %><S>> {
-  const requestBody = { params, fieldRequest };
-  const path = '<%= config.apiPath %>/get-one-<%= utils.toKababCase(entity.name) %>';
-  const { data } = await axios.post(path, requestBody);
-  return presentOneResponse(data, fieldRequest);
-}
+const getOne = <S extends <%= entity.strings.fieldRequestClass %>>(
+  params: <%= entity.api.strings.getOneParams %>,
+  fieldRequest: S,
+  options: RequestInit = {}
+) =>
+  callApi(GET_ONE_PATH, { params, fieldRequest }, options)
+    .then((r) => presentOneResponse(r, fieldRequest));
   <%_ } -%>
   <%_ if (entity.api.booleans.hasCreateOne) { -%>
 
-async function createOne<S extends <%= entity.strings.fieldRequestClass %>>(body: <%= entity.api.strings.createOneBody %>, fieldRequest: S): Promise<<%= entity.api.strings.oneResponse %><S>> {
-  const requestBody = { body, fieldRequest };
-  const path = '<%= config.apiPath %>/create-one-<%= utils.toKababCase(entity.name) %>';
-  const { data } = await axios.post(path, requestBody);
-  return presentOneResponse(data, fieldRequest);
-}
+const createOne = <S extends <%= entity.strings.fieldRequestClass %>>(
+  body: <%= entity.api.strings.createOneBody %>,
+  fieldRequest: S,
+  options: RequestInit = {}
+) =>
+  callApi(CREATE_ONE_PATH, { body, fieldRequest }, options)
+    .then((r) => presentOneResponse(r, fieldRequest));
   <%_ } -%>
   <%_ if (entity.api.booleans.hasUpdateOne) { -%>
 
-async function updateOne<S extends <%= entity.strings.fieldRequestClass %>>(params: <%= entity.api.strings.getOneParams %>, body: <%= entity.api.strings.updateOneBody %>, fieldRequest: S): Promise<<%= entity.api.strings.oneResponse %><S>> {
-  const requestBody = { params, body, fieldRequest };
-  const path = '<%= config.apiPath %>/update-one-<%= utils.toKababCase(entity.name) %>';
-  const { data } = await axios.post(path, requestBody);
-  return presentOneResponse(data, fieldRequest);
-}
+const updateOne = <S extends <%= entity.strings.fieldRequestClass %>>(
+  params: <%= entity.api.strings.getOneParams %>,
+  body: <%= entity.api.strings.updateOneBody %>,
+  fieldRequest: S,
+  options: RequestInit = {}
+) =>
+  callApi(UPDATE_ONE_PATH, { params, body, fieldRequest }, options)
+    .then((r) => presentOneResponse(r, fieldRequest));
   <%_ } -%>
   <%_ if (entity.api.booleans.hasDeleteOne) { -%>
 
-async function deleteOne<S extends <%= entity.strings.fieldRequestClass %>>(params: <%= entity.api.strings.getOneParams %>, fieldRequest: S): Promise<<%= entity.api.strings.oneResponse %><S>> {
-  const requestBody = { params, fieldRequest };
-  const path = '<%= config.apiPath %>/delete-one-<%= utils.toKababCase(entity.name) %>';
-  const { data } = await axios.post(path, requestBody);
-  return presentOneResponse(data, fieldRequest);
-}
+const deleteOne = <S extends <%= entity.strings.fieldRequestClass %>>(
+  params: <%= entity.api.strings.getOneParams %>,
+  fieldRequest: S,
+  options: RequestInit = {}
+) =>
+  callApi(DELETE_ONE_PATH, { params, fieldRequest }, options)
+    .then((r) => presentOneResponse(r, fieldRequest));
   <%_ } -%>
 
   <%_ if (entity.deprecated) { -%>
 /** @deprecated */
   <%_ } -%>
-const <%= getAxiosName(entity) %> = {
+const <%= getApiClientName(entity) %> = {
   <%_ if (entity.deprecated) { -%>
   /** @deprecated */
   <%_ } -%>
@@ -179,5 +232,5 @@ const <%= getAxiosName(entity) %> = {
   <%_ } -%>
 };
 
-export default <%= getAxiosName(entity) %>;
+export default <%= getApiClientName(entity) %>;
 <% } -%>

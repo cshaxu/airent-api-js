@@ -7,8 +7,8 @@
   ],
   "templates": [
     {
-      "name": "resources/axios-template.ts.ejs",
-      "outputPath": "test-output/clients/generated/{kababEntityName}-api-axios.ts",
+      "name": "resources/client-template.ts.ejs",
+      "outputPath": "test-output/clients/generated/{kababEntityName}-api-client.ts",
       "skippable": false
     },
     {
@@ -28,7 +28,8 @@
     }
   ],
   "airentApiPackage": "../../../src",
-  "axiosImport": "import axios from 'axios';",
+  "baseUrlImport": "import { baseUrl } from '../../../test-resources/fetch';",
+  "fetchImport": "import { fetch } from '../../../test-resources/fetch';",
   "requestContextImport": "import { RequestContext } from '../../../test-resources/framework';",
   "authenticatorImport": "import { authenticator } from '../../../test-resources/framework';",
   "errorHandlerImport": "import { errorHandler } from '../../../test-resources/framework';",

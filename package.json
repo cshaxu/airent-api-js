@@ -46,7 +46,6 @@
     "@types/lodash": "^4.14.202",
     "@types/node": "^20.10.1",
     "airent": "^0.1.6",
-    "axios": "^1.6.4",
     "crlf": "^1.1.1",
     "typescript": "^5.3.2"
   }

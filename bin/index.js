@@ -42,7 +42,7 @@ const CONFIG_FILE_PATH = path.join(PROJECT_PATH, "airent.config.json");
 const AIRENT_API_RESOURCES_PATH = "node_modules/@airent/api/resources";
 
 const API_AUGMENTOR_PATH = `${AIRENT_API_RESOURCES_PATH}/augmentor.js`;
-const API_CLIENT_AXIOS_TEMPLATE_PATH = `${AIRENT_API_RESOURCES_PATH}/axios-template.ts.ejs`;
+const API_CLIENT_TEMPLATE_PATH = `${AIRENT_API_RESOURCES_PATH}/client-template.ts.ejs`;
 const API_SERVER_HANDLERS_TEMPLATE_PATH = `${AIRENT_API_RESOURCES_PATH}/handlers-template.ts.ejs`;
 const API_SERVER_ACTIONS_TEMPLATE_PATH = `${AIRENT_API_RESOURCES_PATH}/actions-template.ts.ejs`;
 const API_SERVER_SERVICE_TEMPLATE_PATH = `${AIRENT_API_RESOURCES_PATH}/service-template.ts.ejs`;
@@ -123,8 +123,7 @@ async function configureApiServer(config) {
 async function configureApiClient(config) {
   const { templates } = config;
   const isApiClientEnabled =
-    templates.find((t) => t.name === API_CLIENT_AXIOS_TEMPLATE_PATH) !==
-    undefined;
+    templates.find((t) => t.name === API_CLIENT_TEMPLATE_PATH) !== undefined;
   const shouldEnableApiClient = await getShouldEnable(
     "Api Client",
     isApiClientEnabled
@@ -146,15 +145,22 @@ async function configureApiClient(config) {
       .replaceAll("\\", "/");
   }
   templates.push({
-    name: API_CLIENT_AXIOS_TEMPLATE_PATH,
-    outputPath: `${outputPath}/{kababEntityName}-api-axios.ts`,
+    name: API_CLIENT_TEMPLATE_PATH,
+    outputPath: `${outputPath}/{kababEntityName}-api-client.ts`,
     skippable: false,
   });
 
-  if (config.axiosImport === undefined) {
-    config.axiosImport = await askQuestion(
-      'Statement to import "axios"',
-      "import axios from 'axios';"
+  if (config.baseUrlImport === undefined) {
+    config.baseUrlImport = await askQuestion(
+      "Statement to import 'baseUrl'",
+      "import { baseUrl } from '@/fetch';"
+    );
+  }
+
+  if (config.fetchOptionsImport === undefined) {
+    config.fetchOptionsImport = await askQuestion(
+      "Statement to import 'fetchOptions'",
+      "import { fetchOptions } from '@/fetch';"
     );
   }
 
