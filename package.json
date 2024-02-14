@@ -37,13 +37,11 @@
   ],
   "dependencies": {
     "http-errors": "^2.0.0",
-    "lodash": "^4.17.21",
     "zod": "^3.22.4"
   },
   "devDependencies": {
     "@types/async-lock": "^1.4.2",
     "@types/http-errors": "^2.0.4",
-    "@types/lodash": "^4.14.202",
     "@types/node": "^20.10.1",
     "airent": "^0.1.6",
     "crlf": "^1.1.1",

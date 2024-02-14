@@ -1,6 +1,21 @@
 import createHttpError from "http-errors";
-import { isNil } from "lodash";
 import * as z from "zod";
+
+async function fetchJsonOrThrow(
+  input: string,
+  init?: RequestInit
+): Promise<any> {
+  const response = await fetch(input, init);
+  const json = await response.json();
+  if (json.error) {
+    throw createHttpError(response.status, json.error);
+  }
+  return json;
+}
+
+function isNil(value: any): value is null | undefined {
+  return value === undefined || value === null;
+}
 
 function getMin<T>(array: T[]): T | null {
   return array.reduce(
@@ -264,7 +279,7 @@ function respond<RESULT>(result: RESULT, status: number = 200): Response {
   return Response.json(result, { status });
 }
 
-function isReadableStream(object: any): boolean {
+function isReadableStream(object: any): object is ReadableStream {
   return (
     object instanceof ReadableStream ||
     (isFunction(object.cancel) &&
@@ -291,6 +306,7 @@ export {
   HandlerConfig,
   UpdateOneAction,
   UpdateOneApiHandlerConfig,
+  fetchJsonOrThrow,
   getMax,
   getMin,
   handle,

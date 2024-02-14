@@ -42,6 +42,7 @@ import {
 import <%= getApiClientName(type._entity) %> from './<%= `${utils.toKababCase(type.name)}-api-client` %>';
   <%_ }); -%>
   <%_ if (entity.api.methods) { -%>
+import { fetchJsonOrThrow } from '<%= config.airentApiPackage ?? '@airent/api' %>';
 <% if (config.fetchOptionsImport?.length > 0) { -%>
 <%- config.fetchOptionsImport %>
 <% } -%>
@@ -117,71 +118,84 @@ const UPDATE_ONE_PATH = '<%= config.apiPath %>/update-one-<%= utils.toKababCase(
 const DELETE_ONE_PATH = '<%= config.apiPath %>/delete-one-<%= utils.toKababCase(entity.name) %>';
     <%_ } -%>
 
-const callApi = (
+async function callApi(
   path: string, 
   body: Record<string, any>,
   options: RequestInit = {}
-) =>
-  fetch(<%- config.baseUrlImport?.length > 0 ? '`${baseUrl ?? \'\'}${path}`' : 'path' %>, {
+): Promise<any> {
+  const input = <%- config.baseUrlImport?.length > 0 ? '`${baseUrl ?? \'\'}${path}`' : 'path' %>;
+  const init = {
     <%_ if (config.fetchOptionsImport?.length > 0) { -%>
     ...fetchOptions,
     <%_ } -%>
     ...options,
     method: 'POST',
     body: JSON.stringify(body),
-  }).then((r) => r.json());
+  };
+  return await fetchJsonOrThrow(input, init);
+}
 
   <%_ } -%>
   <%_ if (entity.api.booleans.hasGetMany) { -%>
 
-const getMany = <S extends <%= entity.strings.fieldRequestClass %>>(
+async function getMany<S extends <%= entity.strings.fieldRequestClass %>>(
   query: <%= entity.api.strings.getManyQuery %>,
   fieldRequest: S,
   options: RequestInit = {}
-) =>
-  callApi(GET_MANY_PATH, { query, fieldRequest }, options)
-    .then((r) => presentManyResponse(r, fieldRequest));
+): Promise<<%= entity.api.strings.manyResponse %><S>> {
+  const data = { query, fieldRequest };
+  const response = await callApi(GET_MANY_PATH, data, options);
+  return presentManyResponse(response, fieldRequest);
+}
   <%_ } -%>
   <%_ if (entity.api.booleans.hasGetOne) { -%>
 
-const getOne = <S extends <%= entity.strings.fieldRequestClass %>>(
+async function getOne<S extends <%= entity.strings.fieldRequestClass %>>(
   params: <%= entity.api.strings.getOneParams %>,
   fieldRequest: S,
   options: RequestInit = {}
-) =>
-  callApi(GET_ONE_PATH, { params, fieldRequest }, options)
-    .then((r) => presentOneResponse(r, fieldRequest));
+): Promise<<%= entity.api.strings.oneResponse %><S>> {
+  const data = { params, fieldRequest };
+  const response = await callApi(GET_ONE_PATH, data, options);
+  return presentOneResponse(response, fieldRequest);
+}
   <%_ } -%>
   <%_ if (entity.api.booleans.hasCreateOne) { -%>
 
-const createOne = <S extends <%= entity.strings.fieldRequestClass %>>(
+async function createOne<S extends <%= entity.strings.fieldRequestClass %>>(
   body: <%= entity.api.strings.createOneBody %>,
   fieldRequest: S,
   options: RequestInit = {}
-) =>
-  callApi(CREATE_ONE_PATH, { body, fieldRequest }, options)
-    .then((r) => presentOneResponse(r, fieldRequest));
+): Promise<<%= entity.api.strings.oneResponse %><S>> {
+  const data = { body, fieldRequest };
+  const response = await callApi(CREATE_ONE_PATH, data, options);
+  return presentOneResponse(response, fieldRequest);
+}
   <%_ } -%>
   <%_ if (entity.api.booleans.hasUpdateOne) { -%>
 
-const updateOne = <S extends <%= entity.strings.fieldRequestClass %>>(
+async function updateOne<S extends <%= entity.strings.fieldRequestClass %>>(
   params: <%= entity.api.strings.getOneParams %>,
   body: <%= entity.api.strings.updateOneBody %>,
   fieldRequest: S,
   options: RequestInit = {}
-) =>
-  callApi(UPDATE_ONE_PATH, { params, body, fieldRequest }, options)
-    .then((r) => presentOneResponse(r, fieldRequest));
+): Promise<<%= entity.api.strings.oneResponse %><S>> {
+  const data = { params, body, fieldRequest };
+  const response = await callApi(UPDATE_ONE_PATH, data, options);
+  return presentOneResponse(response, fieldRequest);
+}
   <%_ } -%>
   <%_ if (entity.api.booleans.hasDeleteOne) { -%>
 
-const deleteOne = <S extends <%= entity.strings.fieldRequestClass %>>(
+async function deleteOne<S extends <%= entity.strings.fieldRequestClass %>>(
   params: <%= entity.api.strings.getOneParams %>,
   fieldRequest: S,
   options: RequestInit = {}
-) =>
-  callApi(DELETE_ONE_PATH, { params, fieldRequest }, options)
-    .then((r) => presentOneResponse(r, fieldRequest));
+): Promise<<%= entity.api.strings.oneResponse %><S>> {
+  const data = { params, fieldRequest };
+  const response = await callApi(DELETE_ONE_PATH, data, options)
+  return presentOneResponse(response, fieldRequest);
+}
   <%_ } -%>
 
   <%_ if (entity.deprecated) { -%>

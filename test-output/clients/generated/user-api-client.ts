@@ -5,6 +5,7 @@ import {
   ManyUsersResponse,
   OneUserResponse,
 } from '../../entities/generated/user-type';
+import { fetchJsonOrThrow } from '../../../src';
 import { baseUrl } from '../../../test-resources/fetch';
 import {
   GetManyUsersQuery,
@@ -48,58 +49,71 @@ const CREATE_ONE_PATH = '/api/data/create-one-user';
 const UPDATE_ONE_PATH = '/api/data/update-one-user';
 const DELETE_ONE_PATH = '/api/data/delete-one-user';
 
-const callApi = (
+async function callApi(
   path: string, 
   body: Record<string, any>,
   options: RequestInit = {}
-) =>
-  fetch(`${baseUrl ?? ''}${path}`, {
+): Promise<any> {
+  const input = `${baseUrl ?? ''}${path}`;
+  const init = {
     ...options,
     method: 'POST',
     body: JSON.stringify(body),
-  }).then((r) => r.json());
+  };
+  return await fetchJsonOrThrow(input, init);
+}
 
 
-const getMany = <S extends UserFieldRequest>(
+async function getMany<S extends UserFieldRequest>(
   query: GetManyUsersQuery,
   fieldRequest: S,
   options: RequestInit = {}
-) =>
-  callApi(GET_MANY_PATH, { query, fieldRequest }, options)
-    .then((r) => presentManyResponse(r, fieldRequest));
+): Promise<ManyUsersResponse<S>> {
+  const data = { query, fieldRequest };
+  const response = await callApi(GET_MANY_PATH, data, options);
+  return presentManyResponse(response, fieldRequest);
+}
 
-const getOne = <S extends UserFieldRequest>(
+async function getOne<S extends UserFieldRequest>(
   params: GetOneUserParams,
   fieldRequest: S,
   options: RequestInit = {}
-) =>
-  callApi(GET_ONE_PATH, { params, fieldRequest }, options)
-    .then((r) => presentOneResponse(r, fieldRequest));
+): Promise<OneUserResponse<S>> {
+  const data = { params, fieldRequest };
+  const response = await callApi(GET_ONE_PATH, data, options);
+  return presentOneResponse(response, fieldRequest);
+}
 
-const createOne = <S extends UserFieldRequest>(
+async function createOne<S extends UserFieldRequest>(
   body: CreateOneUserBody,
   fieldRequest: S,
   options: RequestInit = {}
-) =>
-  callApi(CREATE_ONE_PATH, { body, fieldRequest }, options)
-    .then((r) => presentOneResponse(r, fieldRequest));
+): Promise<OneUserResponse<S>> {
+  const data = { body, fieldRequest };
+  const response = await callApi(CREATE_ONE_PATH, data, options);
+  return presentOneResponse(response, fieldRequest);
+}
 
-const updateOne = <S extends UserFieldRequest>(
+async function updateOne<S extends UserFieldRequest>(
   params: GetOneUserParams,
   body: UpdateOneUserBody,
   fieldRequest: S,
   options: RequestInit = {}
-) =>
-  callApi(UPDATE_ONE_PATH, { params, body, fieldRequest }, options)
-    .then((r) => presentOneResponse(r, fieldRequest));
+): Promise<OneUserResponse<S>> {
+  const data = { params, body, fieldRequest };
+  const response = await callApi(UPDATE_ONE_PATH, data, options);
+  return presentOneResponse(response, fieldRequest);
+}
 
-const deleteOne = <S extends UserFieldRequest>(
+async function deleteOne<S extends UserFieldRequest>(
   params: GetOneUserParams,
   fieldRequest: S,
   options: RequestInit = {}
-) =>
-  callApi(DELETE_ONE_PATH, { params, fieldRequest }, options)
-    .then((r) => presentOneResponse(r, fieldRequest));
+): Promise<OneUserResponse<S>> {
+  const data = { params, fieldRequest };
+  const response = await callApi(DELETE_ONE_PATH, data, options)
+  return presentOneResponse(response, fieldRequest);
+}
 
 const UserApiClient = {
   present,

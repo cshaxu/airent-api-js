@@ -1,4 +1,5 @@
 import * as z from "zod";
+declare function fetchJsonOrThrow(input: string, init?: RequestInit): Promise<any>;
 declare function getMin<T>(array: T[]): T | null;
 declare function getMax<T>(array: T[]): T | null;
 type Authenticator<OPTIONS, REQUEST_CONTEXT> = (headers: Headers, options?: OPTIONS) => Promise<REQUEST_CONTEXT>;
@@ -46,4 +47,4 @@ type HandlerConfig<OPTIONS, REQUEST_CONTEXT, PARSED, RESULT> = {
     code?: number;
 };
 declare function handle<OPTIONS, REQUEST_CONTEXT, PARSED, RESULT>(config: HandlerConfig<OPTIONS, REQUEST_CONTEXT, PARSED, RESULT>): (request: Request) => Promise<Response>;
-export { Authenticator, CreateOneAction, CreateOneApiHandlerConfig, ErrorContext, ErrorHandler, GetManyAction, GetManyApiHandlerConfig, GetOneAction, GetOneApiHandlerConfig, HandlerConfig, UpdateOneAction, UpdateOneApiHandlerConfig, getMax, getMin, handle, handleCreateOne, handleDeleteOne, handleGetMany, handleGetOne, handleSearch, handleUpdateOne, };
+export { Authenticator, CreateOneAction, CreateOneApiHandlerConfig, ErrorContext, ErrorHandler, GetManyAction, GetManyApiHandlerConfig, GetOneAction, GetOneApiHandlerConfig, HandlerConfig, UpdateOneAction, UpdateOneApiHandlerConfig, fetchJsonOrThrow, getMax, getMin, handle, handleCreateOne, handleDeleteOne, handleGetMany, handleGetOne, handleSearch, handleUpdateOne, };
