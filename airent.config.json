@@ -29,7 +29,7 @@
   ],
   "airentApiPackage": "../../../src",
   "baseUrlImport": "import { baseUrl } from '../../../test-resources/fetch';",
-  "fetchImport": "import { fetch } from '../../../test-resources/fetch';",
+  "fetchOptionsImport": "import { fetchOptions } from '../../../test-resources/fetch';",
   "requestContextImport": "import { RequestContext } from '../../../test-resources/framework';",
   "authenticatorImport": "import { authenticator } from '../../../test-resources/framework';",
   "errorHandlerImport": "import { errorHandler } from '../../../test-resources/framework';",

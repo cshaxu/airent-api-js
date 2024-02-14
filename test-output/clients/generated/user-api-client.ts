@@ -6,6 +6,7 @@ import {
   OneUserResponse,
 } from '../../entities/generated/user-type';
 import { fetchJsonOrThrow } from '../../../src';
+import { fetchOptions } from '../../../test-resources/fetch';
 import { baseUrl } from '../../../test-resources/fetch';
 import {
   GetManyUsersQuery,
@@ -56,9 +57,11 @@ async function callApi(
 ): Promise<any> {
   const input = `${baseUrl ?? ''}${path}`;
   const init = {
-    ...options,
+    credentials: 'include' as RequestCredentials,
     method: 'POST',
     body: JSON.stringify(body),
+    ...fetchOptions,
+    ...options,
   };
   return await fetchJsonOrThrow(input, init);
 }
