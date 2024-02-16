@@ -1,9 +1,8 @@
 name: User
+deprecated: true
 api:
   request:
     import: "../../../test-resources/user-type"
-  service:
-    import: "../../../test-resources/user-service"
   cursors:
     - createdAt
   methods:

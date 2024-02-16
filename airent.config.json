@@ -2,15 +2,11 @@
   "type": "commonjs",
   "schemaPath": "test-schemas",
   "entityPath": "test-output/entities",
+  "airentApiPackage": "../../../src",
   "augmentors": [
     "resources/augmentor.js"
   ],
   "templates": [
-    {
-      "name": "resources/client-template.ts.ejs",
-      "outputPath": "test-output/clients/generated/{kababEntityName}-api-client.ts",
-      "skippable": false
-    },
     {
       "name": "resources/handlers-template.ts.ejs",
       "outputPath": "{entityPath}/generated/{kababEntityName}-handlers.ts",
@@ -22,17 +18,28 @@
       "skippable": false
     },
     {
+      "name": "resources/service-interface-template.ts.ejs",
+      "outputPath": "{entityPath}/generated/{kababEntityName}-service-interface.ts",
+      "skippable": false
+    },
+    {
       "name": "resources/service-template.ts.ejs",
-      "outputPath": "{entityPath}/generated/{kababEntityName}-service.ts",
+      "outputPath": "test-output/services/semi-generated/{kababEntityName}.ts",
+      "skippable": true
+    },
+    {
+      "name": "resources/client-template.ts.ejs",
+      "outputPath": "test-output/clients/generated/{kababEntityName}-api-client.ts",
       "skippable": false
     }
   ],
-  "airentApiPackage": "../../../src",
   "baseUrlImport": "import { baseUrl } from '../../../test-resources/fetch';",
   "fetchOptionsImport": "import { fetchOptions } from '../../../test-resources/fetch';",
   "requestContextImport": "import { RequestContext } from '../../../test-resources/framework';",
   "authenticatorImport": "import { authenticator } from '../../../test-resources/framework';",
   "errorHandlerImport": "import { errorHandler } from '../../../test-resources/framework';",
-  "clientTypePath": "../../entities/generated",
-  "apiPath": "/api/data"
+  "actionServicePath": "../../services/semi-generated",
+  "serviceInterfacePath": "../../entities/generated",
+  "serviceEntityPath": "../../entities",
+  "clientTypePath": "../../entities/generated"
 }

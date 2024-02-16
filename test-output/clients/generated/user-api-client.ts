@@ -44,18 +44,12 @@ function presentOneResponse<S extends UserFieldRequest>(
   return { user: present(response.user, fieldRequest) };
 }
 
-const GET_MANY_PATH = '/api/data/get-many-users';
-const GET_ONE_PATH = '/api/data/get-one-user';
-const CREATE_ONE_PATH = '/api/data/create-one-user';
-const UPDATE_ONE_PATH = '/api/data/update-one-user';
-const DELETE_ONE_PATH = '/api/data/delete-one-user';
-
 async function callApi(
-  path: string, 
+  name: string, 
   body: Record<string, any>,
   options: RequestInit = {}
 ): Promise<any> {
-  const input = `${baseUrl ?? ''}${path}`;
+  const input = `${baseUrl}/${name}`;
   const init = {
     credentials: 'include' as RequestCredentials,
     method: 'POST',
@@ -66,14 +60,13 @@ async function callApi(
   return await fetchJsonOrThrow(input, init);
 }
 
-
 async function getMany<S extends UserFieldRequest>(
   query: GetManyUsersQuery,
   fieldRequest: S,
   options: RequestInit = {}
 ): Promise<ManyUsersResponse<S>> {
   const data = { query, fieldRequest };
-  const response = await callApi(GET_MANY_PATH, data, options);
+  const response = await callApi('get-many-users', data, options);
   return presentManyResponse(response, fieldRequest);
 }
 
@@ -83,7 +76,7 @@ async function getOne<S extends UserFieldRequest>(
   options: RequestInit = {}
 ): Promise<OneUserResponse<S>> {
   const data = { params, fieldRequest };
-  const response = await callApi(GET_ONE_PATH, data, options);
+  const response = await callApi('get-one-user', data, options);
   return presentOneResponse(response, fieldRequest);
 }
 
@@ -93,7 +86,7 @@ async function createOne<S extends UserFieldRequest>(
   options: RequestInit = {}
 ): Promise<OneUserResponse<S>> {
   const data = { body, fieldRequest };
-  const response = await callApi(CREATE_ONE_PATH, data, options);
+  const response = await callApi('create-one-user', data, options);
   return presentOneResponse(response, fieldRequest);
 }
 
@@ -104,7 +97,7 @@ async function updateOne<S extends UserFieldRequest>(
   options: RequestInit = {}
 ): Promise<OneUserResponse<S>> {
   const data = { params, body, fieldRequest };
-  const response = await callApi(UPDATE_ONE_PATH, data, options);
+  const response = await callApi('update-one-user', data, options);
   return presentOneResponse(response, fieldRequest);
 }
 
@@ -114,18 +107,27 @@ async function deleteOne<S extends UserFieldRequest>(
   options: RequestInit = {}
 ): Promise<OneUserResponse<S>> {
   const data = { params, fieldRequest };
-  const response = await callApi(DELETE_ONE_PATH, data, options)
+  const response = await callApi('delete-one-user', data, options)
   return presentOneResponse(response, fieldRequest);
 }
 
+/** @deprecated */
 const UserApiClient = {
+  /** @deprecated */
   present,
+  /** @deprecated */
   presentManyResponse,
+  /** @deprecated */
   presentOneResponse,
+  /** @deprecated */
   getMany,
+  /** @deprecated */
   getOne,
+  /** @deprecated */
   createOne,
+  /** @deprecated */
   updateOne,
+  /** @deprecated */
   deleteOne,
 };
 

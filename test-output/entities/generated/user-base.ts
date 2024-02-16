@@ -17,6 +17,7 @@ import {
   UserModel,
 } from './user-type';
 
+/** @deprecated */
 export class UserEntityBase extends BaseEntity<
   UserModel, UserFieldRequest, UserResponse
 > {

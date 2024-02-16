@@ -35,6 +35,7 @@ function addStrings(entity, isVerbose) {
     handlersClass: `${singularEntName}Handlers`,
     actionClass: `${singularEntName}Actions`,
     serviceClass: `${singularEntName}Service`,
+    apiClientClass: `${singularEntName}ApiClient`,
     manyCursor: `Many${pluralEntName}Cursor`,
     manyResponse: `Many${pluralEntName}Response`,
     oneResponse: `One${singularEntName}Response`,
@@ -42,16 +43,6 @@ function addStrings(entity, isVerbose) {
     getOneParams: `GetOne${singularEntName}Params`,
     createOneBody: `CreateOne${singularEntName}Body`,
     updateOneBody: `UpdateOne${singularEntName}Body`,
-    getManyAction: `getMany${pluralEntName}`,
-    getOneAction: `getOne${singularEntName}`,
-    createOneAction: `createOne${singularEntName}`,
-    updateOneAction: `updateOne${singularEntName}`,
-    deleteOneAction: `deleteOne${singularEntName}`,
-    getManyHandler: `handleGetMany${pluralEntName}`,
-    getOneHandler: `handleGetOne${singularEntName}`,
-    createOneHandler: `handleCreateOne${singularEntName}`,
-    updateOneHandler: `handleUpdateOne${singularEntName}`,
-    deleteOneHandler: `handleDeleteOne${singularEntName}`,
   };
   const hasGetOne = hasApiMethod(entity, "getOne");
   const hasUpdateOne = hasApiMethod(entity, "updateOne");

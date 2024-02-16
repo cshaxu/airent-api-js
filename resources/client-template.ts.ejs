@@ -3,12 +3,16 @@ function isDateTypeField(field) {
   return field.strings.fieldClass === "Date";
 }
 
-function getApiClientName(entity) {
-  return `${utils.toTitleCase(entity.name)}ApiClient`;
+function getTypePackagePath() {
+  return `${config.clientTypePath}/${entity.strings.typePackage}`;
+}
+
+function getApiClientPackagePath(type) {
+  return `./${utils.toKababCase(type.name)}-api-client${utils.getModuleSuffix(config)}`;
 }
 
 function presentEntityTypeField(field) {
-  const presenter = `${getApiClientName(field._type._entity)}.present`;
+  const presenter = `${field._type._entity.api.strings.apiClientClass}.present`;
   if (utils.isArrayField(field)) {
     return `one.${field.name}.map((nested: any) => ${presenter}(nested, fieldRequest.${field.name}!))`;
   }
@@ -37,18 +41,16 @@ import {
   <%= entity.strings.fieldRequestClass %>,
   <%= entity.api.strings.manyResponse %>,
   <%= entity.api.strings.oneResponse %>,
-} from '<%= config.clientTypePath %>/<%= entity.strings.typePackage %>';
+} from '<%- getTypePackagePath() %>';
   <%_ entity.types.filter(utils.isPresentableEntityType).filter((t) => t.name !== entity.name).forEach((type) => { -%>
-import <%= getApiClientName(type._entity) %> from './<%= `${utils.toKababCase(type.name)}-api-client` %>';
+import <%= type._entity.api.strings.apiClientClass %> from '<%- getApiClientPackagePath(type) %>';
   <%_ }); -%>
   <%_ if (entity.api.methods) { -%>
 import { fetchJsonOrThrow } from '<%= config.airentApiPackage ?? '@airent/api' %>';
 <% if (config.fetchOptionsImport?.length > 0) { -%>
 <%- config.fetchOptionsImport %>
 <% } -%>
-<% if (config.baseUrlImport?.length > 0) { -%>
 <%- config.baseUrlImport %>
-<% } -%>
 import {
     <%_ if (entity.api.booleans.hasGetMany) { -%>
   <%= entity.api.strings.getManyQuery %>,
@@ -102,28 +104,12 @@ function presentOneResponse<S extends <%= entity.strings.fieldRequestClass %>>(
 }
   <%_ if (entity.api.methods) { -%>
 
-    <%_ if (entity.api.booleans.hasGetMany) { -%>
-const GET_MANY_PATH = '<%= config.apiPath %>/get-many-<%= utils.toKababCase(utils.pluralize(entity.name)) %>';
-    <%_ } -%>
-    <%_ if (entity.api.booleans.hasGetOne) { -%>
-const GET_ONE_PATH = '<%= config.apiPath %>/get-one-<%= utils.toKababCase(entity.name) %>';
-    <%_ } -%>
-    <%_ if (entity.api.booleans.hasCreateOne) { -%>
-const CREATE_ONE_PATH = '<%= config.apiPath %>/create-one-<%= utils.toKababCase(entity.name) %>';
-    <%_ } -%>
-    <%_ if (entity.api.booleans.hasUpdateOne) { -%>
-const UPDATE_ONE_PATH = '<%= config.apiPath %>/update-one-<%= utils.toKababCase(entity.name) %>';
-    <%_ } -%>
-    <%_ if (entity.api.booleans.hasDeleteOne) { -%>
-const DELETE_ONE_PATH = '<%= config.apiPath %>/delete-one-<%= utils.toKababCase(entity.name) %>';
-    <%_ } -%>
-
 async function callApi(
-  path: string, 
+  name: string, 
   body: Record<string, any>,
   options: RequestInit = {}
 ): Promise<any> {
-  const input = <%- config.baseUrlImport?.length > 0 ? '`${baseUrl ?? \'\'}${path}`' : 'path' %>;
+  const input = `${baseUrl}/${name}`;
   const init = {
     credentials: 'include' as RequestCredentials,
     method: 'POST',
@@ -135,7 +121,6 @@ async function callApi(
   };
   return await fetchJsonOrThrow(input, init);
 }
-
   <%_ } -%>
   <%_ if (entity.api.booleans.hasGetMany) { -%>
 
@@ -145,7 +130,7 @@ async function getMany<S extends <%= entity.strings.fieldRequestClass %>>(
   options: RequestInit = {}
 ): Promise<<%= entity.api.strings.manyResponse %><S>> {
   const data = { query, fieldRequest };
-  const response = await callApi(GET_MANY_PATH, data, options);
+  const response = await callApi('get-many-<%= utils.toKababCase(utils.pluralize(entity.name)) %>', data, options);
   return presentManyResponse(response, fieldRequest);
 }
   <%_ } -%>
@@ -157,7 +142,7 @@ async function getOne<S extends <%= entity.strings.fieldRequestClass %>>(
   options: RequestInit = {}
 ): Promise<<%= entity.api.strings.oneResponse %><S>> {
   const data = { params, fieldRequest };
-  const response = await callApi(GET_ONE_PATH, data, options);
+  const response = await callApi('get-one-<%= utils.toKababCase(entity.name) %>', data, options);
   return presentOneResponse(response, fieldRequest);
 }
   <%_ } -%>
@@ -169,7 +154,7 @@ async function createOne<S extends <%= entity.strings.fieldRequestClass %>>(
   options: RequestInit = {}
 ): Promise<<%= entity.api.strings.oneResponse %><S>> {
   const data = { body, fieldRequest };
-  const response = await callApi(CREATE_ONE_PATH, data, options);
+  const response = await callApi('create-one-<%= utils.toKababCase(entity.name) %>', data, options);
   return presentOneResponse(response, fieldRequest);
 }
   <%_ } -%>
@@ -182,7 +167,7 @@ async function updateOne<S extends <%= entity.strings.fieldRequestClass %>>(
   options: RequestInit = {}
 ): Promise<<%= entity.api.strings.oneResponse %><S>> {
   const data = { params, body, fieldRequest };
-  const response = await callApi(UPDATE_ONE_PATH, data, options);
+  const response = await callApi('update-one-<%= utils.toKababCase(entity.name) %>', data, options);
   return presentOneResponse(response, fieldRequest);
 }
   <%_ } -%>
@@ -194,7 +179,7 @@ async function deleteOne<S extends <%= entity.strings.fieldRequestClass %>>(
   options: RequestInit = {}
 ): Promise<<%= entity.api.strings.oneResponse %><S>> {
   const data = { params, fieldRequest };
-  const response = await callApi(DELETE_ONE_PATH, data, options)
+  const response = await callApi('delete-one-<%= utils.toKababCase(entity.name) %>', data, options)
   return presentOneResponse(response, fieldRequest);
 }
   <%_ } -%>
@@ -202,7 +187,7 @@ async function deleteOne<S extends <%= entity.strings.fieldRequestClass %>>(
   <%_ if (entity.deprecated) { -%>
 /** @deprecated */
   <%_ } -%>
-const <%= getApiClientName(entity) %> = {
+const <%= entity.api.strings.apiClientClass %> = {
   <%_ if (entity.deprecated) { -%>
   /** @deprecated */
   <%_ } -%>
@@ -247,5 +232,5 @@ const <%= getApiClientName(entity) %> = {
   <%_ } -%>
 };
 
-export default <%= getApiClientName(entity) %>;
+export default <%= entity.api.strings.apiClientClass %>;
 <% } -%>

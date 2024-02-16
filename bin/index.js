@@ -10,10 +10,11 @@ const rl = readline.createInterface({
 });
 
 // Function to ask a question and store the answer in the config object
-function askQuestion(question, defaultAnswer) {
-  return new Promise((resolve) =>
+async function askQuestion(question, defaultAnswer) {
+  const a = await new Promise((resolve) =>
     rl.question(`${question} (${defaultAnswer}): `, resolve)
-  ).then((a) => (a?.length ? a : defaultAnswer));
+  );
+  return a?.length ? a : defaultAnswer;
 }
 
 async function getShouldEnable(name, isEnabled) {
@@ -45,6 +46,7 @@ const API_AUGMENTOR_PATH = `${AIRENT_API_RESOURCES_PATH}/augmentor.js`;
 const API_CLIENT_TEMPLATE_PATH = `${AIRENT_API_RESOURCES_PATH}/client-template.ts.ejs`;
 const API_SERVER_HANDLERS_TEMPLATE_PATH = `${AIRENT_API_RESOURCES_PATH}/handlers-template.ts.ejs`;
 const API_SERVER_ACTIONS_TEMPLATE_PATH = `${AIRENT_API_RESOURCES_PATH}/actions-template.ts.ejs`;
+const API_SERVER_SERVICE_INTERFACE_TEMPLATE_PATH = `${AIRENT_API_RESOURCES_PATH}/service-interface-template.ts.ejs`;
 const API_SERVER_SERVICE_TEMPLATE_PATH = `${AIRENT_API_RESOURCES_PATH}/service-template.ts.ejs`;
 
 async function loadConfig() {
@@ -64,8 +66,9 @@ async function configureApiServer(config) {
     templates.find((t) => t.name === API_SERVER_ACTIONS_TEMPLATE_PATH) !==
     undefined;
   const isApiServerServiceEnabled =
-    templates.find((t) => t.name === API_SERVER_SERVICE_TEMPLATE_PATH) !==
-    undefined;
+    templates.find(
+      (t) => t.name === API_SERVER_SERVICE_INTERFACE_TEMPLATE_PATH
+    ) !== undefined;
   const isApiServerEnabled =
     isApiServerHandlersEnabled &&
     isApiServerActionsEnabled &&
@@ -94,16 +97,47 @@ async function configureApiServer(config) {
   }
   if (!isApiServerServiceEnabled) {
     templates.push({
-      name: API_SERVER_SERVICE_TEMPLATE_PATH,
-      outputPath: "{entityPath}/generated/{kababEntityName}-service.ts",
+      name: API_SERVER_SERVICE_INTERFACE_TEMPLATE_PATH,
+      outputPath:
+        "{entityPath}/generated/{kababEntityName}-service-interface.ts",
       skippable: false,
+    });
+    const servicePath = await askQuestion("Service path", "./src/services");
+    if (config.actionServicePath === undefined) {
+      config.actionServicePath = path
+        .relative(
+          path.join(PROJECT_PATH, config.entityPath, "/generated"),
+          path.join(PROJECT_PATH, servicePath)
+        )
+        .replaceAll("\\", "/");
+    }
+    if (config.serviceInterfacePath === undefined) {
+      config.serviceInterfacePath = path
+        .relative(
+          path.join(PROJECT_PATH, servicePath),
+          path.join(PROJECT_PATH, config.entityPath, "/generated")
+        )
+        .replaceAll("\\", "/");
+    }
+    if (config.serviceEntityPath === undefined) {
+      config.serviceEntityPath = path
+        .relative(
+          path.join(PROJECT_PATH, servicePath),
+          path.join(PROJECT_PATH, config.entityPath)
+        )
+        .replaceAll("\\", "/");
+    }
+    templates.push({
+      name: API_SERVER_SERVICE_TEMPLATE_PATH,
+      outputPath: `${servicePath}/{kababEntityName}.ts`,
+      skippable: true,
     });
   }
 
   if (config.requestContextImport === undefined) {
     config.requestContextImport = await askQuestion(
       'Statement to import "RequestContext"',
-      "import { RequestContext } from '@/types/server';"
+      "import { RequestContext } from '@/framework';"
     );
   }
   if (config.authenticatorImport === undefined) {
@@ -162,10 +196,6 @@ async function configureApiClient(config) {
       "Statement to import 'fetchOptions'",
       "import { fetchOptions } from '@/fetch';"
     );
-  }
-
-  if (config.apiPath === undefined) {
-    config.apiPath = await askQuestion("Api path", "/api");
   }
 }
 

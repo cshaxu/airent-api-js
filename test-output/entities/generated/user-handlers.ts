@@ -5,7 +5,7 @@ import {
   handleUpdateOne,
   handleDeleteOne,
 } from '../../../src';
-import * as UserActions from './user-actions';
+import UserActions from './user-actions';
 import {
   GetManyUsersQuery,
   GetOneUserParams,
@@ -15,43 +15,59 @@ import {
 import { authenticator } from '../../../test-resources/framework';
 import { errorHandler } from '../../../test-resources/framework';
 
-export const handleGetManyUsers = handleGetMany({
+/** @deprecated */
+const getMany = handleGetMany({
   queryZod: GetManyUsersQuery,
-  action: UserActions.getManyUsers,
+  action: UserActions.getMany,
   authenticator,
   errorHandler,
   options: { requireAdmin: true },
 });
 
-export const handleGetOneUser = handleGetOne({
+/** @deprecated */
+const getOne = handleGetOne({
   paramsZod: GetOneUserParams,
-  action: UserActions.getOneUser,
+  action: UserActions.getOne,
   authenticator,
   errorHandler,
   options: { requireLogin: false },
 });
 
-export const handleCreateOneUser = handleCreateOne({
+/** @deprecated */
+const createOne = handleCreateOne({
   bodyZod: CreateOneUserBody,
-  action: UserActions.createOneUser,
+  action: UserActions.createOne,
   authenticator,
   errorHandler,
   options: { requireLogin: false },
 });
 
-export const handleUpdateOneUser = handleUpdateOne({
+/** @deprecated */
+const updateOne = handleUpdateOne({
   paramsZod: GetOneUserParams,
   bodyZod: UpdateOneUserBody,
-  action: UserActions.updateOneUser,
+  action: UserActions.updateOne,
   authenticator,
   errorHandler,
   options: { requireLogin: true },
 });
 
-export const handleDeleteOneUser = handleDeleteOne({
+/** @deprecated */
+const deleteOne = handleDeleteOne({
   paramsZod: GetOneUserParams,
-  action: UserActions.deleteOneUser,
+  action: UserActions.deleteOne,
   authenticator,
   errorHandler,
   options: { requireLogin: true },
 });
+
+/** @deprecated */
+const UserHandlers = {
+  getMany,
+  getOne,
+  createOne,
+  updateOne,
+  deleteOne,
+};
+
+export default UserHandlers;

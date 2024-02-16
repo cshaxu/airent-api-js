@@ -1,3 +1,8 @@
+<%
+function getActionPackage() {
+  return `./${utils.toKababCase(entity.name)}-actions${utils.getModuleSuffix(config)}`;
+}
+-%>
 <% if (entity.api.methods) { -%>
 import {
   <%_ if (entity.api.booleans.hasGetMany) { -%>
@@ -16,7 +21,7 @@ import {
   handleDeleteOne,
   <%_ } -%>
 } from '<%= config.airentApiPackage ?? '@airent/api' %>';
-import * as <%= entity.api.strings.actionClass %> from './<%= utils.toKababCase(entity.name) %>-actions<%= utils.getModuleSuffix(config) %>';
+import <%= entity.api.strings.actionClass %> from '<%- getActionPackage() %>';
 import {
   <%_ if (entity.api.booleans.hasGetMany) { -%>
   <%= entity.api.strings.getManyQuery %>,
@@ -40,9 +45,9 @@ import {
     <%_ if (entity.deprecated) { -%>
 /** @deprecated */
     <%_ } -%>
-export const <%= entity.api.strings.getManyHandler %> = handleGetMany({
+const getMany = handleGetMany({
   queryZod: <%= entity.api.strings.getManyQuery %>,
-  action: <%= entity.api.strings.actionClass %>.<%= entity.api.strings.getManyAction %>,
+  action: <%= entity.api.strings.actionClass %>.getMany,
   authenticator,
     <%_ if (config.errorHandlerImport) { -%>
   errorHandler,
@@ -55,9 +60,9 @@ export const <%= entity.api.strings.getManyHandler %> = handleGetMany({
     <%_ if (entity.deprecated) { -%>
 /** @deprecated */
     <%_ } -%>
-export const <%= entity.api.strings.getOneHandler %> = handleGetOne({
+const getOne = handleGetOne({
   paramsZod: <%= entity.api.strings.getOneParams %>,
-  action: <%= entity.api.strings.actionClass %>.<%= entity.api.strings.getOneAction %>,
+  action: <%= entity.api.strings.actionClass %>.getOne,
   authenticator,
     <%_ if (config.errorHandlerImport) { -%>
   errorHandler,
@@ -70,9 +75,9 @@ export const <%= entity.api.strings.getOneHandler %> = handleGetOne({
     <%_ if (entity.deprecated) { -%>
 /** @deprecated */
     <%_ } -%>
-export const <%= entity.api.strings.createOneHandler %> = handleCreateOne({
+const createOne = handleCreateOne({
   bodyZod: <%= entity.api.strings.createOneBody %>,
-  action: <%= entity.api.strings.actionClass %>.<%= entity.api.strings.createOneAction %>,
+  action: <%= entity.api.strings.actionClass %>.createOne,
   authenticator,
     <%_ if (config.errorHandlerImport) { -%>
   errorHandler,
@@ -85,10 +90,10 @@ export const <%= entity.api.strings.createOneHandler %> = handleCreateOne({
     <%_ if (entity.deprecated) { -%>
 /** @deprecated */
     <%_ } -%>
-export const <%= entity.api.strings.updateOneHandler %> = handleUpdateOne({
+const updateOne = handleUpdateOne({
   paramsZod: <%= entity.api.strings.getOneParams %>,
   bodyZod: <%= entity.api.strings.updateOneBody %>,
-  action: <%= entity.api.strings.actionClass %>.<%= entity.api.strings.updateOneAction %>,
+  action: <%= entity.api.strings.actionClass %>.updateOne,
   authenticator,
     <%_ if (config.errorHandlerImport) { -%>
   errorHandler,
@@ -101,9 +106,9 @@ export const <%= entity.api.strings.updateOneHandler %> = handleUpdateOne({
     <%_ if (entity.deprecated) { -%>
 /** @deprecated */
     <%_ } -%>
-export const <%= entity.api.strings.deleteOneHandler %> = handleDeleteOne({
+const deleteOne = handleDeleteOne({
   paramsZod: <%= entity.api.strings.getOneParams %>,
-  action: <%= entity.api.strings.actionClass %>.<%= entity.api.strings.deleteOneAction %>,
+  action: <%= entity.api.strings.actionClass %>.deleteOne,
   authenticator,
     <%_ if (config.errorHandlerImport) { -%>
   errorHandler,
@@ -111,4 +116,27 @@ export const <%= entity.api.strings.deleteOneHandler %> = handleDeleteOne({
   options: <%= entity.api.methods.deleteOne ?? '{}' %>,
 });
   <%_ } -%>
+
+  <%_ if (entity.deprecated) { -%>
+/** @deprecated */
+  <%_ } -%>
+const <%= entity.api.strings.handlersClass %> = {
+  <%_ if (entity.api.booleans.hasGetMany) { -%>
+  getMany,
+  <%_ } -%>
+  <%_ if (entity.api.booleans.hasGetOne) { -%>
+  getOne,
+  <%_ } -%>
+  <%_ if (entity.api.booleans.hasCreateOne) { -%>
+  createOne,
+  <%_ } -%>
+  <%_ if (entity.api.booleans.hasUpdateOne) { -%>
+  updateOne,
+  <%_ } -%>
+  <%_ if (entity.api.booleans.hasDeleteOne) { -%>
+  deleteOne,
+  <%_ } -%>
+};
+
+export default <%= entity.api.strings.handlersClass %>;
 <% } -%>

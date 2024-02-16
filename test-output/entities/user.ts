@@ -6,5 +6,6 @@ import {
   UserModel,
 } from './generated/user-type';
 
+/** @deprecated */
 export class UserEntity extends UserEntityBase {
 }

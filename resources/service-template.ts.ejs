@@ -1,8 +1,22 @@
+<%
+function getEntityPackagePath() {
+  return `${config.serviceEntityPath}/${entity.strings.entityPackage}`;
+}
+
+function getInterfacePackagePath() {
+  const servicePackage = `${utils.toKababCase(entity.api.strings.serviceClass)}-interface${utils.getModuleSuffix(config)}`;
+  return `${config.serviceInterfacePath}/${servicePackage}`;
+}
+
+function getTypePackagePath() {
+  return `${config.serviceInterfacePath}/${entity.strings.typePackage}`;
+}
+-%>
 <% if (utils.isPresentableEntity(entity) && entity.api.methods) { -%>
   <%_ if (!entity.types.some((t) => t.name === 'RequestContext')) { -%>
 <%- config.requestContextImport %>
   <%_ } -%>
-import { <%= entity.strings.entityClass %> } from '../<%= entity.strings.entityPackage %>';
+import { <%= entity.strings.entityClass %> } from '<%- getEntityPackagePath() %>';
   <%_ entity.types.filter(utils.isImportType).forEach((type) => { -%>
 import { <%= type.strings.externalClass %> } from '<%= type.strings.externalPackage %>';
   <%_ }); -%>
@@ -10,7 +24,7 @@ import {
   <%_ entity.types.filter(utils.isCustomType).forEach((type) => { -%>
   <%= type.name %>,
   <%_ }); -%>
-} from './<%= entity.strings.typePackage %>';
+} from '<%- getTypePackagePath() %>';
 import {
   <%_ if (entity.api.booleans.hasGetMany) { -%>
   <%= entity.api.strings.getManyQuery %>,
@@ -25,52 +39,58 @@ import {
   <%= entity.api.strings.updateOneBody %>,
   <%_ } -%>
 } from '<%= entity.api.request.import %>';
+  <%_ if (entity.api.booleans.hasGetMany) { -%>
+import { <%= `${entity.api.strings.serviceClass}Interface` %> } from '<%- getInterfacePackagePath() %>';
+
+async function getMany(query: <%= entity.api.strings.getManyQuery %>, rc: RequestContext): Promise<<%= entity.strings.entityClass %>[]> {
+  throw new Error('Not implemented');
+}
+  <%_ } -%>
+  <%_ if (entity.api.booleans.hasGetOneRequest) { -%>
+
+async function getOne(params: <%= entity.api.strings.getOneParams %>, rc: RequestContext): Promise<<%= entity.strings.entityClass %>> {
+  throw new Error('Not implemented');
+}
+  <%_ } -%>
+  <%_ if (entity.api.booleans.hasCreateOne) { -%>
+
+async function createOne(body: <%= entity.api.strings.createOneBody %>, rc: RequestContext): Promise<<%= entity.strings.entityClass %>> {
+  throw new Error('Not implemented');
+}
+  <%_ } -%>
+  <%_ if (entity.api.booleans.hasUpdateOne) { -%>
+
+async function updateOne(one: <%= entity.strings.entityClass %>, body: <%= entity.api.strings.updateOneBody %>, rc: RequestContext): Promise<<%= entity.strings.entityClass %>> {
+  throw new Error('Not implemented');
+}
+  <%_ } -%>
+  <%_ if (entity.api.booleans.hasDeleteOne) { -%>
+
+async function deleteOne(one: <%= entity.strings.entityClass %>, rc: RequestContext): Promise<<%= entity.strings.entityClass %>> {
+  throw new Error('Not implemented');
+}
+  <%_ } -%>
 
   <%_ if (entity.deprecated) { -%>
 /** @deprecated */
   <%_ } -%>
-export abstract class <%= `${entity.api.strings.serviceClass}Base` %> {
+const <%= `${entity.api.strings.serviceClass}` %>: <%= `${entity.api.strings.serviceClass}Interface` %> = {
   <%_ if (entity.api.booleans.hasGetMany) { -%>
-
-  public async beforeGetMany(query: <%= entity.api.strings.getManyQuery %>, rc: RequestContext): Promise<void> {}
-
-  public async afterGetMany(many: <%= entity.strings.entityClass %>[], query: <%= entity.api.strings.getManyQuery %>, rc: RequestContext): Promise<void> {}
-
-  public abstract getMany(query: <%= entity.api.strings.getManyQuery %>, rc: RequestContext): Promise<<%= entity.strings.entityClass %>[]>;
-  <%_ } -%>
-  <%_ if (entity.api.booleans.hasGetOne) { -%>
-
-  public async beforeGetOne(params: <%= entity.api.strings.getOneParams %>, rc: RequestContext): Promise<void> {}
-
-  public async afterGetOne(one: <%= entity.strings.entityClass %>, params: <%= entity.api.strings.getOneParams %>, rc: RequestContext): Promise<void> {}
+  getMany,
   <%_ } -%>
   <%_ if (entity.api.booleans.hasGetOneRequest) { -%>
-
-  public abstract getOne(params: <%= entity.api.strings.getOneParams %>, rc: RequestContext): Promise<<%= entity.strings.entityClass %>>;
+  getOne,
   <%_ } -%>
   <%_ if (entity.api.booleans.hasCreateOne) { -%>
-
-  public async beforeCreateOne(body: <%= entity.api.strings.createOneBody %>, rc: RequestContext): Promise<void> {}
-
-  public async afterCreateOne(createdOne: <%= entity.strings.entityClass %>, body: <%= entity.api.strings.createOneBody %>, rc: RequestContext): Promise<void> {}
-
-  public abstract createOne(body: <%= entity.api.strings.createOneBody %>, rc: RequestContext): Promise<<%= entity.strings.entityClass %>>;
+  createOne,
   <%_ } -%>
   <%_ if (entity.api.booleans.hasUpdateOne) { -%>
-
-  public async beforeUpdateOne(one: <%= entity.strings.entityClass %>, body: <%= entity.api.strings.updateOneBody %>, rc: RequestContext): Promise<void> {}
-
-  public async afterUpdateOne(updatedOne: <%= entity.strings.entityClass %>, body: <%= entity.api.strings.updateOneBody %>, rc: RequestContext): Promise<void> {}
-
-  public abstract updateOne(one: <%= entity.strings.entityClass %>, body: <%= entity.api.strings.updateOneBody %>, rc: RequestContext): Promise<<%= entity.strings.entityClass %>>;
+  updateOne,
   <%_ } -%>
   <%_ if (entity.api.booleans.hasDeleteOne) { -%>
-
-  public async beforeDeleteOne(one: <%= entity.strings.entityClass %>, rc: RequestContext): Promise<void> {}
-
-  public async afterDeleteOne(deletedOne: <%= entity.strings.entityClass %>, rc: RequestContext): Promise<void> {}
-
-  public abstract deleteOne(one: <%= entity.strings.entityClass %>, rc: RequestContext): Promise<<%= entity.strings.entityClass %>>;
+  deleteOne,
   <%_ } -%>
-}
+};
+
+export default <%= `${entity.api.strings.serviceClass}` %>;
 <% } -%>
