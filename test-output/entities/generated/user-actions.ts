@@ -51,11 +51,11 @@ async function getMany<S extends UserFieldRequest>(
   rc: RequestContext,
   fieldRequest: S,
 ): Promise<ManyUsersResponse<S>> {
-  if (UserService.beforeGetMany !== undefined) {
+  if ('beforeGetMany' in UserService && typeof UserService.beforeGetMany === 'function') {
     await UserService.beforeGetMany(query, rc);
   }
   const many = await UserService.getMany(query, rc);
-  if (UserService.afterGetMany !== undefined) {
+  if ('afterGetMany' in UserService && typeof UserService.afterGetMany === 'function') {
     await UserService.afterGetMany(many, query, rc);
   }
   return await buildManyResponse(many, fieldRequest);
@@ -67,11 +67,11 @@ async function getOne<S extends UserFieldRequest>(
   rc: RequestContext,
   fieldRequest: S,
 ): Promise<OneUserResponse<S>> {
-  if (UserService.beforeGetOne !== undefined) {
+  if ('beforeGetOne' in UserService && typeof UserService.beforeGetOne === 'function') {
     await UserService.beforeGetOne(params, rc);
   }
   const one = await UserService.getOne(params, rc);
-  if (UserService.afterGetOne !== undefined) {
+  if ('afterGetOne' in UserService && typeof UserService.afterGetOne === 'function') {
     await UserService.afterGetOne(one, params, rc);
   }
   return await buildOneResponse(one, fieldRequest);
@@ -83,11 +83,11 @@ async function createOne<S extends UserFieldRequest>(
   rc: RequestContext,
   fieldRequest: S,
 ): Promise<OneUserResponse<S>> {
-  if (UserService.beforeCreateOne !== undefined) {
+  if ('beforeCreateOne' in UserService && typeof UserService.beforeCreateOne === 'function') {
     await UserService.beforeCreateOne(body, rc);
   }
   const one = await UserService.createOne(body, rc);
-  if (UserService.afterCreateOne !== undefined) {
+  if ('afterCreateOne' in UserService && typeof UserService.afterCreateOne === 'function') {
     await UserService.afterCreateOne(one, body, rc);
   }
   return await buildOneResponse(one, fieldRequest);
@@ -101,11 +101,11 @@ async function updateOne<S extends UserFieldRequest>(
   fieldRequest: S,
 ): Promise<OneUserResponse<S>> {
   const one = await UserService.getOne(params, rc);
-  if (UserService.beforeUpdateOne !== undefined) {
+  if ('beforeUpdateOne' in UserService && typeof UserService.beforeUpdateOne === 'function') {
     await UserService.beforeUpdateOne(one, body, rc);
   }
   const updatedOne = await UserService.updateOne(one, body, rc);
-  if (UserService.afterUpdateOne !== undefined) {
+  if ('afterUpdateOne' in UserService && typeof UserService.afterUpdateOne === 'function') {
     await UserService.afterUpdateOne(updatedOne, body, rc);
   }
   return await buildOneResponse(updatedOne, fieldRequest);
@@ -118,11 +118,11 @@ async function deleteOne<S extends UserFieldRequest>(
   fieldRequest: S,
 ): Promise<OneUserResponse<S>> {
   const one = await UserService.getOne(params, rc);
-  if (UserService.beforeDeleteOne !== undefined) {
+  if ('beforeDeleteOne' in UserService && typeof UserService.beforeDeleteOne === 'function') {
     await UserService.beforeDeleteOne(one, rc);
   }
   const deletedOne = await UserService.deleteOne(one, rc);
-  if (UserService.afterDeleteOne !== undefined) {
+  if ('afterDeleteOne' in UserService && typeof UserService.afterDeleteOne === 'function') {
     await UserService.afterDeleteOne(deletedOne, rc);
   }
   return await buildOneResponse(deletedOne, fieldRequest);

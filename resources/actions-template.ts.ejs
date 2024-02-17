@@ -89,11 +89,11 @@ async function getMany<S extends <%= entity.strings.fieldRequestClass %>>(
   rc: RequestContext,
   fieldRequest: S,
 ): Promise<<%= entity.api.strings.manyResponse %><S>> {
-  if (<%= entity.api.strings.serviceClass %>.beforeGetMany !== undefined) {
+  if ('beforeGetMany' in <%= entity.api.strings.serviceClass %> && typeof <%= entity.api.strings.serviceClass %>.beforeGetMany === 'function') {
     await <%= entity.api.strings.serviceClass %>.beforeGetMany(query, rc);
   }
   const many = await <%= entity.api.strings.serviceClass %>.getMany(query, rc);
-  if (<%= entity.api.strings.serviceClass %>.afterGetMany !== undefined) {
+  if ('afterGetMany' in <%= entity.api.strings.serviceClass %> && typeof <%= entity.api.strings.serviceClass %>.afterGetMany === 'function') {
     await <%= entity.api.strings.serviceClass %>.afterGetMany(many, query, rc);
   }
   return await buildManyResponse(many, fieldRequest);
@@ -109,11 +109,11 @@ async function getOne<S extends <%= entity.strings.fieldRequestClass %>>(
   rc: RequestContext,
   fieldRequest: S,
 ): Promise<<%= entity.api.strings.oneResponse %><S>> {
-  if (<%= entity.api.strings.serviceClass %>.beforeGetOne !== undefined) {
+  if ('beforeGetOne' in <%= entity.api.strings.serviceClass %> && typeof <%= entity.api.strings.serviceClass %>.beforeGetOne === 'function') {
     await <%= entity.api.strings.serviceClass %>.beforeGetOne(params, rc);
   }
   const one = await <%= entity.api.strings.serviceClass %>.getOne(params, rc);
-  if (<%= entity.api.strings.serviceClass %>.afterGetOne !== undefined) {
+  if ('afterGetOne' in <%= entity.api.strings.serviceClass %> && typeof <%= entity.api.strings.serviceClass %>.afterGetOne === 'function') {
     await <%= entity.api.strings.serviceClass %>.afterGetOne(one, params, rc);
   }
   return await buildOneResponse(one, fieldRequest);
@@ -129,11 +129,11 @@ async function createOne<S extends <%= entity.strings.fieldRequestClass %>>(
   rc: RequestContext,
   fieldRequest: S,
 ): Promise<<%= entity.api.strings.oneResponse %><S>> {
-  if (<%= entity.api.strings.serviceClass %>.beforeCreateOne !== undefined) {
+  if ('beforeCreateOne' in <%= entity.api.strings.serviceClass %> && typeof <%= entity.api.strings.serviceClass %>.beforeCreateOne === 'function') {
     await <%= entity.api.strings.serviceClass %>.beforeCreateOne(body, rc);
   }
   const one = await <%= entity.api.strings.serviceClass %>.createOne(body, rc);
-  if (<%= entity.api.strings.serviceClass %>.afterCreateOne !== undefined) {
+  if ('afterCreateOne' in <%= entity.api.strings.serviceClass %> && typeof <%= entity.api.strings.serviceClass %>.afterCreateOne === 'function') {
     await <%= entity.api.strings.serviceClass %>.afterCreateOne(one, body, rc);
   }
   return await buildOneResponse(one, fieldRequest);
@@ -151,11 +151,11 @@ async function updateOne<S extends <%= entity.strings.fieldRequestClass %>>(
   fieldRequest: S,
 ): Promise<<%= entity.api.strings.oneResponse %><S>> {
   const one = await <%= entity.api.strings.serviceClass %>.getOne(params, rc);
-  if (<%= entity.api.strings.serviceClass %>.beforeUpdateOne !== undefined) {
+  if ('beforeUpdateOne' in <%= entity.api.strings.serviceClass %> && typeof <%= entity.api.strings.serviceClass %>.beforeUpdateOne === 'function') {
     await <%= entity.api.strings.serviceClass %>.beforeUpdateOne(one, body, rc);
   }
   const updatedOne = await <%= entity.api.strings.serviceClass %>.updateOne(one, body, rc);
-  if (<%= entity.api.strings.serviceClass %>.afterUpdateOne !== undefined) {
+  if ('afterUpdateOne' in <%= entity.api.strings.serviceClass %> && typeof <%= entity.api.strings.serviceClass %>.afterUpdateOne === 'function') {
     await <%= entity.api.strings.serviceClass %>.afterUpdateOne(updatedOne, body, rc);
   }
   return await buildOneResponse(updatedOne, fieldRequest);
@@ -172,11 +172,11 @@ async function deleteOne<S extends <%= entity.strings.fieldRequestClass %>>(
   fieldRequest: S,
 ): Promise<<%= entity.api.strings.oneResponse %><S>> {
   const one = await <%= entity.api.strings.serviceClass %>.getOne(params, rc);
-  if (<%= entity.api.strings.serviceClass %>.beforeDeleteOne !== undefined) {
+  if ('beforeDeleteOne' in <%= entity.api.strings.serviceClass %> && typeof <%= entity.api.strings.serviceClass %>.beforeDeleteOne === 'function') {
     await <%= entity.api.strings.serviceClass %>.beforeDeleteOne(one, rc);
   }
   const deletedOne = await <%= entity.api.strings.serviceClass %>.deleteOne(one, rc);
-  if (<%= entity.api.strings.serviceClass %>.afterDeleteOne !== undefined) {
+  if ('afterDeleteOne' in <%= entity.api.strings.serviceClass %> && typeof <%= entity.api.strings.serviceClass %>.afterDeleteOne === 'function') {
     await <%= entity.api.strings.serviceClass %>.afterDeleteOne(deletedOne, rc);
   }
   return await buildOneResponse(deletedOne, fieldRequest);
