@@ -39,8 +39,8 @@ import {
   <%= entity.api.strings.updateOneBody %>,
   <%_ } -%>
 } from '<%= entity.api.request.import %>';
-  <%_ if (entity.api.booleans.hasGetMany) { -%>
 import { <%= `${entity.api.strings.serviceClass}Interface` %> } from '<%- getInterfacePackagePath() %>';
+  <%_ if (entity.api.booleans.hasGetMany) { -%>
 
 async function getMany(query: <%= entity.api.strings.getManyQuery %>, rc: RequestContext): Promise<<%= entity.strings.entityClass %>[]> {
   throw new Error('Not implemented');
