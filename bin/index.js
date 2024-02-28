@@ -180,7 +180,7 @@ async function configureApiClient(config) {
   }
   templates.push({
     name: API_CLIENT_TEMPLATE_PATH,
-    outputPath: `${outputPath}/{kababEntityName}-api-client.ts`,
+    outputPath: `${outputPath}/{kababEntityName}.ts`,
     skippable: false,
   });
 

@@ -21,7 +21,7 @@ import {
   handleDeleteOne,
   <%_ } -%>
 } from '<%= config.airentApiPackage ?? '@airent/api' %>';
-import <%= entity.api.strings.actionClass %> from '<%- getActionPackage() %>';
+import <%= entity.api.strings.actionsClass %> from '<%- getActionPackage() %>';
 import {
   <%_ if (entity.api.booleans.hasGetMany) { -%>
   <%= entity.api.strings.getManyQuery %>,
@@ -47,7 +47,7 @@ import {
     <%_ } -%>
 const getMany = handleGetMany({
   queryZod: <%= entity.api.strings.getManyQuery %>,
-  action: <%= entity.api.strings.actionClass %>.getMany,
+  action: <%= entity.api.strings.actionsClass %>.getMany,
   authenticator,
     <%_ if (config.errorHandlerImport) { -%>
   errorHandler,
@@ -62,7 +62,7 @@ const getMany = handleGetMany({
     <%_ } -%>
 const getOne = handleGetOne({
   paramsZod: <%= entity.api.strings.getOneParams %>,
-  action: <%= entity.api.strings.actionClass %>.getOne,
+  action: <%= entity.api.strings.actionsClass %>.getOne,
   authenticator,
     <%_ if (config.errorHandlerImport) { -%>
   errorHandler,
@@ -77,7 +77,7 @@ const getOne = handleGetOne({
     <%_ } -%>
 const createOne = handleCreateOne({
   bodyZod: <%= entity.api.strings.createOneBody %>,
-  action: <%= entity.api.strings.actionClass %>.createOne,
+  action: <%= entity.api.strings.actionsClass %>.createOne,
   authenticator,
     <%_ if (config.errorHandlerImport) { -%>
   errorHandler,
@@ -93,7 +93,7 @@ const createOne = handleCreateOne({
 const updateOne = handleUpdateOne({
   paramsZod: <%= entity.api.strings.getOneParams %>,
   bodyZod: <%= entity.api.strings.updateOneBody %>,
-  action: <%= entity.api.strings.actionClass %>.updateOne,
+  action: <%= entity.api.strings.actionsClass %>.updateOne,
   authenticator,
     <%_ if (config.errorHandlerImport) { -%>
   errorHandler,
@@ -108,7 +108,7 @@ const updateOne = handleUpdateOne({
     <%_ } -%>
 const deleteOne = handleDeleteOne({
   paramsZod: <%= entity.api.strings.getOneParams %>,
-  action: <%= entity.api.strings.actionClass %>.deleteOne,
+  action: <%= entity.api.strings.actionsClass %>.deleteOne,
   authenticator,
     <%_ if (config.errorHandlerImport) { -%>
   errorHandler,

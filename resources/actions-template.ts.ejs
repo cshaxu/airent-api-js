@@ -186,7 +186,7 @@ async function deleteOne<S extends <%= entity.strings.fieldRequestClass %>>(
   <%_ if (entity.deprecated) { -%>
 /** @deprecated */
   <%_ } -%>
-const <%= entity.api.strings.actionClass %> = {
+const <%= entity.api.strings.actionsClass %> = {
   buildManyResponse,
   buildOneResponse,
   <%_ if (entity.api.booleans.hasGetMany) { -%>
@@ -206,5 +206,5 @@ const <%= entity.api.strings.actionClass %> = {
   <%_ } -%>
 };
 
-export default <%= entity.api.strings.actionClass %>;
+export default <%= entity.api.strings.actionsClass %>;
 <% } -%>

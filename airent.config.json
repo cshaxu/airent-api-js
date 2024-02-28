@@ -29,7 +29,7 @@
     },
     {
       "name": "resources/client-template.ts.ejs",
-      "outputPath": "test-output/clients/generated/{kababEntityName}-api-client.ts",
+      "outputPath": "test-output/clients/generated/{kababEntityName}.ts",
       "skippable": false
     }
   ],

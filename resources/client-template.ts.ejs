@@ -8,7 +8,7 @@ function getTypePackagePath() {
 }
 
 function getApiClientPackagePath(type) {
-  return `./${utils.toKababCase(type.name)}-api-client${utils.getModuleSuffix(config)}`;
+  return `./${utils.toKababCase(type.name)}${utils.getModuleSuffix(config)}`;
 }
 
 function presentEntityTypeField(field) {

@@ -140,8 +140,6 @@ function handleGetMany<OPTIONS, QUERY_ZOD extends z.ZodTypeAny, FIELD_REQUEST>(
   return handle({ ...config, validator, executor });
 }
 
-const handleSearch = handleGetMany;
-
 function handleGetOne<OPTIONS, PARAMS_ZOD extends z.ZodTypeAny, FIELD_REQUEST>(
   config: GetOneApiHandlerConfig<OPTIONS, PARAMS_ZOD, FIELD_REQUEST>
 ): (request: Request) => Promise<Response> {
@@ -314,6 +312,5 @@ export {
   handleDeleteOne,
   handleGetMany,
   handleGetOne,
-  handleSearch,
   handleUpdateOne,
 };
