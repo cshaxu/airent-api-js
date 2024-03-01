@@ -121,7 +121,7 @@ function handleGetMany<OPTIONS, QUERY_ZOD extends z.ZodTypeAny, FIELD_REQUEST>(
   config: GetManyApiHandlerConfig<OPTIONS, QUERY_ZOD, FIELD_REQUEST>
 ): (request: Request) => Promise<Response> {
   const validator = async (request: Request) => {
-    const { query: queryRaw, fieldRequest } = await request.json();
+    const { query: queryRaw, fieldRequest } = await getRequestJson(request);
     if (queryRaw === undefined) {
       throw createHttpError.BadRequest("Missing `query`");
     }
@@ -144,7 +144,7 @@ function handleGetOne<OPTIONS, PARAMS_ZOD extends z.ZodTypeAny, FIELD_REQUEST>(
   config: GetOneApiHandlerConfig<OPTIONS, PARAMS_ZOD, FIELD_REQUEST>
 ): (request: Request) => Promise<Response> {
   const validator = async (request: Request) => {
-    const { params: paramsRaw, fieldRequest } = await request.json();
+    const { params: paramsRaw, fieldRequest } = await getRequestJson(request);
     if (paramsRaw === undefined) {
       throw createHttpError.BadRequest("Missing `params`");
     }
@@ -167,7 +167,7 @@ function handleCreateOne<OPTIONS, BODY_ZOD extends z.ZodTypeAny, FIELD_REQUEST>(
   config: CreateOneApiHandlerConfig<OPTIONS, BODY_ZOD, FIELD_REQUEST>
 ): (request: Request) => Promise<Response> {
   const validator = async (request: Request) => {
-    const { body: bodyRaw, fieldRequest } = await request.json();
+    const { body: bodyRaw, fieldRequest } = await getRequestJson(request);
     if (bodyRaw === undefined) {
       throw createHttpError.BadRequest("Missing `body`");
     }
@@ -199,7 +199,7 @@ function handleUpdateOne<
       params: paramsRaw,
       body: bodyRaw,
       fieldRequest,
-    } = await request.json();
+    } = await getRequestJson(request);
     if (paramsRaw === undefined) {
       throw createHttpError.BadRequest("Missing `params`");
     }
@@ -227,6 +227,14 @@ function handleUpdateOne<
 }
 
 const handleDeleteOne = handleGetOne;
+
+async function getRequestJson(request: Request): Promise<any> {
+  try {
+    return await request.json();
+  } catch (error: any) {
+    throw createHttpError.BadRequest(error.message);
+  }
+}
 
 type HandlerConfig<OPTIONS, REQUEST_CONTEXT, PARSED, RESULT> = {
   authenticator: Authenticator<OPTIONS, REQUEST_CONTEXT>;
