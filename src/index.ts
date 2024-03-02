@@ -163,6 +163,8 @@ function handleGetOne<OPTIONS, PARAMS_ZOD extends z.ZodTypeAny, FIELD_REQUEST>(
   return handle({ ...config, validator, executor });
 }
 
+const handleGetOneSafe = handleGetOne;
+
 function handleCreateOne<OPTIONS, BODY_ZOD extends z.ZodTypeAny, FIELD_REQUEST>(
   config: CreateOneApiHandlerConfig<OPTIONS, BODY_ZOD, FIELD_REQUEST>
 ): (request: Request) => Promise<Response> {
@@ -320,5 +322,6 @@ export {
   handleDeleteOne,
   handleGetMany,
   handleGetOne,
+  handleGetOneSafe,
   handleUpdateOne,
 };

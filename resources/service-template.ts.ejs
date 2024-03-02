@@ -40,34 +40,49 @@ import {
   <%_ } -%>
 } from '<%= entity.api.request.import %>';
 import { <%= `${entity.api.strings.serviceClass}Interface` %> } from '<%- getInterfacePackagePath() %>';
+import createHttpError from 'http-errors';
   <%_ if (entity.api.booleans.hasGetMany) { -%>
 
 async function getMany(query: <%= entity.api.strings.getManyQuery %>, rc: RequestContext): Promise<<%= entity.strings.entityClass %>[]> {
-  throw new Error('Not implemented');
+  throw createHttpError.NotImplemented();
 }
   <%_ } -%>
-  <%_ if (entity.api.booleans.hasGetOneRequest) { -%>
+  <%_ if (entity.api.booleans.hasGetOne || entity.api.booleans.hasUpdateOne || entity.api.booleans.hasDeleteOne) { -%>
 
 async function getOne(params: <%= entity.api.strings.getOneParams %>, rc: RequestContext): Promise<<%= entity.strings.entityClass %>> {
-  throw new Error('Not implemented');
+    <%_ if (entity.api.booleans.hasGetOneSafe) { -%>
+  const one = await getOneSafe(params, rc);
+  if (one === null) {
+    throw createHttpError.NotFound();
+  }
+  return one;
+  <%_ } else { -%>
+    throw createHttpError.NotImplemented();
+    <%_ } -%>
+}
+  <%_ } -%>
+  <%_ if (entity.api.booleans.hasGetOneSafe) { -%>
+
+async function getOneSafe(params: <%= entity.api.strings.getOneParams %>, rc: RequestContext): Promise<<%= entity.strings.entityClass %> | null> {
+  throw createHttpError.NotImplemented();
 }
   <%_ } -%>
   <%_ if (entity.api.booleans.hasCreateOne) { -%>
 
 async function createOne(body: <%= entity.api.strings.createOneBody %>, rc: RequestContext): Promise<<%= entity.strings.entityClass %>> {
-  throw new Error('Not implemented');
+  throw createHttpError.NotImplemented();
 }
   <%_ } -%>
   <%_ if (entity.api.booleans.hasUpdateOne) { -%>
 
 async function updateOne(one: <%= entity.strings.entityClass %>, body: <%= entity.api.strings.updateOneBody %>, rc: RequestContext): Promise<<%= entity.strings.entityClass %>> {
-  throw new Error('Not implemented');
+  throw createHttpError.NotImplemented();
 }
   <%_ } -%>
   <%_ if (entity.api.booleans.hasDeleteOne) { -%>
 
 async function deleteOne(one: <%= entity.strings.entityClass %>, rc: RequestContext): Promise<<%= entity.strings.entityClass %>> {
-  throw new Error('Not implemented');
+  throw createHttpError.NotImplemented();
 }
   <%_ } -%>
 
@@ -78,8 +93,11 @@ const <%= `${entity.api.strings.serviceClass}` %>: <%= `${entity.api.strings.ser
   <%_ if (entity.api.booleans.hasGetMany) { -%>
   getMany,
   <%_ } -%>
-  <%_ if (entity.api.booleans.hasGetOneRequest) { -%>
+  <%_ if (entity.api.booleans.hasGetOne || entity.api.booleans.hasUpdateOne || entity.api.booleans.hasDeleteOne) { -%>
   getOne,
+  <%_ } -%>
+  <%_ if (entity.api.booleans.hasGetOneSafe) { -%>
+  getOneSafe,
   <%_ } -%>
   <%_ if (entity.api.booleans.hasCreateOne) { -%>
   createOne,

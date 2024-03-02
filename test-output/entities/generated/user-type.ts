@@ -21,6 +21,10 @@ export type UserResponse = {
 };
 
 /** @deprecated */
+export type SelectedUserResponse<S extends UserFieldRequest, N extends boolean = false> =
+  N extends true ? (Select<UserResponse, S> | null) : Select<UserResponse, S>;
+
+/** @deprecated */
 export type ManyUsersCursor = {
   count: number;
   minCreatedAt: Date | null;
@@ -28,14 +32,14 @@ export type ManyUsersCursor = {
 };
 
 /** @deprecated */
-export type ManyUsersResponse<S extends UserFieldRequest | true> = {
+export type ManyUsersResponse<S extends UserFieldRequest> = {
   cursor: ManyUsersCursor;
   /** @deprecated */
-  users: Select<UserResponse, S>[];
+  users: SelectedUserResponse<S>[];
 };
 
 /** @deprecated */
-export type OneUserResponse<S extends UserFieldRequest | true> = {
+export type OneUserResponse<S extends UserFieldRequest, N extends boolean = false> = {
   /** @deprecated */
-  user: Select<UserResponse, S>;
+  user: SelectedUserResponse<S, N>;
 };

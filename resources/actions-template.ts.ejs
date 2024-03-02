@@ -75,6 +75,17 @@ async function buildOneResponse<S extends <%= entity.strings.fieldRequestClass %
   const <%= entity.api.strings.oneEntVar %> = await one.present(fieldRequest);
   return { <%= entity.api.strings.oneEntVar %> };
 }
+
+  <%_ if (entity.deprecated) { -%>
+/** @deprecated */
+  <%_ } -%>
+async function buildOneSafeResponse<S extends <%= entity.strings.fieldRequestClass %>>(
+  one: <%= entity.strings.entityClass %> | null,
+  fieldRequest: S,
+): Promise<<%= entity.api.strings.oneResponse %><S, true>> {
+  const <%= entity.api.strings.oneEntVar %> = one === null ? null : await one.present(fieldRequest);
+  return { <%= entity.api.strings.oneEntVar %> };
+}
   <%_ if (entity.api.methods) { -%>
 
 // api executors
@@ -117,6 +128,26 @@ async function getOne<S extends <%= entity.strings.fieldRequestClass %>>(
     await <%= entity.api.strings.serviceClass %>.afterGetOne(one, params, rc);
   }
   return await buildOneResponse(one, fieldRequest);
+}
+  <%_ } -%>
+  <%_ if (entity.api.booleans.hasGetOneSafe) { -%>
+
+    <%_ if (entity.deprecated) { -%>
+/** @deprecated */
+    <%_ } -%>
+async function getOneSafe<S extends <%= entity.strings.fieldRequestClass %>>(
+  params: <%= entity.api.strings.getOneParams %>,
+  rc: RequestContext,
+  fieldRequest: S,
+): Promise<<%= entity.api.strings.oneResponse %><S, true>> {
+  if ('beforeGetOneSafe' in <%= entity.api.strings.serviceClass %> && typeof <%= entity.api.strings.serviceClass %>.beforeGetOneSafe === 'function') {
+    await <%= entity.api.strings.serviceClass %>.beforeGetOneSafe(params, rc);
+  }
+  const one = await <%= entity.api.strings.serviceClass %>.getOneSafe(params, rc);
+  if ('afterGetOneSafe' in <%= entity.api.strings.serviceClass %> && typeof <%= entity.api.strings.serviceClass %>.afterGetOneSafe === 'function') {
+    await <%= entity.api.strings.serviceClass %>.afterGetOneSafe(one, params, rc);
+  }
+  return await buildOneSafeResponse(one, fieldRequest);
 }
   <%_ } -%>
   <%_ if (entity.api.booleans.hasCreateOne) { -%>
@@ -189,11 +220,15 @@ async function deleteOne<S extends <%= entity.strings.fieldRequestClass %>>(
 const <%= entity.api.strings.actionsClass %> = {
   buildManyResponse,
   buildOneResponse,
+  buildOneSafeResponse,
   <%_ if (entity.api.booleans.hasGetMany) { -%>
   getMany,
   <%_ } -%>
   <%_ if (entity.api.booleans.hasGetOne) { -%>
   getOne,
+  <%_ } -%>
+  <%_ if (entity.api.booleans.hasGetOneSafe) { -%>
+  getOneSafe,
   <%_ } -%>
   <%_ if (entity.api.booleans.hasCreateOne) { -%>
   createOne,

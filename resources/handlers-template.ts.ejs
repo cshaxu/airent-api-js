@@ -11,6 +11,9 @@ import {
   <%_ if (entity.api.booleans.hasGetOne) { -%>
   handleGetOne,
   <%_ } -%>
+  <%_ if (entity.api.booleans.hasGetOneSafe) { -%>
+  handleGetOneSafe,
+  <%_ } -%>
   <%_ if (entity.api.booleans.hasCreateOne) { -%>
   handleCreateOne,
   <%_ } -%>
@@ -70,6 +73,21 @@ const getOne = handleGetOne({
   options: <%= entity.api.methods.getOne ?? '{}' %>,
 });
   <%_ } -%>
+  <%_ if (entity.api.booleans.hasGetOneSafe) { -%>
+
+    <%_ if (entity.deprecated) { -%>
+/** @deprecated */
+    <%_ } -%>
+const getOneSafe = handleGetOneSafe({
+  paramsZod: <%= entity.api.strings.getOneParams %>,
+  action: <%= entity.api.strings.actionsClass %>.getOneSafe,
+  authenticator,
+    <%_ if (config.errorHandlerImport) { -%>
+  errorHandler,
+    <%_ } -%>
+  options: <%= entity.api.methods.getOneSafe ?? '{}' %>,
+});
+  <%_ } -%>
   <%_ if (entity.api.booleans.hasCreateOne) { -%>
 
     <%_ if (entity.deprecated) { -%>
@@ -126,6 +144,9 @@ const <%= entity.api.strings.handlersClass %> = {
   <%_ } -%>
   <%_ if (entity.api.booleans.hasGetOne) { -%>
   getOne,
+  <%_ } -%>
+  <%_ if (entity.api.booleans.hasGetOneSafe) { -%>
+  getOneSafe,
   <%_ } -%>
   <%_ if (entity.api.booleans.hasCreateOne) { -%>
   createOne,

@@ -43,6 +43,15 @@ async function buildOneResponse<S extends UserFieldRequest>(
   return { user };
 }
 
+/** @deprecated */
+async function buildOneSafeResponse<S extends UserFieldRequest>(
+  one: UserEntity | null,
+  fieldRequest: S,
+): Promise<OneUserResponse<S, true>> {
+  const user = one === null ? null : await one.present(fieldRequest);
+  return { user };
+}
+
 // api executors
 
 /** @deprecated */
@@ -75,6 +84,22 @@ async function getOne<S extends UserFieldRequest>(
     await UserService.afterGetOne(one, params, rc);
   }
   return await buildOneResponse(one, fieldRequest);
+}
+
+/** @deprecated */
+async function getOneSafe<S extends UserFieldRequest>(
+  params: GetOneUserParams,
+  rc: RequestContext,
+  fieldRequest: S,
+): Promise<OneUserResponse<S, true>> {
+  if ('beforeGetOneSafe' in UserService && typeof UserService.beforeGetOneSafe === 'function') {
+    await UserService.beforeGetOneSafe(params, rc);
+  }
+  const one = await UserService.getOneSafe(params, rc);
+  if ('afterGetOneSafe' in UserService && typeof UserService.afterGetOneSafe === 'function') {
+    await UserService.afterGetOneSafe(one, params, rc);
+  }
+  return await buildOneSafeResponse(one, fieldRequest);
 }
 
 /** @deprecated */
@@ -132,8 +157,10 @@ async function deleteOne<S extends UserFieldRequest>(
 const UserActions = {
   buildManyResponse,
   buildOneResponse,
+  buildOneSafeResponse,
   getMany,
   getOne,
+  getOneSafe,
   createOne,
   updateOne,
   deleteOne,

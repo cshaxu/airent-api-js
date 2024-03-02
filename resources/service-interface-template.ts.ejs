@@ -39,8 +39,13 @@ export interface <%= `${entity.api.strings.serviceClass}Interface` %> {
   beforeGetOne?: (params: <%= entity.api.strings.getOneParams %>, rc: RequestContext) => Promise<void>;
   afterGetOne?: (one: <%= entity.strings.entityClass %>, params: <%= entity.api.strings.getOneParams %>, rc: RequestContext) => Promise<void>;
   <%_ } -%>
-  <%_ if (entity.api.booleans.hasGetOneRequest) { -%>
+  <%_ if (entity.api.booleans.hasGetOne || entity.api.booleans.hasUpdateOne || entity.api.booleans.hasDeleteOne) { -%>
   getOne: (params: <%= entity.api.strings.getOneParams %>, rc: RequestContext) => Promise<<%= entity.strings.entityClass %>>;
+  <%_ } -%>
+  <%_ if (entity.api.booleans.hasGetOneSafe) { -%>
+  beforeGetOneSafe?: (params: <%= entity.api.strings.getOneParams %>, rc: RequestContext) => Promise<void>;
+  afterGetOneSafe?: (one: <%= entity.strings.entityClass %> | null, params: <%= entity.api.strings.getOneParams %>, rc: RequestContext) => Promise<void>;
+  getOneSafe: (params: <%= entity.api.strings.getOneParams %>, rc: RequestContext) => Promise<<%= entity.strings.entityClass %> | null>;
   <%_ } -%>
   <%_ if (entity.api.booleans.hasCreateOne) { -%>
   beforeCreateOne?: (body: <%= entity.api.strings.createOneBody %>, rc: RequestContext) => Promise<void>;

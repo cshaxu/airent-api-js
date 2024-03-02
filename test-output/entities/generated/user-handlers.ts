@@ -1,6 +1,7 @@
 import {
   handleGetMany,
   handleGetOne,
+  handleGetOneSafe,
   handleCreateOne,
   handleUpdateOne,
   handleDeleteOne,
@@ -28,6 +29,15 @@ const getMany = handleGetMany({
 const getOne = handleGetOne({
   paramsZod: GetOneUserParams,
   action: UserActions.getOne,
+  authenticator,
+  errorHandler,
+  options: { requireLogin: false },
+});
+
+/** @deprecated */
+const getOneSafe = handleGetOneSafe({
+  paramsZod: GetOneUserParams,
+  action: UserActions.getOneSafe,
   authenticator,
   errorHandler,
   options: { requireLogin: false },
@@ -65,6 +75,7 @@ const deleteOne = handleDeleteOne({
 const UserHandlers = {
   getMany,
   getOne,
+  getOneSafe,
   createOne,
   updateOne,
   deleteOne,

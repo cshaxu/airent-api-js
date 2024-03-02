@@ -18,6 +18,9 @@ export interface UserServiceInterface {
   beforeGetOne?: (params: GetOneUserParams, rc: RequestContext) => Promise<void>;
   afterGetOne?: (one: UserEntity, params: GetOneUserParams, rc: RequestContext) => Promise<void>;
   getOne: (params: GetOneUserParams, rc: RequestContext) => Promise<UserEntity>;
+  beforeGetOneSafe?: (params: GetOneUserParams, rc: RequestContext) => Promise<void>;
+  afterGetOneSafe?: (one: UserEntity | null, params: GetOneUserParams, rc: RequestContext) => Promise<void>;
+  getOneSafe: (params: GetOneUserParams, rc: RequestContext) => Promise<UserEntity | null>;
   beforeCreateOne?: (body: CreateOneUserBody, rc: RequestContext) => Promise<void>;
   afterCreateOne?: (createdOne: UserEntity, body: CreateOneUserBody, rc: RequestContext) => Promise<void>;
   createOne: (body: CreateOneUserBody, rc: RequestContext) => Promise<UserEntity>;

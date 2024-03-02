@@ -93,14 +93,27 @@ function presentManyResponse<S extends <%= entity.strings.fieldRequestClass %>>(
     <%= field.strings.maxVar %>: new Date(response.cursor.<%= field.strings.maxVar %>),
     <%_ }); -%>
   };
-  return { cursor, <%= entity.api.strings.manyEntsVar %>: response.<%= entity.api.strings.manyEntsVar %>.map((one) => present(one, fieldRequest)) };
+  const { <%= entity.api.strings.manyEntsVar %>: many } = response;
+  const <%= entity.api.strings.manyEntsVar %> = many.map((one) => present(one, fieldRequest));
+  return { cursor, <%= entity.api.strings.manyEntsVar %> };
 }
 
 function presentOneResponse<S extends <%= entity.strings.fieldRequestClass %>>(
   response: { <%= entity.api.strings.oneEntVar %>: any },
   fieldRequest: S
 ): <%= entity.api.strings.oneResponse %><S> {
-  return { <%= entity.api.strings.oneEntVar %>: present(response.<%= entity.api.strings.oneEntVar %>, fieldRequest) };
+  const { <%= entity.api.strings.oneEntVar %>: one } = response;
+  const <%= entity.api.strings.oneEntVar %> = present(one, fieldRequest);
+  return { <%= entity.api.strings.oneEntVar %> };
+}
+
+function presentOneSafeResponse<S extends <%= entity.strings.fieldRequestClass %>>(
+  response: { <%= entity.api.strings.oneEntVar %>: any },
+  fieldRequest: S
+): <%= entity.api.strings.oneResponse %><S, true> {
+  const { <%= entity.api.strings.oneEntVar %>: one } = response;
+  const <%= entity.api.strings.oneEntVar %> = one === null ? null : present(one, fieldRequest);
+  return { <%= entity.api.strings.oneEntVar %> };
 }
   <%_ if (entity.api.methods) { -%>
 
@@ -144,6 +157,18 @@ async function getOne<S extends <%= entity.strings.fieldRequestClass %>>(
   const data = { params, fieldRequest };
   const response = await callApi('get-one-<%= utils.toKababCase(entity.name) %>', data, options);
   return presentOneResponse(response, fieldRequest);
+}
+  <%_ } -%>
+  <%_ if (entity.api.booleans.hasGetOneSafe) { -%>
+
+async function getOneSafe<S extends <%= entity.strings.fieldRequestClass %>>(
+  params: <%= entity.api.strings.getOneParams %>,
+  fieldRequest: S,
+  options: RequestInit = {}
+): Promise<<%= entity.api.strings.oneResponse %><S, true>> {
+  const data = { params, fieldRequest };
+  const response = await callApi('get-one-<%= utils.toKababCase(entity.name) %>-safe', data, options);
+  return presentOneSafeResponse(response, fieldRequest);
 }
   <%_ } -%>
   <%_ if (entity.api.booleans.hasCreateOne) { -%>
@@ -200,6 +225,10 @@ const <%= entity.api.strings.apiClientClass %> = {
   /** @deprecated */
   <%_ } -%>
   presentOneResponse,
+  <%_ if (entity.deprecated) { -%>
+  /** @deprecated */
+  <%_ } -%>
+  presentOneSafeResponse,
   <%_ if (entity.api.booleans.hasGetMany) { -%>
     <%_ if (entity.deprecated) { -%>
   /** @deprecated */
@@ -211,6 +240,12 @@ const <%= entity.api.strings.apiClientClass %> = {
   /** @deprecated */
     <%_ } -%>
   getOne,
+  <%_ } -%>
+  <%_ if (entity.api.booleans.hasGetOneSafe) { -%>
+    <%_ if (entity.deprecated) { -%>
+  /** @deprecated */
+    <%_ } -%>
+  getOneSafe,
   <%_ } -%>
   <%_ if (entity.api.booleans.hasCreateOne) { -%>
     <%_ if (entity.deprecated) { -%>

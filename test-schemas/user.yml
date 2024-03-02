@@ -8,6 +8,7 @@ api:
   methods:
     getMany: "{ requireAdmin: true }"
     getOne: "{ requireLogin: false }"
+    getOneSafe: "{ requireLogin: false }"
     createOne: "{ requireLogin: false }"
     updateOne: "{ requireLogin: true }"
     deleteOne: "{ requireLogin: true }"

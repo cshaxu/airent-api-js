@@ -44,16 +44,20 @@ function addStrings(entity, isVerbose) {
     createOneBody: `CreateOne${singularEntName}Body`,
     updateOneBody: `UpdateOne${singularEntName}Body`,
   };
+  const hasGetMany = hasApiMethod(entity, "getMany");
   const hasGetOne = hasApiMethod(entity, "getOne");
+  const hasGetOneSafe = hasApiMethod(entity, "getOneSafe");
+  const hasCreateOne = hasApiMethod(entity, "createOne");
   const hasUpdateOne = hasApiMethod(entity, "updateOne");
   const hasDeleteOne = hasApiMethod(entity, "deleteOne");
   entity.api.booleans = {
-    hasGetMany: hasApiMethod(entity, "getMany"),
+    hasGetMany,
     hasGetOne,
-    hasCreateOne: hasApiMethod(entity, "createOne"),
+    hasGetOneSafe,
+    hasCreateOne,
     hasUpdateOne,
     hasDeleteOne,
-    hasGetOneRequest: hasGetOne || hasUpdateOne | hasDeleteOne,
+    hasGetOneRequest: hasGetOne || hasGetOneSafe || hasUpdateOne | hasDeleteOne,
   };
   entity.fields.filter(isCursorField).forEach((field) => {
     field.strings.minVar = `min${utils.toTitleCase(field.name)}`;
@@ -64,72 +68,48 @@ function addStrings(entity, isVerbose) {
 // augment entity - add api code
 
 function buildBeforeType(entity) /* Code[] */ {
-  const lines = [];
   if (!utils.isPresentableEntity(entity)) {
-    return lines;
+    return [];
   }
-  lines.push("import { Select } from 'airent';");
-  return lines;
+  return ["import { Select } from 'airent';"];
 }
 
 function buildAfterType(entity) /* Code[] */ {
-  const lines = [];
   if (!utils.isPresentableEntity(entity)) {
-    return lines;
+    return [];
   }
-  lines.push("");
-  if (entity.deprecated) {
-    lines.push("/** @deprecated */");
-  }
-  lines.push(`export type ${entity.api.strings.manyCursor} = {`);
-  lines.push("  count: number;");
-  entity.fields
-    .filter((f) => f.strings.minVar && f.strings.maxVar)
-    .forEach((field) => {
-      if (field.deprecated) {
-        lines.push("  /** @deprecated */");
-      }
-      lines.push(
-        `  ${field.strings.minVar}: ${field.strings.fieldResponseType} | null;`
-      );
-      if (field.deprecated) {
-        lines.push("  /** @deprecated */");
-      }
-      lines.push(
-        `  ${field.strings.maxVar}: ${field.strings.fieldResponseType} | null;`
-      );
-    });
-  lines.push("};");
-  lines.push("");
-  if (entity.deprecated) {
-    lines.push("/** @deprecated */");
-  }
-  lines.push(
-    `export type ${entity.api.strings.manyResponse}<S extends ${entity.strings.fieldRequestClass} | true> = {`
-  );
-  lines.push(`  cursor: ${entity.api.strings.manyCursor};`);
-  if (entity.deprecated) {
-    lines.push("  /** @deprecated */");
-  }
-  lines.push(
-    `  ${entity.api.strings.manyEntsVar}: Select<${entity.strings.responseClass}, S>[];`
-  );
-  lines.push("};");
-  lines.push("");
-  if (entity.deprecated) {
-    lines.push("/** @deprecated */");
-  }
-  lines.push(
-    `export type ${entity.api.strings.oneResponse}<S extends ${entity.strings.fieldRequestClass} | true> = {`
-  );
-  if (entity.deprecated) {
-    lines.push("  /** @deprecated */");
-  }
-  lines.push(
-    `  ${entity.api.strings.oneEntVar}: Select<${entity.strings.responseClass}, S>;`
-  );
-  lines.push("};");
-  return lines;
+  return [
+    "",
+    ...(entity.deprecated ? ["/** @deprecated */"] : []),
+    `export type Selected${entity.strings.responseClass}<S extends ${entity.strings.fieldRequestClass}, N extends boolean = false> =`,
+    `  N extends true ? (Select<${entity.strings.responseClass}, S> | null) : Select<${entity.strings.responseClass}, S>;`,
+    "",
+    ...(entity.deprecated ? ["/** @deprecated */"] : []),
+    `export type ${entity.api.strings.manyCursor} = {`,
+    "  count: number;",
+    ...entity.fields
+      .filter((f) => f.strings.minVar && f.strings.maxVar)
+      .flatMap((field) => [
+        ...(field.deprecated ? ["  /** @deprecated */"] : []),
+        `  ${field.strings.minVar}: ${field.strings.fieldResponseType} | null;`,
+        ...(field.deprecated ? ["  /** @deprecated */"] : []),
+        `  ${field.strings.maxVar}: ${field.strings.fieldResponseType} | null;`,
+      ]),
+    "};",
+    "",
+    ...(entity.deprecated ? ["/** @deprecated */"] : []),
+    `export type ${entity.api.strings.manyResponse}<S extends ${entity.strings.fieldRequestClass}> = {`,
+    `  cursor: ${entity.api.strings.manyCursor};`,
+    ...(entity.deprecated ? ["  /** @deprecated */"] : []),
+    `  ${entity.api.strings.manyEntsVar}: Selected${entity.strings.responseClass}<S>[];`,
+    "};",
+    "",
+    ...(entity.deprecated ? ["/** @deprecated */"] : []),
+    `export type ${entity.api.strings.oneResponse}<S extends ${entity.strings.fieldRequestClass}, N extends boolean = false> = {`,
+    ...(entity.deprecated ? ["  /** @deprecated */"] : []),
+    `  ${entity.api.strings.oneEntVar}: Selected${entity.strings.responseClass}<S, N>;`,
+    "};",
+  ];
 }
 
 function addCode(entity, isVerbose) {

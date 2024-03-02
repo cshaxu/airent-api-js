@@ -34,6 +34,7 @@ type UpdateOneApiHandlerConfig<OPTIONS, PARAMS_ZOD extends z.ZodTypeAny, BODY, F
 } & Omit<HandlerConfig<OPTIONS, any, any, any>, "validator" | "executor">;
 declare function handleGetMany<OPTIONS, QUERY_ZOD extends z.ZodTypeAny, FIELD_REQUEST>(config: GetManyApiHandlerConfig<OPTIONS, QUERY_ZOD, FIELD_REQUEST>): (request: Request) => Promise<Response>;
 declare function handleGetOne<OPTIONS, PARAMS_ZOD extends z.ZodTypeAny, FIELD_REQUEST>(config: GetOneApiHandlerConfig<OPTIONS, PARAMS_ZOD, FIELD_REQUEST>): (request: Request) => Promise<Response>;
+declare const handleGetOneSafe: typeof handleGetOne;
 declare function handleCreateOne<OPTIONS, BODY_ZOD extends z.ZodTypeAny, FIELD_REQUEST>(config: CreateOneApiHandlerConfig<OPTIONS, BODY_ZOD, FIELD_REQUEST>): (request: Request) => Promise<Response>;
 declare function handleUpdateOne<OPTIONS, PARAMS_ZOD extends z.ZodTypeAny, BODY, FIELD_REQUEST>(config: UpdateOneApiHandlerConfig<OPTIONS, PARAMS_ZOD, BODY, FIELD_REQUEST>): (request: Request) => Promise<Response>;
 declare const handleDeleteOne: typeof handleGetOne;
@@ -46,4 +47,4 @@ type HandlerConfig<OPTIONS, REQUEST_CONTEXT, PARSED, RESULT> = {
     code?: number;
 };
 declare function handle<OPTIONS, REQUEST_CONTEXT, PARSED, RESULT>(config: HandlerConfig<OPTIONS, REQUEST_CONTEXT, PARSED, RESULT>): (request: Request) => Promise<Response>;
-export { Authenticator, CreateOneAction, CreateOneApiHandlerConfig, ErrorContext, ErrorHandler, GetManyAction, GetManyApiHandlerConfig, GetOneAction, GetOneApiHandlerConfig, HandlerConfig, UpdateOneAction, UpdateOneApiHandlerConfig, fetchJsonOrThrow, getMax, getMin, handle, handleCreateOne, handleDeleteOne, handleGetMany, handleGetOne, handleUpdateOne, };
+export { Authenticator, CreateOneAction, CreateOneApiHandlerConfig, ErrorContext, ErrorHandler, GetManyAction, GetManyApiHandlerConfig, GetOneAction, GetOneApiHandlerConfig, HandlerConfig, UpdateOneAction, UpdateOneApiHandlerConfig, fetchJsonOrThrow, getMax, getMin, handle, handleCreateOne, handleDeleteOne, handleGetMany, handleGetOne, handleGetOneSafe, handleUpdateOne, };

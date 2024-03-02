@@ -34,14 +34,27 @@ function presentManyResponse<S extends UserFieldRequest>(
     minCreatedAt: new Date(response.cursor.minCreatedAt),
     maxCreatedAt: new Date(response.cursor.maxCreatedAt),
   };
-  return { cursor, users: response.users.map((one) => present(one, fieldRequest)) };
+  const { users: many } = response;
+  const users = many.map((one) => present(one, fieldRequest));
+  return { cursor, users };
 }
 
 function presentOneResponse<S extends UserFieldRequest>(
   response: { user: any },
   fieldRequest: S
 ): OneUserResponse<S> {
-  return { user: present(response.user, fieldRequest) };
+  const { user: one } = response;
+  const user = present(one, fieldRequest);
+  return { user };
+}
+
+function presentOneSafeResponse<S extends UserFieldRequest>(
+  response: { user: any },
+  fieldRequest: S
+): OneUserResponse<S, true> {
+  const { user: one } = response;
+  const user = one === null ? null : present(one, fieldRequest);
+  return { user };
 }
 
 async function callApi(
@@ -78,6 +91,16 @@ async function getOne<S extends UserFieldRequest>(
   const data = { params, fieldRequest };
   const response = await callApi('get-one-user', data, options);
   return presentOneResponse(response, fieldRequest);
+}
+
+async function getOneSafe<S extends UserFieldRequest>(
+  params: GetOneUserParams,
+  fieldRequest: S,
+  options: RequestInit = {}
+): Promise<OneUserResponse<S, true>> {
+  const data = { params, fieldRequest };
+  const response = await callApi('get-one-user-safe', data, options);
+  return presentOneSafeResponse(response, fieldRequest);
 }
 
 async function createOne<S extends UserFieldRequest>(
@@ -120,9 +143,13 @@ const UserApiClient = {
   /** @deprecated */
   presentOneResponse,
   /** @deprecated */
+  presentOneSafeResponse,
+  /** @deprecated */
   getMany,
   /** @deprecated */
   getOne,
+  /** @deprecated */
+  getOneSafe,
   /** @deprecated */
   createOne,
   /** @deprecated */
