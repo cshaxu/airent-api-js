@@ -6,14 +6,6 @@ const utils = require("airent/resources/utils.js");
  * - api: object | undefined, top-level field, defined to generate api actions and services
  */
 
-function isCursorField(field) {
-  return (
-    !!field._parent.api?.cursors?.includes(field.name) &&
-    utils.isPrimitiveField(field) &&
-    utils.isPresentableField(field)
-  );
-}
-
 function hasApiMethod(entity, methodName) {
   return Object.keys(entity.api?.methods ?? {}).includes(methodName);
 }
@@ -59,10 +51,19 @@ function addStrings(entity, isVerbose) {
     hasDeleteOne,
     hasGetOneRequest: hasGetOne || hasGetOneSafe || hasUpdateOne | hasDeleteOne,
   };
-  entity.fields.filter(isCursorField).forEach((field) => {
-    field.strings.minVar = `min${utils.toTitleCase(field.name)}`;
-    field.strings.maxVar = `max${utils.toTitleCase(field.name)}`;
-  });
+  (entity.api?.cursors ?? [])
+    .flatMap((c) => Object.keys(c).map((n) => ({ name: n, value: c[n] })))
+    .map((c) => ({ ...utils.queryField(c.name, entity), value: c.value }))
+    .filter(utils.isPrimitiveField)
+    .filter(utils.isPresentableField)
+    .forEach((field) => {
+      if (field.value === "asc") {
+        field.strings.maxVar = `max${utils.toTitleCase(field.name)}`;
+      }
+      if (field.value === "desc") {
+        field.strings.minVar = `min${utils.toTitleCase(field.name)}`;
+      }
+    });
 }
 
 // augment entity - add api code
@@ -88,12 +89,20 @@ function buildAfterType(entity) /* Code[] */ {
     `export type ${entity.api.strings.manyCursor} = {`,
     "  count: number;",
     ...entity.fields
-      .filter((f) => f.strings.minVar && f.strings.maxVar)
+      .filter((f) => f.strings.minVar || f.strings.maxVar)
       .flatMap((field) => [
-        ...(field.deprecated ? ["  /** @deprecated */"] : []),
-        `  ${field.strings.minVar}: ${field.strings.fieldResponseType} | null;`,
-        ...(field.deprecated ? ["  /** @deprecated */"] : []),
-        `  ${field.strings.maxVar}: ${field.strings.fieldResponseType} | null;`,
+        ...(field.strings.minVar
+          ? [
+              ...(field.deprecated ? ["  /** @deprecated */"] : []),
+              `  ${field.strings.minVar}: ${field.strings.fieldResponseType} | null;`,
+            ]
+          : []),
+        ...(field.strings.maxVar
+          ? [
+              ...(field.deprecated ? ["  /** @deprecated */"] : []),
+              `  ${field.strings.maxVar}: ${field.strings.fieldResponseType} | null;`,
+            ]
+          : []),
       ]),
     "};",
     "",

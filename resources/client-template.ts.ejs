@@ -88,9 +88,13 @@ function presentManyResponse<S extends <%= entity.strings.fieldRequestClass %>>(
 ): <%= entity.api.strings.manyResponse %><S> {
   const cursor = {
     ...response.cursor,
-    <%_ entity.fields.filter((f) => f.strings.minVar && f.strings.maxVar && isDateTypeField(f)).forEach((field) => { -%>
+    <%_ entity.fields.filter((f) => (f.strings.minVar || f.strings.maxVar) && isDateTypeField(f)).forEach((field) => { -%>
+      <%_ if (field.strings.minVar) { -%>
     <%= field.strings.minVar %>: new Date(response.cursor.<%= field.strings.minVar %>),
+      <%_ } -%>
+      <%_ if (field.strings.maxVar) { -%>
     <%= field.strings.maxVar %>: new Date(response.cursor.<%= field.strings.maxVar %>),
+      <%_ } -%>
     <%_ }); -%>
   };
   const { <%= entity.api.strings.manyEntsVar %>: many } = response;

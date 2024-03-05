@@ -4,7 +4,8 @@ api:
   request:
     import: "../../../test-resources/user-type"
   cursors:
-    - createdAt
+    - createdAt: asc
+    - createdAt: desc
   methods:
     getMany: "{ requireAdmin: true }"
     getOne: "{ requireLogin: false }"

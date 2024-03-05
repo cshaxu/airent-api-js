@@ -35,7 +35,7 @@ api:
   service:
     import: "@/services/user" # required, to import the data service implementation for API actions
   cursors:
-    - createdAt # optional, if you would like to support getMany cursors
+    - createdAt: asc # optional, if you would like to support getMany cursors
   methods: # key is the API action name and value is an optional JSON string for authentication options
     getMany: "{ requireAdmin: true }"
     getOne: "{ requireLogin: false }"

@@ -5,7 +5,7 @@ function getServicePackagePath() {
 }
 -%>
 <% if (utils.isPresentableEntity(entity)) { -%>
-  <%_ if (entity.fields.some((f) => f.strings.minVar && f.strings.maxVar)) { -%>
+  <%_ if (entity.fields.some((f) => f.strings.minVar || f.strings.maxVar)) { -%>
 import { getMax, getMin } from '<%= config.airentApiPackage ?? '@airent/api' %>';
   <%_ } -%>
 import {
@@ -51,16 +51,24 @@ async function buildManyResponse<S extends <%= entity.strings.fieldRequestClass 
   fieldRequest: S,
 ): Promise<<%= entity.api.strings.manyResponse %><S>> {
   const <%= entity.api.strings.manyEntsVar %> = await <%= entity.strings.entityClass %>.presentMany(many, fieldRequest);
-  <%_ entity.fields.filter((f) => f.strings.minVar && f.strings.maxVar).forEach((field) => { -%>
+  <%_ entity.fields.filter((f) => f.strings.minVar || f.strings.maxVar).forEach((field) => { -%>
   const <%= utils.pluralize(field.name) %> = many.map((one) => one.<%= field.name %>);
+    <%_ if (field.strings.minVar) { -%>
   const <%= field.strings.minVar %> = getMin(<%= utils.pluralize(field.name) %>);
+    <%_ } -%>
+    <%_ if (field.strings.maxVar) { -%>
   const <%= field.strings.maxVar %> = getMax(<%= utils.pluralize(field.name) %>);
+    <%_ } -%>
   <%_ }); -%>
   const cursor = {
     count: many.length,
-  <%_ entity.fields.filter((f) => f.strings.minVar && f.strings.maxVar).forEach((field) => { -%>
+  <%_ entity.fields.filter((f) => f.strings.minVar || f.strings.maxVar).forEach((field) => { -%>
+    <%_ if (field.strings.minVar) { -%>
     <%= field.strings.minVar %>,
+    <%_ } -%>
+    <%_ if (field.strings.maxVar) { -%>
     <%= field.strings.maxVar %>,
+    <%_ } -%>
   <%_ }); -%> };
   return { cursor, <%= entity.api.strings.manyEntsVar %> };
 }
