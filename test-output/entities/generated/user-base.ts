@@ -14,6 +14,7 @@ import {
 import {
   UserFieldRequest,
   UserResponse,
+  SelectedUserResponse,
   UserModel,
 } from './user-type';
 
@@ -41,19 +42,22 @@ export class UserEntityBase extends BaseEntity<
     this.initialize(model);
   }
 
-  public async present<S extends UserFieldRequest>(fieldRequest: S): Promise<Select<UserResponse, S>> {
-    return {
+  public async present<S extends UserFieldRequest>(fieldRequest: S): Promise<SelectedUserResponse<S>> {
+    await this.beforePresent(fieldRequest);
+    const response = {
       ...(fieldRequest.id !== undefined && { id: this.id }),
       ...(fieldRequest.createdAt !== undefined && { createdAt: this.createdAt }),
       ...(fieldRequest.name !== undefined && { name: this.name }),
       ...(fieldRequest.email !== undefined && { email: this.email }),
-    } as Select<UserResponse, S>;
+    };
+    await this.afterPresent(fieldRequest, response as Select<UserResponse, S>);
+    return response as SelectedUserResponse<S>;
   }
 
   public static async presentMany<
     ENTITY extends UserEntityBase,
     S extends UserFieldRequest
-  >(entities: ENTITY[], fieldRequest: S): Promise<Select<UserResponse, S>[]> {
+  >(entities: ENTITY[], fieldRequest: S): Promise<SelectedUserResponse<S>[]> {
     return await sequential(entities.map((one) => () => one.present(fieldRequest)));
   }
 

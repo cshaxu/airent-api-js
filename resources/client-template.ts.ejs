@@ -35,9 +35,8 @@ function presentDateTypeField(field) {
 }
 -%>
 <% if (utils.isPresentableEntity(entity)) { -%>
-import { Select } from 'airent';
 import {
-  <%= entity.strings.responseClass %>,
+  <%= entity.strings.selectedResponseClass %>,
   <%= entity.strings.fieldRequestClass %>,
   <%= entity.api.strings.manyResponse %>,
   <%= entity.api.strings.oneResponse %>,
@@ -70,7 +69,7 @@ import {
 function present<S extends <%= entity.strings.fieldRequestClass %>>(
   one: any,
   fieldRequest: S
-): Select<<%= entity.strings.responseClass %>, S> {
+): <%= entity.strings.selectedResponseClass %><S> {
   return {
     ...one,
   <%_ entity.fields.filter(utils.isPresentableField).filter(isDateTypeField).forEach((field) => { -%>

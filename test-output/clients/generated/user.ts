@@ -1,6 +1,5 @@
-import { Select } from 'airent';
 import {
-  UserResponse,
+  SelectedUserResponse,
   UserFieldRequest,
   ManyUsersResponse,
   OneUserResponse,
@@ -18,7 +17,7 @@ import {
 function present<S extends UserFieldRequest>(
   one: any,
   fieldRequest: S
-): Select<UserResponse, S> {
+): SelectedUserResponse<S> {
   return {
     ...one,
     ...(one.createdAt !== undefined && fieldRequest.createdAt === true && { createdAt: new Date(one.createdAt) }),

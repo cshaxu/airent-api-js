@@ -72,7 +72,7 @@ function buildBeforeType(entity) /* Code[] */ {
   if (!utils.isPresentableEntity(entity)) {
     return [];
   }
-  return ["import { Select } from 'airent';"];
+  return [];
 }
 
 function buildAfterType(entity) /* Code[] */ {
@@ -80,10 +80,6 @@ function buildAfterType(entity) /* Code[] */ {
     return [];
   }
   return [
-    "",
-    ...(entity.deprecated ? ["/** @deprecated */"] : []),
-    `export type Selected${entity.strings.responseClass}<S extends ${entity.strings.fieldRequestClass}, N extends boolean = false> =`,
-    `  N extends true ? (Select<${entity.strings.responseClass}, S> | null) : Select<${entity.strings.responseClass}, S>;`,
     "",
     ...(entity.deprecated ? ["/** @deprecated */"] : []),
     `export type ${entity.api.strings.manyCursor} = {`,
@@ -110,13 +106,13 @@ function buildAfterType(entity) /* Code[] */ {
     `export type ${entity.api.strings.manyResponse}<S extends ${entity.strings.fieldRequestClass}> = {`,
     `  cursor: ${entity.api.strings.manyCursor};`,
     ...(entity.deprecated ? ["  /** @deprecated */"] : []),
-    `  ${entity.api.strings.manyEntsVar}: Selected${entity.strings.responseClass}<S>[];`,
+    `  ${entity.api.strings.manyEntsVar}: ${entity.strings.selectedResponseClass}<S>[];`,
     "};",
     "",
     ...(entity.deprecated ? ["/** @deprecated */"] : []),
     `export type ${entity.api.strings.oneResponse}<S extends ${entity.strings.fieldRequestClass}, N extends boolean = false> = {`,
     ...(entity.deprecated ? ["  /** @deprecated */"] : []),
-    `  ${entity.api.strings.oneEntVar}: Selected${entity.strings.responseClass}<S, N>;`,
+    `  ${entity.api.strings.oneEntVar}: N extends true ? (${entity.strings.selectedResponseClass}<S> | null) : ${entity.strings.selectedResponseClass}<S>;`,
     "};",
   ];
 }

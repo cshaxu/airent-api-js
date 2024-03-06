@@ -21,8 +21,7 @@ export type UserResponse = {
 };
 
 /** @deprecated */
-export type SelectedUserResponse<S extends UserFieldRequest, N extends boolean = false> =
-  N extends true ? (Select<UserResponse, S> | null) : Select<UserResponse, S>;
+export type SelectedUserResponse<S extends UserFieldRequest> = Select<UserResponse, S>;
 
 /** @deprecated */
 export type ManyUsersCursor = {
@@ -41,5 +40,5 @@ export type ManyUsersResponse<S extends UserFieldRequest> = {
 /** @deprecated */
 export type OneUserResponse<S extends UserFieldRequest, N extends boolean = false> = {
   /** @deprecated */
-  user: SelectedUserResponse<S, N>;
+  user: N extends true ? (SelectedUserResponse<S> | null) : SelectedUserResponse<S>;
 };
