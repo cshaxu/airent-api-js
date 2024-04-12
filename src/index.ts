@@ -56,6 +56,7 @@ type Executor<PARSED, REQUEST_CONTEXT, RESULT> = (
 ) => Awaitable<RESULT>;
 
 type HandlerContext<REQUEST_CONTEXT, PARSED, RESULT> = {
+  request: Request;
   rc?: REQUEST_CONTEXT;
   parsed?: PARSED;
   result?: RESULT;
@@ -356,7 +357,7 @@ function handle<REQUEST_CONTEXT, PARSED, RESULT, OPTIONS>(
   config: HandlerConfig<REQUEST_CONTEXT, PARSED, RESULT, OPTIONS>
 ): (request: Request) => Promise<Response> {
   return async (request: Request) => {
-    const data: HandlerContext<REQUEST_CONTEXT, PARSED, RESULT> = {};
+    const data: HandlerContext<REQUEST_CONTEXT, PARSED, RESULT> = { request };
     try {
       kill();
       data.rc = await config.authenticator(request);
@@ -370,7 +371,6 @@ function handle<REQUEST_CONTEXT, PARSED, RESULT, OPTIONS>(
       if (config.errorHandler === undefined) {
         throw error;
       } else {
-        const { method: _method, url: _url } = request;
         return await config.errorHandler(error, data);
       }
     }

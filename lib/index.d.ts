@@ -9,6 +9,7 @@ type Parser<REQUEST_CONTEXT, PARSED> = (request: Request, rc: REQUEST_CONTEXT) =
 type Validator<PARSED, REQUEST_CONTEXT, OPTIONS> = (parsed: PARSED, rc: REQUEST_CONTEXT, options?: OPTIONS) => Awaitable<void>;
 type Executor<PARSED, REQUEST_CONTEXT, RESULT> = (parsed: PARSED, rc: REQUEST_CONTEXT) => Awaitable<RESULT>;
 type HandlerContext<REQUEST_CONTEXT, PARSED, RESULT> = {
+    request: Request;
     rc?: REQUEST_CONTEXT;
     parsed?: PARSED;
     result?: RESULT;
