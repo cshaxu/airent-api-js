@@ -2,7 +2,11 @@ import * as z from "zod";
 declare function fetchJsonOrThrow(input: string, init?: RequestInit): Promise<any>;
 declare function getMin<T>(array: T[]): T | null;
 declare function getMax<T>(array: T[]): T | null;
-type Authenticator<OPTIONS, REQUEST_CONTEXT> = (headers: Headers, options?: OPTIONS) => Promise<REQUEST_CONTEXT>;
+type Awaitable<T> = T | Promise<T>;
+type Authenticator<REQUEST_CONTEXT> = (request: Request) => Awaitable<REQUEST_CONTEXT>;
+type Parser<REQUEST_CONTEXT, PARSED> = (request: Request, rc: REQUEST_CONTEXT) => Awaitable<PARSED>;
+type Validator<PARSED, REQUEST_CONTEXT, OPTIONS> = (parsed: PARSED, rc: REQUEST_CONTEXT, options?: OPTIONS) => Awaitable<void>;
+type Executor<PARSED, REQUEST_CONTEXT, RESULT> = (parsed: PARSED, rc: REQUEST_CONTEXT) => Awaitable<RESULT>;
 type ErrorContext = {
     method: string;
     url: string;
@@ -15,36 +19,50 @@ type GetManyAction<QUERY, FIELD_REQUEST> = (query: QUERY, rc: any, fieldRequest:
 type GetOneAction<PARAMS, FIELD_REQUEST> = (params: PARAMS, rc: any, fieldRequest: FIELD_REQUEST) => Promise<any>;
 type CreateOneAction<BODY, FIELD_REQUEST> = (body: BODY, rc: any, fieldRequest: FIELD_REQUEST) => Promise<any>;
 type UpdateOneAction<PARAMS, BODY, FIELD_REQUEST> = (params: PARAMS, body: BODY, rc: any, fieldRequest: FIELD_REQUEST) => Promise<any>;
-type GetManyApiHandlerConfig<OPTIONS, QUERY_ZOD extends z.ZodTypeAny, FIELD_REQUEST> = {
+type GetManyApiHandlerConfig<REQUEST_CONTEXT, RESULT, OPTIONS, QUERY_ZOD extends z.ZodTypeAny, FIELD_REQUEST> = {
     queryZod: QUERY_ZOD;
     action: GetManyAction<z.infer<QUERY_ZOD>, FIELD_REQUEST>;
-} & Omit<HandlerConfig<OPTIONS, any, any, any>, "validator" | "executor">;
-type GetOneApiHandlerConfig<OPTIONS, PARAMS_ZOD extends z.ZodTypeAny, FIELD_REQUEST> = {
+} & Omit<HandlerConfig<REQUEST_CONTEXT, {
+    query: z.infer<QUERY_ZOD>;
+    fieldRequest: FIELD_REQUEST;
+}, RESULT, OPTIONS>, "parser" | "executor">;
+type GetOneApiHandlerConfig<REQUEST_CONTEXT, RESULT, OPTIONS, PARAMS_ZOD extends z.ZodTypeAny, FIELD_REQUEST> = {
     paramsZod: PARAMS_ZOD;
     action: GetOneAction<z.infer<PARAMS_ZOD>, FIELD_REQUEST>;
-} & Omit<HandlerConfig<OPTIONS, any, any, any>, "validator" | "executor">;
-type CreateOneApiHandlerConfig<OPTIONS, BODY_ZOD extends z.ZodTypeAny, FIELD_REQUEST> = {
+} & Omit<HandlerConfig<REQUEST_CONTEXT, {
+    params: z.infer<PARAMS_ZOD>;
+    fieldRequest: FIELD_REQUEST;
+}, RESULT, OPTIONS>, "parser" | "executor">;
+type CreateOneApiHandlerConfig<REQUEST_CONTEXT, RESULT, OPTIONS, BODY_ZOD extends z.ZodTypeAny, FIELD_REQUEST> = {
     bodyZod: BODY_ZOD;
     action: CreateOneAction<z.infer<BODY_ZOD>, FIELD_REQUEST>;
-} & Omit<HandlerConfig<OPTIONS, any, any, any>, "validator" | "executor">;
-type UpdateOneApiHandlerConfig<OPTIONS, PARAMS_ZOD extends z.ZodTypeAny, BODY, FIELD_REQUEST> = {
+} & Omit<HandlerConfig<REQUEST_CONTEXT, {
+    body: z.infer<BODY_ZOD>;
+    fieldRequest: FIELD_REQUEST;
+}, RESULT, OPTIONS>, "parser" | "executor">;
+type UpdateOneApiHandlerConfig<REQUEST_CONTEXT, RESULT, OPTIONS, PARAMS_ZOD extends z.ZodTypeAny, BODY, FIELD_REQUEST> = {
     paramsZod: PARAMS_ZOD;
     bodyZod: z.ZodTypeAny;
     action: UpdateOneAction<z.infer<PARAMS_ZOD>, BODY, FIELD_REQUEST>;
-} & Omit<HandlerConfig<OPTIONS, any, any, any>, "validator" | "executor">;
-declare function handleGetMany<OPTIONS, QUERY_ZOD extends z.ZodTypeAny, FIELD_REQUEST>(config: GetManyApiHandlerConfig<OPTIONS, QUERY_ZOD, FIELD_REQUEST>): (request: Request) => Promise<Response>;
-declare function handleGetOne<OPTIONS, PARAMS_ZOD extends z.ZodTypeAny, FIELD_REQUEST>(config: GetOneApiHandlerConfig<OPTIONS, PARAMS_ZOD, FIELD_REQUEST>): (request: Request) => Promise<Response>;
+} & Omit<HandlerConfig<REQUEST_CONTEXT, {
+    params: z.infer<PARAMS_ZOD>;
+    body: BODY;
+    fieldRequest: FIELD_REQUEST;
+}, RESULT, OPTIONS>, "parser" | "executor">;
+declare function handleGetMany<REQUEST_CONTEXT, RESULT, OPTIONS, QUERY_ZOD extends z.ZodTypeAny, FIELD_REQUEST>(config: GetManyApiHandlerConfig<REQUEST_CONTEXT, RESULT, OPTIONS, QUERY_ZOD, FIELD_REQUEST>): (request: Request) => Promise<Response>;
+declare function handleGetOne<REQUEST_CONTEXT, RESULT, OPTIONS, PARAMS_ZOD extends z.ZodTypeAny, FIELD_REQUEST>(config: GetOneApiHandlerConfig<REQUEST_CONTEXT, RESULT, OPTIONS, PARAMS_ZOD, FIELD_REQUEST>): (request: Request) => Promise<Response>;
 declare const handleGetOneSafe: typeof handleGetOne;
-declare function handleCreateOne<OPTIONS, BODY_ZOD extends z.ZodTypeAny, FIELD_REQUEST>(config: CreateOneApiHandlerConfig<OPTIONS, BODY_ZOD, FIELD_REQUEST>): (request: Request) => Promise<Response>;
-declare function handleUpdateOne<OPTIONS, PARAMS_ZOD extends z.ZodTypeAny, BODY, FIELD_REQUEST>(config: UpdateOneApiHandlerConfig<OPTIONS, PARAMS_ZOD, BODY, FIELD_REQUEST>): (request: Request) => Promise<Response>;
+declare function handleCreateOne<REQUEST_CONTEXT, RESULT, OPTIONS, BODY_ZOD extends z.ZodTypeAny, FIELD_REQUEST>(config: CreateOneApiHandlerConfig<REQUEST_CONTEXT, RESULT, OPTIONS, BODY_ZOD, FIELD_REQUEST>): (request: Request) => Promise<Response>;
+declare function handleUpdateOne<REQUEST_CONTEXT, RESULT, OPTIONS, PARAMS_ZOD extends z.ZodTypeAny, BODY, FIELD_REQUEST>(config: UpdateOneApiHandlerConfig<REQUEST_CONTEXT, RESULT, OPTIONS, PARAMS_ZOD, BODY, FIELD_REQUEST>): (request: Request) => Promise<Response>;
 declare const handleDeleteOne: typeof handleGetOne;
-type HandlerConfig<OPTIONS, REQUEST_CONTEXT, PARSED, RESULT> = {
-    authenticator: Authenticator<OPTIONS, REQUEST_CONTEXT>;
-    validator: (request: Request, rc: REQUEST_CONTEXT) => Promise<PARSED>;
-    executor: (parsed: PARSED, rc: REQUEST_CONTEXT) => Promise<RESULT>;
+type HandlerConfig<REQUEST_CONTEXT, PARSED, RESULT, OPTIONS> = {
+    authenticator: Authenticator<REQUEST_CONTEXT>;
+    parser: Parser<REQUEST_CONTEXT, PARSED>;
+    validator?: Validator<PARSED, REQUEST_CONTEXT, OPTIONS>;
+    executor: Executor<PARSED, REQUEST_CONTEXT, RESULT>;
     errorHandler?: ErrorHandler;
     options?: OPTIONS;
     code?: number;
 };
-declare function handle<OPTIONS, REQUEST_CONTEXT, PARSED, RESULT>(config: HandlerConfig<OPTIONS, REQUEST_CONTEXT, PARSED, RESULT>): (request: Request) => Promise<Response>;
-export { Authenticator, CreateOneAction, CreateOneApiHandlerConfig, ErrorContext, ErrorHandler, GetManyAction, GetManyApiHandlerConfig, GetOneAction, GetOneApiHandlerConfig, HandlerConfig, UpdateOneAction, UpdateOneApiHandlerConfig, fetchJsonOrThrow, getMax, getMin, handle, handleCreateOne, handleDeleteOne, handleGetMany, handleGetOne, handleGetOneSafe, handleUpdateOne, };
+declare function handle<REQUEST_CONTEXT, PARSED, RESULT, OPTIONS>(config: HandlerConfig<REQUEST_CONTEXT, PARSED, RESULT, OPTIONS>): (request: Request) => Promise<Response>;
+export { Authenticator, Awaitable, CreateOneAction, CreateOneApiHandlerConfig, ErrorContext, ErrorHandler, Executor, GetManyAction, GetManyApiHandlerConfig, GetOneAction, GetOneApiHandlerConfig, HandlerConfig, Parser, UpdateOneAction, UpdateOneApiHandlerConfig, Validator, fetchJsonOrThrow, getMax, getMin, handle, handleCreateOne, handleDeleteOne, handleGetMany, handleGetOne, handleGetOneSafe, handleUpdateOne, };

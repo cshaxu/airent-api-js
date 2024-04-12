@@ -33,10 +33,27 @@ function getMax<T>(array: T[]): T | null {
   );
 }
 
-type Authenticator<OPTIONS, REQUEST_CONTEXT> = (
-  headers: Headers,
+type Awaitable<T> = T | Promise<T>;
+
+type Authenticator<REQUEST_CONTEXT> = (
+  request: Request
+) => Awaitable<REQUEST_CONTEXT>;
+
+type Parser<REQUEST_CONTEXT, PARSED> = (
+  request: Request,
+  rc: REQUEST_CONTEXT
+) => Awaitable<PARSED>;
+
+type Validator<PARSED, REQUEST_CONTEXT, OPTIONS> = (
+  parsed: PARSED,
+  rc: REQUEST_CONTEXT,
   options?: OPTIONS
-) => Promise<REQUEST_CONTEXT>;
+) => Awaitable<void>;
+
+type Executor<PARSED, REQUEST_CONTEXT, RESULT> = (
+  parsed: PARSED,
+  rc: REQUEST_CONTEXT
+) => Awaitable<RESULT>;
 
 type ErrorContext = {
   method: string;
@@ -78,33 +95,65 @@ type UpdateOneAction<PARAMS, BODY, FIELD_REQUEST> = (
 // rpc api handler config types
 
 type GetManyApiHandlerConfig<
+  REQUEST_CONTEXT,
+  RESULT,
   OPTIONS,
   QUERY_ZOD extends z.ZodTypeAny,
   FIELD_REQUEST
 > = {
   queryZod: QUERY_ZOD;
   action: GetManyAction<z.infer<QUERY_ZOD>, FIELD_REQUEST>;
-} & Omit<HandlerConfig<OPTIONS, any, any, any>, "validator" | "executor">;
+} & Omit<
+  HandlerConfig<
+    REQUEST_CONTEXT,
+    { query: z.infer<QUERY_ZOD>; fieldRequest: FIELD_REQUEST },
+    RESULT,
+    OPTIONS
+  >,
+  "parser" | "executor"
+>;
 
 type GetOneApiHandlerConfig<
+  REQUEST_CONTEXT,
+  RESULT,
   OPTIONS,
   PARAMS_ZOD extends z.ZodTypeAny,
   FIELD_REQUEST
 > = {
   paramsZod: PARAMS_ZOD;
   action: GetOneAction<z.infer<PARAMS_ZOD>, FIELD_REQUEST>;
-} & Omit<HandlerConfig<OPTIONS, any, any, any>, "validator" | "executor">;
+} & Omit<
+  HandlerConfig<
+    REQUEST_CONTEXT,
+    { params: z.infer<PARAMS_ZOD>; fieldRequest: FIELD_REQUEST },
+    RESULT,
+    OPTIONS
+  >,
+  "parser" | "executor"
+>;
 
 type CreateOneApiHandlerConfig<
+  REQUEST_CONTEXT,
+  RESULT,
   OPTIONS,
   BODY_ZOD extends z.ZodTypeAny,
   FIELD_REQUEST
 > = {
   bodyZod: BODY_ZOD;
   action: CreateOneAction<z.infer<BODY_ZOD>, FIELD_REQUEST>;
-} & Omit<HandlerConfig<OPTIONS, any, any, any>, "validator" | "executor">;
+} & Omit<
+  HandlerConfig<
+    REQUEST_CONTEXT,
+    { body: z.infer<BODY_ZOD>; fieldRequest: FIELD_REQUEST },
+    RESULT,
+    OPTIONS
+  >,
+  "parser" | "executor"
+>;
 
 type UpdateOneApiHandlerConfig<
+  REQUEST_CONTEXT,
+  RESULT,
   OPTIONS,
   PARAMS_ZOD extends z.ZodTypeAny,
   BODY,
@@ -113,14 +162,34 @@ type UpdateOneApiHandlerConfig<
   paramsZod: PARAMS_ZOD;
   bodyZod: z.ZodTypeAny;
   action: UpdateOneAction<z.infer<PARAMS_ZOD>, BODY, FIELD_REQUEST>;
-} & Omit<HandlerConfig<OPTIONS, any, any, any>, "validator" | "executor">;
+} & Omit<
+  HandlerConfig<
+    REQUEST_CONTEXT,
+    { params: z.infer<PARAMS_ZOD>; body: BODY; fieldRequest: FIELD_REQUEST },
+    RESULT,
+    OPTIONS
+  >,
+  "parser" | "executor"
+>;
 
 // api handlers
 
-function handleGetMany<OPTIONS, QUERY_ZOD extends z.ZodTypeAny, FIELD_REQUEST>(
-  config: GetManyApiHandlerConfig<OPTIONS, QUERY_ZOD, FIELD_REQUEST>
+function handleGetMany<
+  REQUEST_CONTEXT,
+  RESULT,
+  OPTIONS,
+  QUERY_ZOD extends z.ZodTypeAny,
+  FIELD_REQUEST
+>(
+  config: GetManyApiHandlerConfig<
+    REQUEST_CONTEXT,
+    RESULT,
+    OPTIONS,
+    QUERY_ZOD,
+    FIELD_REQUEST
+  >
 ): (request: Request) => Promise<Response> {
-  const validator = async (request: Request) => {
+  const parser = async (request: Request) => {
     const { query: queryRaw, fieldRequest } = await getRequestJson(request);
     if (queryRaw === undefined) {
       throw createHttpError.BadRequest("Missing `query`");
@@ -137,13 +206,25 @@ function handleGetMany<OPTIONS, QUERY_ZOD extends z.ZodTypeAny, FIELD_REQUEST>(
     parsed: { query: z.infer<QUERY_ZOD>; fieldRequest: FIELD_REQUEST },
     rc: any
   ) => config.action(parsed.query, rc, parsed.fieldRequest);
-  return handle({ ...config, validator, executor });
+  return handle({ ...config, parser, executor });
 }
 
-function handleGetOne<OPTIONS, PARAMS_ZOD extends z.ZodTypeAny, FIELD_REQUEST>(
-  config: GetOneApiHandlerConfig<OPTIONS, PARAMS_ZOD, FIELD_REQUEST>
+function handleGetOne<
+  REQUEST_CONTEXT,
+  RESULT,
+  OPTIONS,
+  PARAMS_ZOD extends z.ZodTypeAny,
+  FIELD_REQUEST
+>(
+  config: GetOneApiHandlerConfig<
+    REQUEST_CONTEXT,
+    RESULT,
+    OPTIONS,
+    PARAMS_ZOD,
+    FIELD_REQUEST
+  >
 ): (request: Request) => Promise<Response> {
-  const validator = async (request: Request) => {
+  const parser = async (request: Request) => {
     const { params: paramsRaw, fieldRequest } = await getRequestJson(request);
     if (paramsRaw === undefined) {
       throw createHttpError.BadRequest("Missing `params`");
@@ -160,15 +241,27 @@ function handleGetOne<OPTIONS, PARAMS_ZOD extends z.ZodTypeAny, FIELD_REQUEST>(
     parsed: { params: z.infer<PARAMS_ZOD>; fieldRequest: FIELD_REQUEST },
     rc: any
   ) => config.action(parsed.params, rc, parsed.fieldRequest);
-  return handle({ ...config, validator, executor });
+  return handle({ ...config, parser, executor });
 }
 
 const handleGetOneSafe = handleGetOne;
 
-function handleCreateOne<OPTIONS, BODY_ZOD extends z.ZodTypeAny, FIELD_REQUEST>(
-  config: CreateOneApiHandlerConfig<OPTIONS, BODY_ZOD, FIELD_REQUEST>
+function handleCreateOne<
+  REQUEST_CONTEXT,
+  RESULT,
+  OPTIONS,
+  BODY_ZOD extends z.ZodTypeAny,
+  FIELD_REQUEST
+>(
+  config: CreateOneApiHandlerConfig<
+    REQUEST_CONTEXT,
+    RESULT,
+    OPTIONS,
+    BODY_ZOD,
+    FIELD_REQUEST
+  >
 ): (request: Request) => Promise<Response> {
-  const validator = async (request: Request) => {
+  const parser = async (request: Request) => {
     const { body: bodyRaw, fieldRequest } = await getRequestJson(request);
     if (bodyRaw === undefined) {
       throw createHttpError.BadRequest("Missing `body`");
@@ -185,18 +278,27 @@ function handleCreateOne<OPTIONS, BODY_ZOD extends z.ZodTypeAny, FIELD_REQUEST>(
     parsed: { body: z.infer<BODY_ZOD>; fieldRequest: FIELD_REQUEST },
     rc: any
   ) => config.action(parsed.body, rc, parsed.fieldRequest);
-  return handle({ ...config, validator, executor, code: 201 });
+  return handle({ ...config, parser, executor, code: 201 });
 }
 
 function handleUpdateOne<
+  REQUEST_CONTEXT,
+  RESULT,
   OPTIONS,
   PARAMS_ZOD extends z.ZodTypeAny,
   BODY,
   FIELD_REQUEST
 >(
-  config: UpdateOneApiHandlerConfig<OPTIONS, PARAMS_ZOD, BODY, FIELD_REQUEST>
+  config: UpdateOneApiHandlerConfig<
+    REQUEST_CONTEXT,
+    RESULT,
+    OPTIONS,
+    PARAMS_ZOD,
+    BODY,
+    FIELD_REQUEST
+  >
 ): (request: Request) => Promise<Response> {
-  const validator = async (request: Request) => {
+  const parser = async (request: Request) => {
     const {
       params: paramsRaw,
       body: bodyRaw,
@@ -225,7 +327,7 @@ function handleUpdateOne<
     },
     rc: any
   ) => config.action(parsed.params, parsed.body, rc, parsed.fieldRequest);
-  return handle({ ...config, validator, executor });
+  return handle({ ...config, parser, executor });
 }
 
 const handleDeleteOne = handleGetOne;
@@ -238,18 +340,19 @@ async function getRequestJson(request: Request): Promise<any> {
   }
 }
 
-type HandlerConfig<OPTIONS, REQUEST_CONTEXT, PARSED, RESULT> = {
-  authenticator: Authenticator<OPTIONS, REQUEST_CONTEXT>;
-  validator: (request: Request, rc: REQUEST_CONTEXT) => Promise<PARSED>;
-  executor: (parsed: PARSED, rc: REQUEST_CONTEXT) => Promise<RESULT>;
+type HandlerConfig<REQUEST_CONTEXT, PARSED, RESULT, OPTIONS> = {
+  authenticator: Authenticator<REQUEST_CONTEXT>;
+  parser: Parser<REQUEST_CONTEXT, PARSED>;
+  validator?: Validator<PARSED, REQUEST_CONTEXT, OPTIONS>;
+  executor: Executor<PARSED, REQUEST_CONTEXT, RESULT>;
   errorHandler?: ErrorHandler;
   options?: OPTIONS;
   code?: number;
 };
 
-// Note: request => validate => execute => response
-function handle<OPTIONS, REQUEST_CONTEXT, PARSED, RESULT>(
-  config: HandlerConfig<OPTIONS, REQUEST_CONTEXT, PARSED, RESULT>
+// Note: request => authenticate => parse => execute => respond
+function handle<REQUEST_CONTEXT, PARSED, RESULT, OPTIONS>(
+  config: HandlerConfig<REQUEST_CONTEXT, PARSED, RESULT, OPTIONS>
 ): (request: Request) => Promise<Response> {
   return async (request: Request) => {
     let rc = null;
@@ -257,8 +360,11 @@ function handle<OPTIONS, REQUEST_CONTEXT, PARSED, RESULT>(
     let result = null;
     try {
       kill();
-      rc = await config.authenticator(request.headers, config.options);
-      parsed = await config.validator(request, rc);
+      rc = await config.authenticator(request);
+      parsed = await config.parser(request, rc);
+      if (config.validator !== undefined) {
+        await config.validator(parsed, rc, config.options);
+      }
       result = await config.executor(parsed, rc);
       return respond(result, config.code);
     } catch (error) {
@@ -290,7 +396,8 @@ function respond<RESULT>(result: RESULT, status: number = 200): Response {
 function isReadableStream(object: any): object is ReadableStream {
   return (
     object instanceof ReadableStream ||
-    (isFunction(object.cancel) &&
+    (!isNil(object) &&
+      isFunction(object.cancel) &&
       isFunction(object.cancel) &&
       isFunction(object.getReader) &&
       isFunction(object.pipeTo) &&
@@ -303,17 +410,21 @@ const isFunction = (object: any) => typeof object === "function";
 
 export {
   Authenticator,
+  Awaitable,
   CreateOneAction,
   CreateOneApiHandlerConfig,
   ErrorContext,
   ErrorHandler,
+  Executor,
   GetManyAction,
   GetManyApiHandlerConfig,
   GetOneAction,
   GetOneApiHandlerConfig,
   HandlerConfig,
+  Parser,
   UpdateOneAction,
   UpdateOneApiHandlerConfig,
+  Validator,
   fetchJsonOrThrow,
   getMax,
   getMin,

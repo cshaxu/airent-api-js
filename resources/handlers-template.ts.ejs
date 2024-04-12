@@ -39,22 +39,16 @@ import {
   <%= entity.api.strings.updateOneBody %>,
   <%_ } -%>
 } from '<%= entity.api.request.import %>';
-<%- config.authenticatorImport %>
-  <%_ if (config.errorHandlerImport) { -%>
-<%- config.errorHandlerImport %>
-  <%_ } -%>
+<%- config.handlerConfigImport %>
   <%_ if (entity.api.booleans.hasGetMany) { -%>
 
     <%_ if (entity.deprecated) { -%>
 /** @deprecated */
     <%_ } -%>
 const getMany = handleGetMany({
+  ...handlerConfig,
   queryZod: <%= entity.api.strings.getManyQuery %>,
   action: <%= entity.api.strings.actionsClass %>.getMany,
-  authenticator,
-    <%_ if (config.errorHandlerImport) { -%>
-  errorHandler,
-    <%_ } -%>
   options: <%= entity.api.methods.getMany ?? '{}' %>,
 });
   <%_ } -%>
@@ -64,12 +58,9 @@ const getMany = handleGetMany({
 /** @deprecated */
     <%_ } -%>
 const getOne = handleGetOne({
+  ...handlerConfig,
   paramsZod: <%= entity.api.strings.getOneParams %>,
   action: <%= entity.api.strings.actionsClass %>.getOne,
-  authenticator,
-    <%_ if (config.errorHandlerImport) { -%>
-  errorHandler,
-    <%_ } -%>
   options: <%= entity.api.methods.getOne ?? '{}' %>,
 });
   <%_ } -%>
@@ -79,12 +70,9 @@ const getOne = handleGetOne({
 /** @deprecated */
     <%_ } -%>
 const getOneSafe = handleGetOneSafe({
+  ...handlerConfig,
   paramsZod: <%= entity.api.strings.getOneParams %>,
   action: <%= entity.api.strings.actionsClass %>.getOneSafe,
-  authenticator,
-    <%_ if (config.errorHandlerImport) { -%>
-  errorHandler,
-    <%_ } -%>
   options: <%= entity.api.methods.getOneSafe ?? '{}' %>,
 });
   <%_ } -%>
@@ -94,12 +82,9 @@ const getOneSafe = handleGetOneSafe({
 /** @deprecated */
     <%_ } -%>
 const createOne = handleCreateOne({
+  ...handlerConfig,
   bodyZod: <%= entity.api.strings.createOneBody %>,
   action: <%= entity.api.strings.actionsClass %>.createOne,
-  authenticator,
-    <%_ if (config.errorHandlerImport) { -%>
-  errorHandler,
-    <%_ } -%>
   options: <%= entity.api.methods.createOne ?? '{}' %>,
 });
   <%_ } -%>
@@ -109,13 +94,10 @@ const createOne = handleCreateOne({
 /** @deprecated */
     <%_ } -%>
 const updateOne = handleUpdateOne({
+  ...handlerConfig,
   paramsZod: <%= entity.api.strings.getOneParams %>,
   bodyZod: <%= entity.api.strings.updateOneBody %>,
   action: <%= entity.api.strings.actionsClass %>.updateOne,
-  authenticator,
-    <%_ if (config.errorHandlerImport) { -%>
-  errorHandler,
-    <%_ } -%>
   options: <%= entity.api.methods.updateOne ?? '{}' %>,
 });
   <%_ } -%>
@@ -125,12 +107,9 @@ const updateOne = handleUpdateOne({
 /** @deprecated */
     <%_ } -%>
 const deleteOne = handleDeleteOne({
+  ...handlerConfig,
   paramsZod: <%= entity.api.strings.getOneParams %>,
   action: <%= entity.api.strings.actionsClass %>.deleteOne,
-  authenticator,
-    <%_ if (config.errorHandlerImport) { -%>
-  errorHandler,
-    <%_ } -%>
   options: <%= entity.api.methods.deleteOne ?? '{}' %>,
 });
   <%_ } -%>

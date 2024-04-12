@@ -140,16 +140,10 @@ async function configureApiServer(config) {
       "import { RequestContext } from '@/framework';"
     );
   }
-  if (config.authenticatorImport === undefined) {
-    config.authenticatorImport = await askQuestion(
-      'Statement to import "authenticator"',
-      "import { authenticator } from '@/framework';"
-    );
-  }
-  if (config.errorHandlerImport === undefined) {
-    config.errorHandlerImport = await askQuestion(
-      'Statement to import "errorHandler"',
-      "import { errorHandler } from '@/framework';"
+  if (config.handlerConfigImport === undefined) {
+    config.handlerConfigImport = await askQuestion(
+      'Statement to import "handlerConfig"',
+      "import { handlerConfig } from '@/framework';"
     );
   }
 }
