@@ -8,14 +8,12 @@ type Authenticator<REQUEST_CONTEXT> = (request: Request) => Awaitable<REQUEST_CO
 type Parser<REQUEST_CONTEXT, PARSED> = (request: Request, rc: REQUEST_CONTEXT) => Awaitable<PARSED>;
 type Validator<PARSED, REQUEST_CONTEXT, OPTIONS> = (parsed: PARSED, rc: REQUEST_CONTEXT, options?: OPTIONS) => Awaitable<void>;
 type Executor<PARSED, REQUEST_CONTEXT, RESULT> = (parsed: PARSED, rc: REQUEST_CONTEXT) => Awaitable<RESULT>;
-type HandlerContext = {
-    method: string;
-    url: string;
-    rc: any;
-    parsed: any;
-    result: any;
+type HandlerContext<REQUEST_CONTEXT, PARSED, RESULT> = {
+    rc?: REQUEST_CONTEXT;
+    parsed?: PARSED;
+    result?: RESULT;
 };
-type ErrorHandler = (error: any, context: HandlerContext) => Response;
+type ErrorHandler<REQUEST_CONTEXT, PARSED, RESULT> = (error: any, context: HandlerContext<REQUEST_CONTEXT, PARSED, RESULT>) => Awaitable<Response>;
 type GetManyAction<QUERY, FIELD_REQUEST> = (query: QUERY, rc: any, fieldRequest: FIELD_REQUEST) => Promise<any>;
 type GetOneAction<PARAMS, FIELD_REQUEST> = (params: PARAMS, rc: any, fieldRequest: FIELD_REQUEST) => Promise<any>;
 type CreateOneAction<BODY, FIELD_REQUEST> = (body: BODY, rc: any, fieldRequest: FIELD_REQUEST) => Promise<any>;
@@ -61,7 +59,7 @@ type HandlerConfig<REQUEST_CONTEXT, PARSED, RESULT, OPTIONS> = {
     parser: Parser<REQUEST_CONTEXT, PARSED>;
     validator?: Validator<PARSED, REQUEST_CONTEXT, OPTIONS>;
     executor: Executor<PARSED, REQUEST_CONTEXT, RESULT>;
-    errorHandler?: ErrorHandler;
+    errorHandler?: ErrorHandler<REQUEST_CONTEXT, PARSED, RESULT>;
     options?: OPTIONS;
     code?: number;
 };

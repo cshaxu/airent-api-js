@@ -55,15 +55,16 @@ type Executor<PARSED, REQUEST_CONTEXT, RESULT> = (
   rc: REQUEST_CONTEXT
 ) => Awaitable<RESULT>;
 
-type HandlerContext = {
-  method: string;
-  url: string;
-  rc: any;
-  parsed: any;
-  result: any;
+type HandlerContext<REQUEST_CONTEXT, PARSED, RESULT> = {
+  rc?: REQUEST_CONTEXT;
+  parsed?: PARSED;
+  result?: RESULT;
 };
 
-type ErrorHandler = (error: any, context: HandlerContext) => Response;
+type ErrorHandler<REQUEST_CONTEXT, PARSED, RESULT> = (
+  error: any,
+  context: HandlerContext<REQUEST_CONTEXT, PARSED, RESULT>
+) => Awaitable<Response>;
 
 // api action types
 
@@ -345,7 +346,7 @@ type HandlerConfig<REQUEST_CONTEXT, PARSED, RESULT, OPTIONS> = {
   parser: Parser<REQUEST_CONTEXT, PARSED>;
   validator?: Validator<PARSED, REQUEST_CONTEXT, OPTIONS>;
   executor: Executor<PARSED, REQUEST_CONTEXT, RESULT>;
-  errorHandler?: ErrorHandler;
+  errorHandler?: ErrorHandler<REQUEST_CONTEXT, PARSED, RESULT>;
   options?: OPTIONS;
   code?: number;
 };
@@ -355,25 +356,22 @@ function handle<REQUEST_CONTEXT, PARSED, RESULT, OPTIONS>(
   config: HandlerConfig<REQUEST_CONTEXT, PARSED, RESULT, OPTIONS>
 ): (request: Request) => Promise<Response> {
   return async (request: Request) => {
-    let rc = null;
-    let parsed = null;
-    let result = null;
+    const data: HandlerContext<REQUEST_CONTEXT, PARSED, RESULT> = {};
     try {
       kill();
-      rc = await config.authenticator(request);
-      parsed = await config.parser(request, rc);
+      data.rc = await config.authenticator(request);
+      data.parsed = await config.parser(request, data.rc);
       if (config.validator !== undefined) {
-        await config.validator(parsed, rc, config.options);
+        await config.validator(data.parsed, data.rc, config.options);
       }
-      result = await config.executor(parsed, rc);
-      return respond(result, config.code);
+      data.result = await config.executor(data.parsed, data.rc);
+      return respond(data.result, config.code);
     } catch (error) {
       if (config.errorHandler === undefined) {
         throw error;
       } else {
-        const { method, url } = request;
-        const context = { method, url, rc, parsed, result };
-        return config.errorHandler(error, context);
+        const { method: _method, url: _url } = request;
+        return await config.errorHandler(error, data);
       }
     }
   };
