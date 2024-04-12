@@ -55,7 +55,7 @@ type Executor<PARSED, REQUEST_CONTEXT, RESULT> = (
   rc: REQUEST_CONTEXT
 ) => Awaitable<RESULT>;
 
-type ErrorContext = {
+type HandlerContext = {
   method: string;
   url: string;
   rc: any;
@@ -63,7 +63,7 @@ type ErrorContext = {
   result: any;
 };
 
-type ErrorHandler = (error: any, ec: ErrorContext) => Response;
+type ErrorHandler = (error: any, context: HandlerContext) => Response;
 
 // api action types
 
@@ -372,8 +372,8 @@ function handle<REQUEST_CONTEXT, PARSED, RESULT, OPTIONS>(
         throw error;
       } else {
         const { method, url } = request;
-        const ec = { method, url, rc, parsed, result };
-        return config.errorHandler(error, ec);
+        const context = { method, url, rc, parsed, result };
+        return config.errorHandler(error, context);
       }
     }
   };
@@ -413,7 +413,6 @@ export {
   Awaitable,
   CreateOneAction,
   CreateOneApiHandlerConfig,
-  ErrorContext,
   ErrorHandler,
   Executor,
   GetManyAction,
@@ -421,6 +420,7 @@ export {
   GetOneAction,
   GetOneApiHandlerConfig,
   HandlerConfig,
+  HandlerContext,
   Parser,
   UpdateOneAction,
   UpdateOneApiHandlerConfig,
@@ -435,4 +435,5 @@ export {
   handleGetOne,
   handleGetOneSafe,
   handleUpdateOne,
+  isNil,
 };

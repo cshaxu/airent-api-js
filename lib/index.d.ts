@@ -1,5 +1,6 @@
 import * as z from "zod";
 declare function fetchJsonOrThrow(input: string, init?: RequestInit): Promise<any>;
+declare function isNil(value: any): value is null | undefined;
 declare function getMin<T>(array: T[]): T | null;
 declare function getMax<T>(array: T[]): T | null;
 type Awaitable<T> = T | Promise<T>;
@@ -7,14 +8,14 @@ type Authenticator<REQUEST_CONTEXT> = (request: Request) => Awaitable<REQUEST_CO
 type Parser<REQUEST_CONTEXT, PARSED> = (request: Request, rc: REQUEST_CONTEXT) => Awaitable<PARSED>;
 type Validator<PARSED, REQUEST_CONTEXT, OPTIONS> = (parsed: PARSED, rc: REQUEST_CONTEXT, options?: OPTIONS) => Awaitable<void>;
 type Executor<PARSED, REQUEST_CONTEXT, RESULT> = (parsed: PARSED, rc: REQUEST_CONTEXT) => Awaitable<RESULT>;
-type ErrorContext = {
+type HandlerContext = {
     method: string;
     url: string;
     rc: any;
     parsed: any;
     result: any;
 };
-type ErrorHandler = (error: any, ec: ErrorContext) => Response;
+type ErrorHandler = (error: any, context: HandlerContext) => Response;
 type GetManyAction<QUERY, FIELD_REQUEST> = (query: QUERY, rc: any, fieldRequest: FIELD_REQUEST) => Promise<any>;
 type GetOneAction<PARAMS, FIELD_REQUEST> = (params: PARAMS, rc: any, fieldRequest: FIELD_REQUEST) => Promise<any>;
 type CreateOneAction<BODY, FIELD_REQUEST> = (body: BODY, rc: any, fieldRequest: FIELD_REQUEST) => Promise<any>;
@@ -65,4 +66,4 @@ type HandlerConfig<REQUEST_CONTEXT, PARSED, RESULT, OPTIONS> = {
     code?: number;
 };
 declare function handle<REQUEST_CONTEXT, PARSED, RESULT, OPTIONS>(config: HandlerConfig<REQUEST_CONTEXT, PARSED, RESULT, OPTIONS>): (request: Request) => Promise<Response>;
-export { Authenticator, Awaitable, CreateOneAction, CreateOneApiHandlerConfig, ErrorContext, ErrorHandler, Executor, GetManyAction, GetManyApiHandlerConfig, GetOneAction, GetOneApiHandlerConfig, HandlerConfig, Parser, UpdateOneAction, UpdateOneApiHandlerConfig, Validator, fetchJsonOrThrow, getMax, getMin, handle, handleCreateOne, handleDeleteOne, handleGetMany, handleGetOne, handleGetOneSafe, handleUpdateOne, };
+export { Authenticator, Awaitable, CreateOneAction, CreateOneApiHandlerConfig, ErrorHandler, Executor, GetManyAction, GetManyApiHandlerConfig, GetOneAction, GetOneApiHandlerConfig, HandlerConfig, HandlerContext, Parser, UpdateOneAction, UpdateOneApiHandlerConfig, Validator, fetchJsonOrThrow, getMax, getMin, handle, handleCreateOne, handleDeleteOne, handleGetMany, handleGetOne, handleGetOneSafe, handleUpdateOne, isNil, };
