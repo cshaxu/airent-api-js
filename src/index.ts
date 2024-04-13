@@ -80,10 +80,12 @@ type HandlerConfig<REQUEST_CONTEXT, PARSED, RESULT, OPTIONS> = {
 type WrappableHandlerConfig<REQUEST_CONTEXT, PARSED, RESULT, OPTIONS> =
   HandlerConfig<REQUEST_CONTEXT, PARSED, RESULT, OPTIONS> & {
     parserWrapper?: (
-      parser: Parser<REQUEST_CONTEXT, PARSED>
+      parser: Parser<REQUEST_CONTEXT, PARSED>,
+      options?: OPTIONS
     ) => Parser<REQUEST_CONTEXT, PARSED>;
     executorWrapper?: (
-      executor: Executor<PARSED, REQUEST_CONTEXT, RESULT>
+      executor: Executor<PARSED, REQUEST_CONTEXT, RESULT>,
+      options?: OPTIONS
     ) => Executor<PARSED, REQUEST_CONTEXT, RESULT>;
   };
 

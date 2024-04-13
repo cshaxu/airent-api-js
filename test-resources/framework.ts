@@ -24,14 +24,16 @@ function errorHandler(_error: any, _ec: any): Response {
   return Response.json({}, { status: 500 });
 }
 
-function parserWrapper<T>(
-  parser: Parser<RequestContext, T>
-): Parser<RequestContext, T> {
+function parserWrapper<PARSED>(
+  parser: Parser<RequestContext, PARSED>,
+  _options?: {}
+): Parser<RequestContext, PARSED> {
   return parser;
 }
 
 function executorWrapper<PARSED, RESULT>(
-  executor: Executor<PARSED, RequestContext, RESULT>
+  executor: Executor<PARSED, RequestContext, RESULT>,
+  _options?: {}
 ): Executor<PARSED, RequestContext, RESULT> {
   return executor;
 }

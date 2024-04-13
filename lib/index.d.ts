@@ -25,8 +25,8 @@ type HandlerConfig<REQUEST_CONTEXT, PARSED, RESULT, OPTIONS> = {
     code?: number;
 };
 type WrappableHandlerConfig<REQUEST_CONTEXT, PARSED, RESULT, OPTIONS> = HandlerConfig<REQUEST_CONTEXT, PARSED, RESULT, OPTIONS> & {
-    parserWrapper?: (parser: Parser<REQUEST_CONTEXT, PARSED>) => Parser<REQUEST_CONTEXT, PARSED>;
-    executorWrapper?: (executor: Executor<PARSED, REQUEST_CONTEXT, RESULT>) => Executor<PARSED, REQUEST_CONTEXT, RESULT>;
+    parserWrapper?: (parser: Parser<REQUEST_CONTEXT, PARSED>, options?: OPTIONS) => Parser<REQUEST_CONTEXT, PARSED>;
+    executorWrapper?: (executor: Executor<PARSED, REQUEST_CONTEXT, RESULT>, options?: OPTIONS) => Executor<PARSED, REQUEST_CONTEXT, RESULT>;
 };
 type GetManyAction<QUERY, FIELD_REQUEST> = (query: QUERY, rc: any, fieldRequest: FIELD_REQUEST) => Promise<any>;
 type GetOneAction<PARAMS, FIELD_REQUEST> = (params: PARAMS, rc: any, fieldRequest: FIELD_REQUEST) => Promise<any>;
