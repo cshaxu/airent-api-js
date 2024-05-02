@@ -1,6 +1,6 @@
 import { Executor, Parser } from "../src";
 
-export type RequestContext = {};
+export type Context = {};
 
 export const handlerConfig = {
   authenticator,
@@ -10,13 +10,13 @@ export const handlerConfig = {
   executorWrapper,
 };
 
-async function authenticator(_request: Request): Promise<RequestContext> {
+async function authenticator(_request: Request): Promise<Context> {
   return {};
 }
 
 async function validator(
   _parsed: any,
-  _rc: RequestContext,
+  _context: Context,
   _options?: {}
 ): Promise<void> {}
 
@@ -25,15 +25,15 @@ function errorHandler(_error: any, _ec: any): Response {
 }
 
 function parserWrapper<PARSED>(
-  parser: Parser<RequestContext, PARSED>,
+  parser: Parser<Context, PARSED>,
   _options?: {}
-): Parser<RequestContext, PARSED> {
+): Parser<Context, PARSED> {
   return parser;
 }
 
 function executorWrapper<PARSED, RESULT>(
-  executor: Executor<PARSED, RequestContext, RESULT>,
+  executor: Executor<PARSED, Context, RESULT>,
   _options?: {}
-): Executor<PARSED, RequestContext, RESULT> {
+): Executor<PARSED, Context, RESULT> {
   return executor;
 }

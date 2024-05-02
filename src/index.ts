@@ -35,91 +35,93 @@ function getMax<T>(array: T[]): T | null {
 
 type Awaitable<T> = T | Promise<T>;
 
-type Authenticator<REQUEST_CONTEXT> = (
-  request: Request
-) => Awaitable<REQUEST_CONTEXT>;
+type Authenticator<CONTEXT> = (request: Request) => Awaitable<CONTEXT>;
 
-type Parser<REQUEST_CONTEXT, PARSED> = (
+type Parser<CONTEXT, PARSED> = (
   request: Request,
-  rc: REQUEST_CONTEXT
+  context: CONTEXT
 ) => Awaitable<PARSED>;
 
-type Validator<PARSED, REQUEST_CONTEXT, OPTIONS> = (
+type Validator<PARSED, CONTEXT, OPTIONS> = (
   parsed: PARSED,
-  rc: REQUEST_CONTEXT,
+  context: CONTEXT,
   options?: OPTIONS
 ) => Awaitable<void>;
 
-type Executor<PARSED, REQUEST_CONTEXT, RESULT> = (
+type Executor<PARSED, CONTEXT, RESULT> = (
   parsed: PARSED,
-  rc: REQUEST_CONTEXT
+  context: CONTEXT
 ) => Awaitable<RESULT>;
 
-type HandlerContext<REQUEST_CONTEXT, PARSED, RESULT> = {
+type HandlerContext<CONTEXT, PARSED, RESULT> = {
   request: Request;
-  rc?: REQUEST_CONTEXT;
+  context?: CONTEXT;
   parsed?: PARSED;
   result?: RESULT;
 };
 
-type ErrorHandler<REQUEST_CONTEXT, PARSED, RESULT> = (
+type ErrorHandler<CONTEXT, PARSED, RESULT> = (
   error: any,
-  context: HandlerContext<REQUEST_CONTEXT, PARSED, RESULT>
+  context: HandlerContext<CONTEXT, PARSED, RESULT>
 ) => Awaitable<Response>;
 
-type HandlerConfig<REQUEST_CONTEXT, PARSED, RESULT, OPTIONS> = {
-  authenticator: Authenticator<REQUEST_CONTEXT>;
-  parser: Parser<REQUEST_CONTEXT, PARSED>;
-  validator?: Validator<PARSED, REQUEST_CONTEXT, OPTIONS>;
-  executor: Executor<PARSED, REQUEST_CONTEXT, RESULT>;
-  errorHandler?: ErrorHandler<REQUEST_CONTEXT, PARSED, RESULT>;
+type HandlerConfig<CONTEXT, PARSED, RESULT, OPTIONS> = {
+  authenticator: Authenticator<CONTEXT>;
+  parser: Parser<CONTEXT, PARSED>;
+  validator?: Validator<PARSED, CONTEXT, OPTIONS>;
+  executor: Executor<PARSED, CONTEXT, RESULT>;
+  errorHandler?: ErrorHandler<CONTEXT, PARSED, RESULT>;
   options?: OPTIONS;
   code?: number;
 };
 
-type WrappableHandlerConfig<REQUEST_CONTEXT, PARSED, RESULT, OPTIONS> =
-  HandlerConfig<REQUEST_CONTEXT, PARSED, RESULT, OPTIONS> & {
-    parserWrapper?: (
-      parser: Parser<REQUEST_CONTEXT, PARSED>,
-      options?: OPTIONS
-    ) => Parser<REQUEST_CONTEXT, PARSED>;
-    executorWrapper?: (
-      executor: Executor<PARSED, REQUEST_CONTEXT, RESULT>,
-      options?: OPTIONS
-    ) => Executor<PARSED, REQUEST_CONTEXT, RESULT>;
-  };
+type WrappableHandlerConfig<CONTEXT, PARSED, RESULT, OPTIONS> = HandlerConfig<
+  CONTEXT,
+  PARSED,
+  RESULT,
+  OPTIONS
+> & {
+  parserWrapper?: (
+    parser: Parser<CONTEXT, PARSED>,
+    options?: OPTIONS
+  ) => Parser<CONTEXT, PARSED>;
+  executorWrapper?: (
+    executor: Executor<PARSED, CONTEXT, RESULT>,
+    options?: OPTIONS
+  ) => Executor<PARSED, CONTEXT, RESULT>;
+};
 
 // api action types
 
 type GetManyAction<QUERY, FIELD_REQUEST> = (
   query: QUERY,
-  rc: any,
+  context: any,
   fieldRequest: FIELD_REQUEST
 ) => Promise<any>;
 
 type GetOneAction<PARAMS, FIELD_REQUEST> = (
   params: PARAMS,
-  rc: any,
+  context: any,
   fieldRequest: FIELD_REQUEST
 ) => Promise<any>;
 
 type CreateOneAction<BODY, FIELD_REQUEST> = (
   body: BODY,
-  rc: any,
+  context: any,
   fieldRequest: FIELD_REQUEST
 ) => Promise<any>;
 
 type UpdateOneAction<PARAMS, BODY, FIELD_REQUEST> = (
   params: PARAMS,
   body: BODY,
-  rc: any,
+  context: any,
   fieldRequest: FIELD_REQUEST
 ) => Promise<any>;
 
 // rpc api handler config types
 
 type GetManyApiHandlerConfig<
-  REQUEST_CONTEXT,
+  CONTEXT,
   RESULT,
   OPTIONS,
   QUERY_ZOD extends z.ZodTypeAny,
@@ -129,7 +131,7 @@ type GetManyApiHandlerConfig<
   action: GetManyAction<z.infer<QUERY_ZOD>, FIELD_REQUEST>;
 } & Omit<
   WrappableHandlerConfig<
-    REQUEST_CONTEXT,
+    CONTEXT,
     { query: z.infer<QUERY_ZOD>; fieldRequest: FIELD_REQUEST },
     RESULT,
     OPTIONS
@@ -138,7 +140,7 @@ type GetManyApiHandlerConfig<
 >;
 
 type GetOneApiHandlerConfig<
-  REQUEST_CONTEXT,
+  CONTEXT,
   RESULT,
   OPTIONS,
   PARAMS_ZOD extends z.ZodTypeAny,
@@ -148,7 +150,7 @@ type GetOneApiHandlerConfig<
   action: GetOneAction<z.infer<PARAMS_ZOD>, FIELD_REQUEST>;
 } & Omit<
   WrappableHandlerConfig<
-    REQUEST_CONTEXT,
+    CONTEXT,
     { params: z.infer<PARAMS_ZOD>; fieldRequest: FIELD_REQUEST },
     RESULT,
     OPTIONS
@@ -157,7 +159,7 @@ type GetOneApiHandlerConfig<
 >;
 
 type CreateOneApiHandlerConfig<
-  REQUEST_CONTEXT,
+  CONTEXT,
   RESULT,
   OPTIONS,
   BODY_ZOD extends z.ZodTypeAny,
@@ -167,7 +169,7 @@ type CreateOneApiHandlerConfig<
   action: CreateOneAction<z.infer<BODY_ZOD>, FIELD_REQUEST>;
 } & Omit<
   WrappableHandlerConfig<
-    REQUEST_CONTEXT,
+    CONTEXT,
     { body: z.infer<BODY_ZOD>; fieldRequest: FIELD_REQUEST },
     RESULT,
     OPTIONS
@@ -176,7 +178,7 @@ type CreateOneApiHandlerConfig<
 >;
 
 type UpdateOneApiHandlerConfig<
-  REQUEST_CONTEXT,
+  CONTEXT,
   RESULT,
   OPTIONS,
   PARAMS_ZOD extends z.ZodTypeAny,
@@ -188,7 +190,7 @@ type UpdateOneApiHandlerConfig<
   action: UpdateOneAction<z.infer<PARAMS_ZOD>, BODY, FIELD_REQUEST>;
 } & Omit<
   WrappableHandlerConfig<
-    REQUEST_CONTEXT,
+    CONTEXT,
     { params: z.infer<PARAMS_ZOD>; body: BODY; fieldRequest: FIELD_REQUEST },
     RESULT,
     OPTIONS
@@ -199,14 +201,14 @@ type UpdateOneApiHandlerConfig<
 // api handlers
 
 function handleGetMany<
-  REQUEST_CONTEXT,
+  CONTEXT,
   RESULT,
   OPTIONS,
   QUERY_ZOD extends z.ZodTypeAny,
   FIELD_REQUEST
 >(
   config: GetManyApiHandlerConfig<
-    REQUEST_CONTEXT,
+    CONTEXT,
     RESULT,
     OPTIONS,
     QUERY_ZOD,
@@ -228,20 +230,20 @@ function handleGetMany<
   };
   const executor = (
     parsed: { query: z.infer<QUERY_ZOD>; fieldRequest: FIELD_REQUEST },
-    rc: REQUEST_CONTEXT
-  ) => config.action(parsed.query, rc, parsed.fieldRequest);
+    context: CONTEXT
+  ) => config.action(parsed.query, context, parsed.fieldRequest);
   return wrappableHandle({ ...config, parser, executor });
 }
 
 function handleGetOne<
-  REQUEST_CONTEXT,
+  CONTEXT,
   RESULT,
   OPTIONS,
   PARAMS_ZOD extends z.ZodTypeAny,
   FIELD_REQUEST
 >(
   config: GetOneApiHandlerConfig<
-    REQUEST_CONTEXT,
+    CONTEXT,
     RESULT,
     OPTIONS,
     PARAMS_ZOD,
@@ -263,22 +265,22 @@ function handleGetOne<
   };
   const executor = (
     parsed: { params: z.infer<PARAMS_ZOD>; fieldRequest: FIELD_REQUEST },
-    rc: REQUEST_CONTEXT
-  ) => config.action(parsed.params, rc, parsed.fieldRequest);
+    context: CONTEXT
+  ) => config.action(parsed.params, context, parsed.fieldRequest);
   return wrappableHandle({ ...config, parser, executor });
 }
 
 const handleGetOneSafe = handleGetOne;
 
 function handleCreateOne<
-  REQUEST_CONTEXT,
+  CONTEXT,
   RESULT,
   OPTIONS,
   BODY_ZOD extends z.ZodTypeAny,
   FIELD_REQUEST
 >(
   config: CreateOneApiHandlerConfig<
-    REQUEST_CONTEXT,
+    CONTEXT,
     RESULT,
     OPTIONS,
     BODY_ZOD,
@@ -300,13 +302,13 @@ function handleCreateOne<
   };
   const executor = (
     parsed: { body: z.infer<BODY_ZOD>; fieldRequest: FIELD_REQUEST },
-    rc: REQUEST_CONTEXT
-  ) => config.action(parsed.body, rc, parsed.fieldRequest);
+    context: CONTEXT
+  ) => config.action(parsed.body, context, parsed.fieldRequest);
   return wrappableHandle({ ...config, parser, executor, code: 201 });
 }
 
 function handleUpdateOne<
-  REQUEST_CONTEXT,
+  CONTEXT,
   RESULT,
   OPTIONS,
   PARAMS_ZOD extends z.ZodTypeAny,
@@ -314,7 +316,7 @@ function handleUpdateOne<
   FIELD_REQUEST
 >(
   config: UpdateOneApiHandlerConfig<
-    REQUEST_CONTEXT,
+    CONTEXT,
     RESULT,
     OPTIONS,
     PARAMS_ZOD,
@@ -349,8 +351,8 @@ function handleUpdateOne<
       body: BODY;
       fieldRequest: FIELD_REQUEST;
     },
-    rc: REQUEST_CONTEXT
-  ) => config.action(parsed.params, parsed.body, rc, parsed.fieldRequest);
+    context: CONTEXT
+  ) => config.action(parsed.params, parsed.body, context, parsed.fieldRequest);
   return wrappableHandle({ ...config, parser, executor });
 }
 
@@ -364,8 +366,8 @@ async function getRequestJson(request: Request): Promise<any> {
   }
 }
 
-function wrappableHandle<REQUEST_CONTEXT, PARSED, RESULT, OPTIONS>(
-  config: WrappableHandlerConfig<REQUEST_CONTEXT, PARSED, RESULT, OPTIONS>
+function wrappableHandle<CONTEXT, PARSED, RESULT, OPTIONS>(
+  config: WrappableHandlerConfig<CONTEXT, PARSED, RESULT, OPTIONS>
 ): (request: Request) => Promise<Response> {
   const {
     parserWrapper,
@@ -382,19 +384,19 @@ function wrappableHandle<REQUEST_CONTEXT, PARSED, RESULT, OPTIONS>(
 }
 
 // Note: request => authenticate => parse => execute => respond
-function handle<REQUEST_CONTEXT, PARSED, RESULT, OPTIONS>(
-  config: HandlerConfig<REQUEST_CONTEXT, PARSED, RESULT, OPTIONS>
+function handle<CONTEXT, PARSED, RESULT, OPTIONS>(
+  config: HandlerConfig<CONTEXT, PARSED, RESULT, OPTIONS>
 ): (request: Request) => Promise<Response> {
   return async (request: Request) => {
-    const data: HandlerContext<REQUEST_CONTEXT, PARSED, RESULT> = { request };
+    const data: HandlerContext<CONTEXT, PARSED, RESULT> = { request };
     try {
       kill();
-      data.rc = await config.authenticator(request);
-      data.parsed = await config.parser(request, data.rc);
+      data.context = await config.authenticator(request);
+      data.parsed = await config.parser(request, data.context);
       if (config.validator !== undefined) {
-        await config.validator(data.parsed, data.rc, config.options);
+        await config.validator(data.parsed, data.context, config.options);
       }
-      data.result = await config.executor(data.parsed, data.rc);
+      data.result = await config.executor(data.parsed, data.context);
       return respond(data.result, config.code);
     } catch (error) {
       if (config.errorHandler === undefined) {

@@ -1,7 +1,5 @@
 <% if (utils.isPresentableEntity(entity) && entity.api.methods) { -%>
-  <%_ if (!entity.types.some((t) => t.name === 'RequestContext')) { -%>
-<%- config.requestContextImport %>
-  <%_ } -%>
+import { Context } from '<%= contextPackage %>';
 import { <%= entity.strings.entityClass %> } from '../<%= entity.strings.entityPackage %>';
   <%_ entity.types.filter(utils.isImportType).forEach((type) => { -%>
 import { <%= type.strings.externalClass %> } from '<%= type.strings.externalPackage %>';
@@ -31,36 +29,36 @@ import {
   <%_ } -%>
 export interface <%= `${entity.api.strings.serviceClass}Interface` %> {
   <%_ if (entity.api.booleans.hasGetMany) { -%>
-  beforeGetMany?: (query: <%= entity.api.strings.getManyQuery %>, rc: RequestContext) => Promise<void>;
-  afterGetMany?: (many: <%= entity.strings.entityClass %>[], query: <%= entity.api.strings.getManyQuery %>, rc: RequestContext) => Promise<void>;
-  getMany: (query: <%= entity.api.strings.getManyQuery %>, rc: RequestContext) => Promise<<%= entity.strings.entityClass %>[]>;
+  beforeGetMany?: (query: <%= entity.api.strings.getManyQuery %>, context: Context) => Promise<void>;
+  afterGetMany?: (many: <%= entity.strings.entityClass %>[], query: <%= entity.api.strings.getManyQuery %>, context: Context) => Promise<void>;
+  getMany: (query: <%= entity.api.strings.getManyQuery %>, context: Context) => Promise<<%= entity.strings.entityClass %>[]>;
   <%_ } -%>
   <%_ if (entity.api.booleans.hasGetOne) { -%>
-  beforeGetOne?: (params: <%= entity.api.strings.getOneParams %>, rc: RequestContext) => Promise<void>;
-  afterGetOne?: (one: <%= entity.strings.entityClass %>, params: <%= entity.api.strings.getOneParams %>, rc: RequestContext) => Promise<void>;
+  beforeGetOne?: (params: <%= entity.api.strings.getOneParams %>, context: Context) => Promise<void>;
+  afterGetOne?: (one: <%= entity.strings.entityClass %>, params: <%= entity.api.strings.getOneParams %>, context: Context) => Promise<void>;
   <%_ } -%>
   <%_ if (entity.api.booleans.hasGetOne || entity.api.booleans.hasUpdateOne || entity.api.booleans.hasDeleteOne) { -%>
-  getOne: (params: <%= entity.api.strings.getOneParams %>, rc: RequestContext) => Promise<<%= entity.strings.entityClass %>>;
+  getOne: (params: <%= entity.api.strings.getOneParams %>, context: Context) => Promise<<%= entity.strings.entityClass %>>;
   <%_ } -%>
   <%_ if (entity.api.booleans.hasGetOneSafe) { -%>
-  beforeGetOneSafe?: (params: <%= entity.api.strings.getOneParams %>, rc: RequestContext) => Promise<void>;
-  afterGetOneSafe?: (one: <%= entity.strings.entityClass %> | null, params: <%= entity.api.strings.getOneParams %>, rc: RequestContext) => Promise<void>;
-  getOneSafe: (params: <%= entity.api.strings.getOneParams %>, rc: RequestContext) => Promise<<%= entity.strings.entityClass %> | null>;
+  beforeGetOneSafe?: (params: <%= entity.api.strings.getOneParams %>, context: Context) => Promise<void>;
+  afterGetOneSafe?: (one: <%= entity.strings.entityClass %> | null, params: <%= entity.api.strings.getOneParams %>, context: Context) => Promise<void>;
+  getOneSafe: (params: <%= entity.api.strings.getOneParams %>, context: Context) => Promise<<%= entity.strings.entityClass %> | null>;
   <%_ } -%>
   <%_ if (entity.api.booleans.hasCreateOne) { -%>
-  beforeCreateOne?: (body: <%= entity.api.strings.createOneBody %>, rc: RequestContext) => Promise<void>;
-  afterCreateOne?: (createdOne: <%= entity.strings.entityClass %>, body: <%= entity.api.strings.createOneBody %>, rc: RequestContext) => Promise<void>;
-  createOne: (body: <%= entity.api.strings.createOneBody %>, rc: RequestContext) => Promise<<%= entity.strings.entityClass %>>;
+  beforeCreateOne?: (body: <%= entity.api.strings.createOneBody %>, context: Context) => Promise<void>;
+  afterCreateOne?: (createdOne: <%= entity.strings.entityClass %>, body: <%= entity.api.strings.createOneBody %>, context: Context) => Promise<void>;
+  createOne: (body: <%= entity.api.strings.createOneBody %>, context: Context) => Promise<<%= entity.strings.entityClass %>>;
   <%_ } -%>
   <%_ if (entity.api.booleans.hasUpdateOne) { -%>
-  beforeUpdateOne?: (one: <%= entity.strings.entityClass %>, body: <%= entity.api.strings.updateOneBody %>, rc: RequestContext) => Promise<void>;
-  afterUpdateOne?: (updatedOne: <%= entity.strings.entityClass %>, body: <%= entity.api.strings.updateOneBody %>, rc: RequestContext) => Promise<void>;
-  updateOne: (one: <%= entity.strings.entityClass %>, body: <%= entity.api.strings.updateOneBody %>, rc: RequestContext) => Promise<<%= entity.strings.entityClass %>>;
+  beforeUpdateOne?: (one: <%= entity.strings.entityClass %>, body: <%= entity.api.strings.updateOneBody %>, context: Context) => Promise<void>;
+  afterUpdateOne?: (updatedOne: <%= entity.strings.entityClass %>, body: <%= entity.api.strings.updateOneBody %>, context: Context) => Promise<void>;
+  updateOne: (one: <%= entity.strings.entityClass %>, body: <%= entity.api.strings.updateOneBody %>, context: Context) => Promise<<%= entity.strings.entityClass %>>;
   <%_ } -%>
   <%_ if (entity.api.booleans.hasDeleteOne) { -%>
-  beforeDeleteOne?: (one: <%= entity.strings.entityClass %>, rc: RequestContext) => Promise<void>;
-  afterDeleteOne?: (deletedOne: <%= entity.strings.entityClass %>, rc: RequestContext) => Promise<void>;
-  deleteOne: (one: <%= entity.strings.entityClass %>, rc: RequestContext) => Promise<<%= entity.strings.entityClass %>>;
+  beforeDeleteOne?: (one: <%= entity.strings.entityClass %>, context: Context) => Promise<void>;
+  afterDeleteOne?: (deletedOne: <%= entity.strings.entityClass %>, context: Context) => Promise<void>;
+  deleteOne: (one: <%= entity.strings.entityClass %>, context: Context) => Promise<<%= entity.strings.entityClass %>>;
   <%_ } -%>
 }
 <% } -%>

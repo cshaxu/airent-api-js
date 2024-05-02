@@ -30,10 +30,10 @@ async function getShouldEnable(name, isEnabled) {
  *  @property {?string} airentPackage
  *  @property {string} schemaPath
  *  @property {string} entityPath
+ *  @property {string} contextImportPath
  *  @property {?string[]} [augmentors]
  *  @property {?Template[]} [templates]
  *  @property {?string} airentApiPackage
- *  @property {string} requestContextImport
  *  @property {?string} clientTypePath
  */
 
@@ -134,12 +134,6 @@ async function configureApiServer(config) {
     });
   }
 
-  if (config.requestContextImport === undefined) {
-    config.requestContextImport = await askQuestion(
-      'Statement to import "RequestContext"',
-      "import { RequestContext } from '@/framework';"
-    );
-  }
   if (config.handlerConfigImport === undefined) {
     config.handlerConfigImport = await askQuestion(
       'Statement to import "handlerConfig"',

@@ -9,6 +9,7 @@ import {
   toArrayMap,
   toObjectMap,
 } from 'airent';
+import { Context } from '../../../test-resources/framework';
 
 /** generated */
 import {
@@ -20,7 +21,7 @@ import {
 
 /** @deprecated */
 export class UserEntityBase extends BaseEntity<
-  UserModel, UserFieldRequest, UserResponse
+  UserModel, Context, UserFieldRequest, UserResponse
 > {
   public id: string;
   public createdAt: Date;
@@ -29,17 +30,18 @@ export class UserEntityBase extends BaseEntity<
 
   public constructor(
     model: UserModel,
+    context: Context,
     group: UserEntityBase[],
     lock: AsyncLock,
   ) {
-    super(group, lock);
+    super(context, group, lock);
 
     this.id = model.id;
     this.createdAt = model.createdAt;
     this.name = model.name;
     this.email = model.email;
 
-    this.initialize(model);
+    this.initialize(model, context);
   }
 
   public async present<S extends UserFieldRequest>(fieldRequest: S): Promise<SelectedUserResponse<S>> {
@@ -64,7 +66,7 @@ export class UserEntityBase extends BaseEntity<
   /** self loaders */
 
   public static async getOne<ENTITY extends UserEntityBase>(
-    this: EntityConstructor<UserModel, ENTITY>,
+    this: EntityConstructor<UserModel, Context, ENTITY>,
     key: LoadKey
   ): Promise<ENTITY | null> {
     return await (this as any)
@@ -73,10 +75,11 @@ export class UserEntityBase extends BaseEntity<
   }
 
   public static async getMany<ENTITY extends UserEntityBase>(
-    this: EntityConstructor<UserModel, ENTITY>,
-    keys: LoadKey[]
+    this: EntityConstructor<UserModel, Context, ENTITY>,
+    keys: LoadKey[],
+    context: Context
   ): Promise<ENTITY[]> {
     const models = [/* TODO: load models for UserEntity */];
-    return (this as any).fromArray(models);
+    return (this as any).fromArray(models, context);
   }
 }

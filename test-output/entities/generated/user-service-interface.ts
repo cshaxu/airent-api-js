@@ -1,4 +1,4 @@
-import { RequestContext } from '../../../test-resources/framework';
+import { Context } from '../../../test-resources/framework';
 import { UserEntity } from '../user';
 import {
   UserModel,
@@ -12,22 +12,22 @@ import {
 
 /** @deprecated */
 export interface UserServiceInterface {
-  beforeGetMany?: (query: GetManyUsersQuery, rc: RequestContext) => Promise<void>;
-  afterGetMany?: (many: UserEntity[], query: GetManyUsersQuery, rc: RequestContext) => Promise<void>;
-  getMany: (query: GetManyUsersQuery, rc: RequestContext) => Promise<UserEntity[]>;
-  beforeGetOne?: (params: GetOneUserParams, rc: RequestContext) => Promise<void>;
-  afterGetOne?: (one: UserEntity, params: GetOneUserParams, rc: RequestContext) => Promise<void>;
-  getOne: (params: GetOneUserParams, rc: RequestContext) => Promise<UserEntity>;
-  beforeGetOneSafe?: (params: GetOneUserParams, rc: RequestContext) => Promise<void>;
-  afterGetOneSafe?: (one: UserEntity | null, params: GetOneUserParams, rc: RequestContext) => Promise<void>;
-  getOneSafe: (params: GetOneUserParams, rc: RequestContext) => Promise<UserEntity | null>;
-  beforeCreateOne?: (body: CreateOneUserBody, rc: RequestContext) => Promise<void>;
-  afterCreateOne?: (createdOne: UserEntity, body: CreateOneUserBody, rc: RequestContext) => Promise<void>;
-  createOne: (body: CreateOneUserBody, rc: RequestContext) => Promise<UserEntity>;
-  beforeUpdateOne?: (one: UserEntity, body: UpdateOneUserBody, rc: RequestContext) => Promise<void>;
-  afterUpdateOne?: (updatedOne: UserEntity, body: UpdateOneUserBody, rc: RequestContext) => Promise<void>;
-  updateOne: (one: UserEntity, body: UpdateOneUserBody, rc: RequestContext) => Promise<UserEntity>;
-  beforeDeleteOne?: (one: UserEntity, rc: RequestContext) => Promise<void>;
-  afterDeleteOne?: (deletedOne: UserEntity, rc: RequestContext) => Promise<void>;
-  deleteOne: (one: UserEntity, rc: RequestContext) => Promise<UserEntity>;
+  beforeGetMany?: (query: GetManyUsersQuery, context: Context) => Promise<void>;
+  afterGetMany?: (many: UserEntity[], query: GetManyUsersQuery, context: Context) => Promise<void>;
+  getMany: (query: GetManyUsersQuery, context: Context) => Promise<UserEntity[]>;
+  beforeGetOne?: (params: GetOneUserParams, context: Context) => Promise<void>;
+  afterGetOne?: (one: UserEntity, params: GetOneUserParams, context: Context) => Promise<void>;
+  getOne: (params: GetOneUserParams, context: Context) => Promise<UserEntity>;
+  beforeGetOneSafe?: (params: GetOneUserParams, context: Context) => Promise<void>;
+  afterGetOneSafe?: (one: UserEntity | null, params: GetOneUserParams, context: Context) => Promise<void>;
+  getOneSafe: (params: GetOneUserParams, context: Context) => Promise<UserEntity | null>;
+  beforeCreateOne?: (body: CreateOneUserBody, context: Context) => Promise<void>;
+  afterCreateOne?: (createdOne: UserEntity, body: CreateOneUserBody, context: Context) => Promise<void>;
+  createOne: (body: CreateOneUserBody, context: Context) => Promise<UserEntity>;
+  beforeUpdateOne?: (one: UserEntity, body: UpdateOneUserBody, context: Context) => Promise<void>;
+  afterUpdateOne?: (updatedOne: UserEntity, body: UpdateOneUserBody, context: Context) => Promise<void>;
+  updateOne: (one: UserEntity, body: UpdateOneUserBody, context: Context) => Promise<UserEntity>;
+  beforeDeleteOne?: (one: UserEntity, context: Context) => Promise<void>;
+  afterDeleteOne?: (deletedOne: UserEntity, context: Context) => Promise<void>;
+  deleteOne: (one: UserEntity, context: Context) => Promise<UserEntity>;
 }

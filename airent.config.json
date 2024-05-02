@@ -2,6 +2,7 @@
   "type": "commonjs",
   "schemaPath": "test-schemas",
   "entityPath": "test-output/entities",
+  "contextImportPath": "test-resources/framework",
   "airentApiPackage": "../../../src",
   "augmentors": [
     "resources/augmentor.js"
@@ -35,7 +36,6 @@
   ],
   "baseUrlImport": "import { baseUrl } from '../../../test-resources/fetch';",
   "fetchOptionsImport": "import { fetchOptions } from '../../../test-resources/fetch';",
-  "requestContextImport": "import { RequestContext } from '../../../test-resources/framework';",
   "handlerConfigImport": "import { handlerConfig } from '../../../test-resources/framework';",
   "actionServicePath": "../../services/semi-generated",
   "serviceInterfacePath": "../../entities/generated",
