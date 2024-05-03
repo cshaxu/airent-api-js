@@ -1,4 +1,5 @@
 import { Select } from 'airent';
+import { MessageFieldRequest, MessageResponse } from './message-type';
 
 /** structs */
 
@@ -10,6 +11,7 @@ export type UserFieldRequest = {
   createdAt?: boolean;
   name?: boolean;
   email?: boolean;
+  messages?: MessageFieldRequest;
 };
 
 /** @deprecated */
@@ -18,6 +20,7 @@ export type UserResponse = {
   createdAt?: Date;
   name?: string;
   email?: string;
+  messages?: MessageResponse[];
 };
 
 /** @deprecated */

@@ -1,0 +1,22 @@
+name: Message
+model: MessageModel
+types:
+  - name: MessageModel
+    define: "{ id: string; createdAt: Date; userId: string; text: string | null }"
+fields:
+  - id: 1
+    name: id
+    type: string
+    strategy: primitive
+  - id: 2
+    name: createdAt
+    type: Date
+    strategy: primitive
+  - id: 3
+    name: userId
+    type: string
+    strategy: primitive
+  - id: 4
+    name: text
+    type: string | null
+    strategy: primitive

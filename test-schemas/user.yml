@@ -37,3 +37,11 @@ fields:
     name: email
     type: string
     strategy: primitive
+  - id: 4
+    name: messages
+    type: Message[]
+    strategy: association
+    sourceKeys:
+      - id
+    targetKeys:
+      - userId

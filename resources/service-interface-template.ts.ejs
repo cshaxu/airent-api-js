@@ -1,8 +1,8 @@
 <% if (utils.isPresentableEntity(entity) && entity.api.methods) { -%>
-import { Context } from '<%= contextPackage %>';
+import { Context } from '<%- config.baseContextPackage %>';
 import { <%= entity.strings.entityClass %> } from '../<%= entity.strings.entityPackage %>';
   <%_ entity.types.filter(utils.isImportType).forEach((type) => { -%>
-import { <%= type.strings.externalClass %> } from '<%= type.strings.externalPackage %>';
+import { <%= type.strings.externalClass %> } from '<%- type.strings.baseExternalPackage %>';
   <%_ }); -%>
 import {
   <%_ entity.types.filter(utils.isCustomType).forEach((type) => { -%>

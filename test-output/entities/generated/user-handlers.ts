@@ -5,7 +5,7 @@ import {
   handleCreateOne,
   handleUpdateOne,
   handleDeleteOne,
-} from '../../../src';
+} from '../../../src/index';
 import UserActions from './user-actions';
 import {
   GetManyUsersQuery,

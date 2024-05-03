@@ -17,35 +17,30 @@ async function askQuestion(question, defaultAnswer) {
   return a?.length ? a : defaultAnswer;
 }
 
-async function getShouldEnable(name, isEnabled) {
-  if (isEnabled) {
-    return false;
-  }
+async function getShouldEnable(name) {
   const shouldEnable = await askQuestion(`Enable "${name}"`, "yes");
   return shouldEnable === "yes";
 }
 
 /** @typedef {Object} ApiServerConfig
- *  @property {string} actionServicePath semi-generated
- *  @property {string} serviceInterfacePath semi-generated
- *  @property {string} serviceEntityPath semi-generated
- *  @property {string} handlerConfigImport
+ *  @property {string} servicePath
+ *  @property {string} handlerConfigImportPath
  */
 
 /** @typedef {Object} ApiClientConfig
- * @property {string} clientTypePath semi-generated
+ * @property {string} clientPath
  * @property {string} baseUrlImport
  * @property {?string} fetchOptionsImport
 
 /** @typedef {Object} ApiConfig
- *  @property {?string} airentApiPackage
+ *  @property {?string} libImportPath
  *  @property {ApiServerConfig} server
  *  @property {ApiClientConfig} client
  */
 
 /** @typedef {Object} Config
  *  @property {"commonjs" | "module"} type
- *  @property {?string} airentPackage
+ *  @property {?string} libImportPath
  *  @property {string} schemaPath
  *  @property {string} entityPath
  *  @property {string} contextImportPath
@@ -90,10 +85,9 @@ async function configureApiServer(config) {
     isApiServerHandlersEnabled &&
     isApiServerActionsEnabled &&
     isApiServerServiceEnabled;
-  const shouldEnableApiServer = await getShouldEnable(
-    "Api Server",
-    isApiServerEnabled
-  );
+  const shouldEnableApiServer = isApiServerEnabled
+    ? true
+    : await getShouldEnable("Api Server");
   if (!shouldEnableApiServer) {
     return;
   }
@@ -113,6 +107,11 @@ async function configureApiServer(config) {
       skippable: false,
     });
   }
+
+  config.api.server.servicePath = await askQuestion(
+    'Output path for "service"',
+    config.api.server.servicePath ?? "./src/services"
+  );
   if (!isApiServerServiceEnabled) {
     templates.push({
       name: API_SERVER_SERVICE_INTERFACE_TEMPLATE_PATH,
@@ -120,102 +119,66 @@ async function configureApiServer(config) {
         "{entityPath}/generated/{kababEntityName}-service-interface.ts",
       skippable: false,
     });
-    const servicePath = await askQuestion("Service path", "./src/services");
-    if (config.api.server.actionServicePath === undefined) {
-      config.api.server.actionServicePath = path
-        .relative(
-          path.join(PROJECT_PATH, config.entityPath, "/generated"),
-          path.join(PROJECT_PATH, servicePath)
-        )
-        .replaceAll("\\", "/");
-    }
-    if (config.api.server.serviceInterfacePath === undefined) {
-      config.api.server.serviceInterfacePath = path
-        .relative(
-          path.join(PROJECT_PATH, servicePath),
-          path.join(PROJECT_PATH, config.entityPath, "/generated")
-        )
-        .replaceAll("\\", "/");
-    }
-    if (config.api.server.serviceEntityPath === undefined) {
-      config.api.server.serviceEntityPath = path
-        .relative(
-          path.join(PROJECT_PATH, servicePath),
-          path.join(PROJECT_PATH, config.entityPath)
-        )
-        .replaceAll("\\", "/");
-    }
     templates.push({
       name: API_SERVER_SERVICE_TEMPLATE_PATH,
-      outputPath: `${servicePath}/{kababEntityName}.ts`,
+      outputPath: `${config.api.server.servicePath}/{kababEntityName}.ts`,
       skippable: true,
     });
   }
 
-  if (config.api.server.handlerConfigImport === undefined) {
-    config.api.server.handlerConfigImport = await askQuestion(
-      'Statement to import "handlerConfig"',
-      "import { handlerConfig } from '@/framework';"
-    );
-  }
+  config.api.server.handlerConfigImportPath = await askQuestion(
+    'Import path for "handlerConfig"',
+    config.api.server.handlerConfigImportPath ?? "./src/framework';"
+  );
 }
 
 async function configureApiClient(config) {
   const { templates } = config;
   const isApiClientEnabled =
     templates.find((t) => t.name === API_CLIENT_TEMPLATE_PATH) !== undefined;
-  const shouldEnableApiClient = await getShouldEnable(
-    "Api Client",
-    isApiClientEnabled
-  );
+  const shouldEnableApiClient = isApiClientEnabled
+    ? true
+    : await getShouldEnable("Api Client");
   if (!shouldEnableApiClient) {
     return;
   }
 
   config.api.client = config.api.client ?? {};
 
-  const outputPath = await askQuestion(
+  config.api.client.clientPath = await askQuestion(
     "Output path for Api Client",
-    "src/clients"
+    config.api.client.clientPath ?? "src/clients"
   );
-  if (config.api.client.clientTypePath === undefined) {
-    config.api.client.clientTypePath = path
-      .relative(
-        path.join(PROJECT_PATH, outputPath),
-        path.join(PROJECT_PATH, config.entityPath, "/generated")
-      )
-      .replaceAll("\\", "/");
-  }
-  templates.push({
-    name: API_CLIENT_TEMPLATE_PATH,
-    outputPath: `${outputPath}/{kababEntityName}.ts`,
-    skippable: false,
-  });
-
-  if (config.api.client.baseUrlImport === undefined) {
-    config.api.client.baseUrlImport = await askQuestion(
-      "Statement to import 'baseUrl'",
-      "import { baseUrl } from '@/fetch';"
-    );
+  if (!isApiClientEnabled) {
+    templates.push({
+      name: API_CLIENT_TEMPLATE_PATH,
+      outputPath: `${config.api.client.clientPath}/{kababEntityName}.ts`,
+      skippable: false,
+    });
   }
 
-  if (config.api.client.fetchOptionsImport === undefined) {
-    config.api.client.fetchOptionsImport = await askQuestion(
-      "Statement to import 'fetchOptions'",
+  config.api.client.baseUrlImport = await askQuestion(
+    "Statement to import 'baseUrl'",
+    config.api.client.baseUrlImport ?? "import { baseUrl } from '@/fetch';"
+  );
+
+  config.api.client.fetchOptionsImport = await askQuestion(
+    "Statement to import 'fetchOptions'",
+    config.api.client.fetchOptionsImport ??
       "import { fetchOptions } from '@/fetch';"
-    );
-  }
+  );
 }
 
 async function configure() {
   const config = await loadConfig();
   const { augmentors } = config;
   const isApiEnabled = augmentors.includes(API_AUGMENTOR_PATH);
-  const shouldEnableApi = await getShouldEnable("Api", isApiEnabled);
-  if (shouldEnableApi) {
-    augmentors.push(API_AUGMENTOR_PATH);
-  } else if (!isApiEnabled) {
+  const shouldEnableApi = isApiEnabled ? true : await getShouldEnable("Api");
+  if (!shouldEnableApi) {
     return;
+  }
+  if (!isApiEnabled) {
+    augmentors.push(API_AUGMENTOR_PATH);
   }
 
   config.api = config.api ?? {};

@@ -1,8 +1,8 @@
 {
   "type": "commonjs",
-  "schemaPath": "test-schemas",
-  "entityPath": "test-output/entities",
-  "contextImportPath": "test-resources/framework",
+  "schemaPath": "./test-schemas",
+  "entityPath": "./test-output/entities",
+  "contextImportPath": "./test-resources/framework",
   "augmentors": [
     "resources/augmentor.js"
   ],
@@ -34,15 +34,13 @@
     }
   ],
   "api": {
-    "airentApiPackage": "../../../src",
+    "libImportPath": "./src/index",
     "server": {
-      "actionServicePath": "../../services/semi-generated",
-      "serviceInterfacePath": "../../entities/generated",
-      "serviceEntityPath": "../../entities",
-      "handlerConfigImport": "import { handlerConfig } from '../../../test-resources/framework';"
+      "servicePath": "./test-output/services/semi-generated",
+      "handlerConfigImportPath": "./test-resources/framework"
     },
     "client": {
-      "clientTypePath": "../../entities/generated",
+      "clientPath": "./test-output/clients/generated",
       "baseUrlImport": "import { baseUrl } from '../../../test-resources/fetch';",
       "fetchOptionsImport": "import { fetchOptions } from '../../../test-resources/fetch';"
     }

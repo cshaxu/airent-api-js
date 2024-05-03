@@ -3,12 +3,8 @@ function isDateTypeField(field) {
   return field.strings.fieldClass === "Date";
 }
 
-function getTypePackagePath() {
-  return `${config.api.client.clientTypePath}/${entity.strings.typePackage}`;
-}
-
-function getApiClientPackagePath(type) {
-  return `./${utils.toKababCase(type.name)}${utils.getModuleSuffix(config)}`;
+function getApiClientPackage(type) {
+  return `${utils.toKababCase(type.name)}${utils.getModuleSuffix(config)}`;
 }
 
 function presentEntityTypeField(field) {
@@ -40,12 +36,12 @@ import {
   <%= entity.strings.fieldRequestClass %>,
   <%= entity.api.strings.manyResponse %>,
   <%= entity.api.strings.oneResponse %>,
-} from '<%- getTypePackagePath() %>';
+} from '<%- entity.api.strings.clientTypePackage %>';
   <%_ entity.types.filter(utils.isPresentableEntityType).filter((t) => t.name !== entity.name).forEach((type) => { -%>
-import <%= type._entity.api.strings.apiClientClass %> from '<%- getApiClientPackagePath(type) %>';
+import <%= type._entity.api.strings.apiClientClass %> from './<%= getApiClientPackage(type) %>';
   <%_ }); -%>
   <%_ if (entity.api.methods) { -%>
-import { fetchJsonOrThrow } from '<%= config.api.airentApiPackage ?? '@airent/api' %>';
+import { fetchJsonOrThrow } from '<%- config.api.clientLibPackage %>';
 <% if (config.api.client.fetchOptionsImport?.length > 0) { -%>
 <%- config.api.client.fetchOptionsImport %>
 <% } -%>

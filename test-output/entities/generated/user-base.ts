@@ -1,5 +1,5 @@
 import createHttpError from 'http-errors';
-import { Awaitable } from '../../../src';
+import { Awaitable } from '../../../src/index';
 import {
   AsyncLock,
   BaseEntity,
@@ -21,6 +21,9 @@ import {
   UserModel,
 } from './user-type';
 
+/** associations */
+import { MessageEntity } from '../message';
+
 /** @deprecated */
 export class UserEntityBase extends BaseEntity<
   UserModel, Context, UserFieldRequest, UserResponse
@@ -29,6 +32,8 @@ export class UserEntityBase extends BaseEntity<
   public createdAt: Date;
   public name: string;
   public email: string;
+
+  protected messages?: MessageEntity[];
 
   public constructor(
     model: UserModel,
@@ -53,6 +58,7 @@ export class UserEntityBase extends BaseEntity<
       ...(fieldRequest.createdAt !== undefined && { createdAt: this.createdAt }),
       ...(fieldRequest.name !== undefined && { name: this.name }),
       ...(fieldRequest.email !== undefined && { email: this.email }),
+      ...(fieldRequest.messages !== undefined && { messages: await this.getMessages().then((a) => Promise.all(a.map((one) => one.present(fieldRequest.messages!)))) }),
     };
     await this.afterPresent(fieldRequest, response as Select<UserResponse, S>);
     return response as SelectedUserResponse<S>;
@@ -83,6 +89,40 @@ export class UserEntityBase extends BaseEntity<
   ): Promise<ENTITY[]> {
     const models = [/* TODO: load models for UserEntity */];
     return (this as any).fromArray(models, context);
+  }
+
+  /** associations */
+
+  protected messagesLoadConfig: LoadConfig<UserEntityBase, MessageEntity> = {
+    name: 'UserEntity.messages',
+    filter: (one: UserEntityBase) => one.messages === undefined,
+    getter: (sources: UserEntityBase[]) => {
+      return sources
+        .map((one) => ({
+          userId: one.id,
+        }));
+    },
+    // TODO: build your association data loader
+    // loader: async (keys: LoadKey[]) => {
+    //   const models = [/* TODO: load MessageEntity models */];
+    //   return MessageEntity.fromArray(models, this.context);
+    // },
+    setter: (sources: UserEntityBase[], targets: MessageEntity[]) => {
+      const map = toArrayMap(targets, (one) => JSON.stringify({ userId: one.userId }), (one) => one);
+      sources.forEach((one) => (one.messages = map.get(JSON.stringify({ userId: one.id })) ?? []));
+    },
+  };
+
+  public async getMessages(): Promise<MessageEntity[]> {
+    if (this.messages !== undefined) {
+      return this.messages;
+    }
+    await this.load(this.messagesLoadConfig);
+    return this.messages!;
+  }
+
+  public setMessages(messages?: MessageEntity[]): void {
+    this.messages = messages;
   }
 
   protected privateFields = [

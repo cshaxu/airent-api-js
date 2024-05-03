@@ -1,6 +1,6 @@
 <%
 function getActionPackage() {
-  return `./${utils.toKababCase(entity.name)}-actions${utils.getModuleSuffix(config)}`;
+  return `${utils.toKababCase(entity.name)}-actions${utils.getModuleSuffix(config)}`;
 }
 -%>
 <% if (entity.api.methods) { -%>
@@ -23,8 +23,8 @@ import {
   <%_ if (entity.api.booleans.hasDeleteOne) { -%>
   handleDeleteOne,
   <%_ } -%>
-} from '<%= config.api.airentApiPackage ?? '@airent/api' %>';
-import <%= entity.api.strings.actionsClass %> from '<%- getActionPackage() %>';
+} from '<%- config.api.baseLibPackage %>';
+import <%= entity.api.strings.actionsClass %> from './<%= getActionPackage() %>';
 import {
   <%_ if (entity.api.booleans.hasGetMany) { -%>
   <%= entity.api.strings.getManyQuery %>,
@@ -39,7 +39,7 @@ import {
   <%= entity.api.strings.updateOneBody %>,
   <%_ } -%>
 } from '<%= entity.api.request.import %>';
-<%- config.api.server.handlerConfigImport %>
+import { handlerConfig } from '<%- config.api.server.handlerConfigPackage %>';
   <%_ if (entity.api.booleans.hasGetMany) { -%>
 
     <%_ if (entity.deprecated) { -%>

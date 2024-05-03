@@ -1,4 +1,4 @@
-import { getMax, getMin } from '../../../src';
+import { getMax, getMin } from '../../../src/index';
 import { Context } from '../../../test-resources/framework';
 import {
   UserFieldRequest,

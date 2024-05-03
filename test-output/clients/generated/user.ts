@@ -4,7 +4,8 @@ import {
   ManyUsersResponse,
   OneUserResponse,
 } from '../../entities/generated/user-type';
-import { fetchJsonOrThrow } from '../../../src';
+import MessageApiClient from './message';
+import { fetchJsonOrThrow } from '../../../src/index';
 import { fetchOptions } from '../../../test-resources/fetch';
 import { baseUrl } from '../../../test-resources/fetch';
 import {
@@ -21,6 +22,7 @@ function present<S extends UserFieldRequest>(
   return {
     ...one,
     ...(one.createdAt !== undefined && fieldRequest.createdAt === true && { createdAt: new Date(one.createdAt) }),
+    ...(one.messages !== undefined && fieldRequest.messages !== undefined && { messages: one.messages.map((nested: any) => MessageApiClient.present(nested, fieldRequest.messages!)) }),
   };
 }
 

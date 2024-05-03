@@ -1,28 +1,14 @@
-<%
-function getEntityPackagePath() {
-  return `${config.api.server.serviceEntityPath}/${entity.strings.entityPackage}`;
-}
-
-function getInterfacePackagePath() {
-  const servicePackage = `${utils.toKababCase(entity.api.strings.serviceClass)}-interface${utils.getModuleSuffix(config)}`;
-  return `${config.api.server.serviceInterfacePath}/${servicePackage}`;
-}
-
-function getTypePackagePath() {
-  return `${config.api.server.serviceInterfacePath}/${entity.strings.typePackage}`;
-}
--%>
 <% if (utils.isPresentableEntity(entity) && entity.api.methods) { -%>
-import { Context } from '<%= contextPackage %>';
-import { <%= entity.strings.entityClass %> } from '<%- getEntityPackagePath() %>';
+import { Context } from '<%- config.serviceContextPackage %>';
+import { <%= entity.strings.entityClass %> } from '<%- entity.api.strings.serviceEntityPackage %>';
   <%_ entity.types.filter(utils.isImportType).forEach((type) => { -%>
-import { <%= type.strings.externalClass %> } from '<%= type.strings.externalPackage %>';
+import { <%= type.strings.externalClass %> } from '<%- type.strings.serviceExternalPackage %>';
   <%_ }); -%>
 import {
   <%_ entity.types.filter(utils.isCustomType).forEach((type) => { -%>
   <%= type.name %>,
   <%_ }); -%>
-} from '<%- getTypePackagePath() %>';
+} from '<%- entity.api.strings.serviceTypePackage %>';
 import {
   <%_ if (entity.api.booleans.hasGetMany) { -%>
   <%= entity.api.strings.getManyQuery %>,
@@ -37,7 +23,7 @@ import {
   <%= entity.api.strings.updateOneBody %>,
   <%_ } -%>
 } from '<%= entity.api.request.import %>';
-import { <%= `${entity.api.strings.serviceClass}Interface` %> } from '<%- getInterfacePackagePath() %>';
+import { <%= `${entity.api.strings.serviceClass}Interface` %> } from '<%- entity.api.strings.serviceInterfacePackage %>';
 import createHttpError from 'http-errors';
   <%_ if (entity.api.booleans.hasGetMany) { -%>
 

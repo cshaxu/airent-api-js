@@ -1,4 +1,47 @@
+const path = require("path");
 const utils = require("airent/resources/utils.js");
+
+function joinRelativePath(...elements) {
+  return `./${path.join(...elements).replaceAll("\\", "/")}`;
+}
+
+function buildRelativePackage(sourcePath, targetPath, config) /* string */ {
+  return targetPath.startsWith(".")
+    ? `${path
+        .relative(sourcePath, targetPath)
+        .replaceAll("\\", "/")}${utils.getModuleSuffix(config)}`
+    : targetPath;
+}
+
+// build config
+
+function augmentConfig(config) /* void */ {
+  const { contextImportPath, api } = config;
+  const { libImportPath } = api;
+  config.serviceContextPackage = buildRelativePackage(
+    config.api.server.servicePath,
+    contextImportPath,
+    config
+  );
+  config.api.baseLibPackage = libImportPath
+    ? buildRelativePackage(
+        path.join(config.entityPath, "generated"),
+        libImportPath,
+        config
+      )
+    : "@airent/api";
+  config.api.entityLibPackage = libImportPath
+    ? buildRelativePackage(config.entityPath, libImportPath, config)
+    : "@airent/api";
+  config.api.clientLibPackage = libImportPath
+    ? buildRelativePackage(config.api.client.clientPath, libImportPath, config)
+    : "@airent/api";
+  config.api.server.handlerConfigPackage = buildRelativePackage(
+    path.join(config.entityPath, "generated"),
+    config.api.server.handlerConfigImportPath,
+    config
+  );
+}
 
 /**
  * SCHEMA FLAGS
@@ -12,7 +55,7 @@ function hasApiMethod(entity, methodName) {
 
 // augment entity - add api strings
 
-function addStrings(entity, isVerbose) {
+function addStrings(entity, config, isVerbose) {
   const pluralEntName = utils.toTitleCase(utils.pluralize(entity.name));
   const singularEntName = utils.toTitleCase(entity.name);
   entity.api = entity.api ?? {};
@@ -36,6 +79,51 @@ function addStrings(entity, isVerbose) {
     createOneBody: `CreateOne${singularEntName}Body`,
     updateOneBody: `UpdateOne${singularEntName}Body`,
   };
+
+  const kababEntName = utils.toKababCase(entity.name);
+
+  entity.api.strings.baseServicePackage = buildRelativePackage(
+    path.join(config.entityPath, "generated"),
+    joinRelativePath(config.api.server.servicePath, kababEntName),
+    config
+  );
+  entity.api.strings.entityServicePackage = buildRelativePackage(
+    config.entityPath,
+    joinRelativePath(config.api.server.servicePath, kababEntName),
+    config
+  );
+  entity.api.strings.serviceEntityPackage = buildRelativePackage(
+    config.api.server.servicePath,
+    joinRelativePath(config.entityPath, kababEntName),
+    config
+  );
+  entity.api.strings.serviceInterfacePackage = buildRelativePackage(
+    config.api.server.servicePath,
+    joinRelativePath(
+      config.entityPath,
+      "generated",
+      `${kababEntName}-service-interface`
+    ),
+    config
+  );
+  entity.api.strings.serviceTypePackage = buildRelativePackage(
+    config.api.server.servicePath,
+    joinRelativePath(config.entityPath, "generated", `${kababEntName}-type`),
+    config
+  );
+  entity.api.strings.clientTypePackage = buildRelativePackage(
+    config.api.client.clientPath,
+    joinRelativePath(config.entityPath, "generated", `${kababEntName}-type`),
+    config
+  );
+  entity.types.filter(utils.isImportType).forEach((type) => {
+    type.strings.serviceExternalPackage = buildRelativePackage(
+      config.api.server.servicePath,
+      type.import,
+      config
+    );
+  });
+
   const hasGetMany = hasApiMethod(entity, "getMany");
   const hasGetOne = hasApiMethod(entity, "getOne");
   const hasGetOneSafe = hasApiMethod(entity, "getOneSafe");
@@ -211,13 +299,15 @@ function addCode(entity, config, isVerbose) {
   const policies = entity.policies ?? new Map();
   const policyKeys = Object.keys(policies);
   if (policyKeys.length > 0) {
-    const airentApiPackage = config.api.airentApiPackage ?? "@airent/api";
-    const airentApiImport = `import { Awaitable } from '${airentApiPackage}';`;
     entity.code.beforeBase.push("import createHttpError from 'http-errors';");
-    entity.code.beforeBase.push(airentApiImport);
+    entity.code.beforeBase.push(
+      `import { Awaitable } from '${config.api.baseLibPackage}';`
+    );
     const insideBase = buildInsideBase(entity, policies, utils);
     entity.code.insideBase.push(...insideBase);
-    entity.code.beforeEntity.push(airentApiImport);
+    entity.code.beforeEntity.push(
+      `import { Awaitable } from '${config.api.entityLibPackage}';`
+    );
     const insideEntity = buildInsideEntity(policies, utils);
     entity.code.insideEntity.push(...insideEntity);
   }
@@ -225,10 +315,10 @@ function addCode(entity, config, isVerbose) {
 
 function augment(data, isVerbose) {
   const { entityMap, config } = data;
-
+  augmentConfig(config);
   const entityNames = Object.keys(entityMap).sort();
   const entities = entityNames.map((n) => entityMap[n]);
-  entities.forEach((entity) => addStrings(entity, isVerbose));
+  entities.forEach((entity) => addStrings(entity, config, isVerbose));
   entities.forEach((entity) => addCode(entity, config, isVerbose));
 }
 
