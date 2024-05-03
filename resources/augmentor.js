@@ -117,23 +117,119 @@ function buildAfterType(entity) /* Code[] */ {
   ];
 }
 
-function addCode(entity, isVerbose) {
+function buildBeforePresent(entity, policies, utils) /* Code[] */ {
+  return [
+    "",
+    `protected async beforePresent<S extends ${entity.strings.fieldRequestClass}>(fieldRequest: S): Promise<void> {`,
+    ...Object.entries(policies).map(([policy, fields]) =>
+      fields?.length
+        ? `  await this.check${utils.toTitleCase(policy)}Fields(fieldRequest);`
+        : `  await this.check${utils.toTitleCase(policy)}();`
+    ),
+    "}",
+  ];
+}
+
+function buildPolicyChecker(entity, policy, fields, utils) /* Code[] */ {
+  if (fields?.length) {
+    return [
+      "",
+      `protected ${utils.toCamelCase(policy)}Fields = [`,
+      ...fields.map((field) => `  '${field}',`),
+      "];",
+      "",
+      `protected async check${utils.toTitleCase(policy)}Fields(fieldRequest: ${
+        entity.strings.fieldRequestClass
+      }): Promise<void> {`,
+      `  const fields = Object.keys(fieldRequest).filter((key) => this.${utils.toCamelCase(
+        policy
+      )}Fields.includes(key));`,
+      "  if (fields.length === 0) {",
+      "    return;",
+      "  }",
+      `  const isAuthorized = await this.authorize${utils.toTitleCase(
+        policy
+      )}();`,
+      `  if (!isAuthorized) {`,
+      `    const errorMessage = \`Unauthorized access to [\${fields.map((field) => \`'\${field}'\`).join(', ')}] on ${entity.name}\`;`,
+      "    throw createHttpError.Forbidden(errorMessage);",
+      "  }",
+      "}",
+    ];
+  } else {
+    return [
+      "",
+      `protected async check${utils.toTitleCase(policy)}(): Promise<void> {`,
+      `  const isAuthorized = await this.authorize${utils.toTitleCase(
+        policy
+      )}();`,
+      `  if (!isAuthorized) {`,
+      `    const errorMessage = \`Unauthorized access to ${entity.name}\`;`,
+      "    throw createHttpError.Forbidden(errorMessage);",
+      "  }",
+      "}",
+    ];
+  }
+}
+
+function buildPolicyAuthorizer(policy, utils) /* Code[] */ {
+  return [
+    "",
+    `protected authorize${utils.toTitleCase(policy)}(): Awaitable<boolean> {`,
+    "  throw new Error('not implemented');",
+    "}",
+  ];
+}
+
+function buildInsideBase(entity, policies, utils) /* Code[] */ {
+  const policyCheckerAndAuthorizerBundles = Object.entries(policies).flatMap(
+    ([policy, fields]) => [
+      ...buildPolicyChecker(entity, policy, fields, utils),
+      ...buildPolicyAuthorizer(policy, utils),
+    ]
+  );
+  const beforePresent = buildBeforePresent(entity, policies, utils);
+  return [...policyCheckerAndAuthorizerBundles, ...beforePresent];
+}
+
+function buildInsideEntity(policies, utils) /* Code[] */ {
+  return Object.keys(policies).flatMap((policy) =>
+    buildPolicyAuthorizer(policy, utils)
+  );
+}
+
+function addCode(entity, config, isVerbose) {
   if (isVerbose) {
     console.log(`[AIRENT-API/INFO] augmenting ${entity.name} - add code ...`);
   }
   const beforeType = buildBeforeType(entity);
-  const afterType = buildAfterType(entity);
   entity.code.beforeType.push(...beforeType);
+
+  const afterType = buildAfterType(entity);
   entity.code.afterType.push(...afterType);
+
+  const policies = entity.policies ?? new Map();
+  const policyKeys = Object.keys(policies);
+  if (policyKeys.length > 0) {
+    const airentApiPackage = config.airentApiPackage ?? "@airent/api";
+    const airentApiImport = `import { Awaitable } from '${airentApiPackage}';`;
+    entity.code.beforeBase.push("import createHttpError from 'http-errors';");
+    entity.code.beforeBase.push(airentApiImport);
+    const insideBase = buildInsideBase(entity, policies, utils);
+    entity.code.insideBase.push(...insideBase);
+    entity.code.beforeEntity.push(airentApiImport);
+    const insideEntity = buildInsideEntity(policies, utils);
+    entity.code.insideEntity.push(...insideEntity);
+  }
 }
 
 function augment(data, isVerbose) {
-  const { entityMap } = data;
+  const { entityMap, config } = data;
 
   const entityNames = Object.keys(entityMap).sort();
   const entities = entityNames.map((n) => entityMap[n]);
   entities.forEach((entity) => addStrings(entity, isVerbose));
-  entities.forEach((entity) => addCode(entity, isVerbose));
+  entities.forEach((entity) => addCode(entity, config, isVerbose));
 }
 
 module.exports = { augment };

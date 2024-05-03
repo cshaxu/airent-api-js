@@ -1,3 +1,5 @@
+import createHttpError from 'http-errors';
+import { Awaitable } from '../../../src';
 import {
   AsyncLock,
   BaseEntity,
@@ -81,5 +83,29 @@ export class UserEntityBase extends BaseEntity<
   ): Promise<ENTITY[]> {
     const models = [/* TODO: load models for UserEntity */];
     return (this as any).fromArray(models, context);
+  }
+
+  protected privateFields = [
+    'email',
+  ];
+
+  protected async checkPrivateFields(fieldRequest: UserFieldRequest): Promise<void> {
+    const fields = Object.keys(fieldRequest).filter((key) => this.privateFields.includes(key));
+    if (fields.length === 0) {
+      return;
+    }
+    const isAuthorized = await this.authorizePrivate();
+    if (!isAuthorized) {
+      const errorMessage = `Unauthorized access to [${fields.map((field) => `'${field}'`).join(', ')}] on User`;
+      throw createHttpError.Forbidden(errorMessage);
+    }
+  }
+
+  protected authorizePrivate(): Awaitable<boolean> {
+    throw new Error('not implemented');
+  }
+
+  protected async beforePresent<S extends UserFieldRequest>(fieldRequest: S): Promise<void> {
+    await this.checkPrivateFields(fieldRequest);
   }
 }

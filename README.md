@@ -6,7 +6,8 @@ Airent API Plugin - Generate your API backend and API client with ease
 
 - It can automatically generate your API backend which includes data service classes and API actions (controllers);
 - It includes a built-in API middleware that can validate and execute your API requests to backend;
-- It can automatically generate your API client that supports field selection on API responses.
+- It can automatically generate your API client that supports field selection on API responses;
+- It extends Airent entities to support field-level access control.
 
 ## Getting Started
 
@@ -42,6 +43,11 @@ api:
     createOne: "{ requireLogin: false }"
     updateOne: "{ requireLogin: true }"
     deleteOne: "{ requireLogin: true }"
+policies:
+  Private:
+    - email
+    - phone
+    - lastName
 ```
 
 This is it. Have fun!

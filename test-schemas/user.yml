@@ -17,6 +17,9 @@ model: UserModel
 types:
   - name: UserModel
     define: "{ id: string; createdAt: Date; name: string; email: string }"
+policies:
+  Private:
+    - email
 fields:
   - id: 1
     name: id
