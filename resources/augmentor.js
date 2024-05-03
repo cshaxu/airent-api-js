@@ -211,7 +211,7 @@ function addCode(entity, config, isVerbose) {
   const policies = entity.policies ?? new Map();
   const policyKeys = Object.keys(policies);
   if (policyKeys.length > 0) {
-    const airentApiPackage = config.airentApiPackage ?? "@airent/api";
+    const airentApiPackage = config.api.airentApiPackage ?? "@airent/api";
     const airentApiImport = `import { Awaitable } from '${airentApiPackage}';`;
     entity.code.beforeBase.push("import createHttpError from 'http-errors';");
     entity.code.beforeBase.push(airentApiImport);

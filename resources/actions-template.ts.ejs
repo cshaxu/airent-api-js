@@ -1,12 +1,12 @@
 <%
 function getServicePackagePath() {
   const servicePackage = `${utils.toKababCase(entity.name)}${utils.getModuleSuffix(config)}`;
-  return `${config.actionServicePath}/${servicePackage}`;
+  return `${config.api.server.actionServicePath}/${servicePackage}`;
 }
 -%>
 <% if (utils.isPresentableEntity(entity)) { -%>
   <%_ if (entity.fields.some((f) => f.strings.minVar || f.strings.maxVar)) { -%>
-import { getMax, getMin } from '<%= config.airentApiPackage ?? '@airent/api' %>';
+import { getMax, getMin } from '<%= config.api.airentApiPackage ?? '@airent/api' %>';
   <%_ } -%>
 import { Context } from '<%= contextPackage %>';
 import {

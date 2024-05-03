@@ -4,7 +4,7 @@ function isDateTypeField(field) {
 }
 
 function getTypePackagePath() {
-  return `${config.clientTypePath}/${entity.strings.typePackage}`;
+  return `${config.api.client.clientTypePath}/${entity.strings.typePackage}`;
 }
 
 function getApiClientPackagePath(type) {
@@ -45,11 +45,11 @@ import {
 import <%= type._entity.api.strings.apiClientClass %> from '<%- getApiClientPackagePath(type) %>';
   <%_ }); -%>
   <%_ if (entity.api.methods) { -%>
-import { fetchJsonOrThrow } from '<%= config.airentApiPackage ?? '@airent/api' %>';
-<% if (config.fetchOptionsImport?.length > 0) { -%>
-<%- config.fetchOptionsImport %>
+import { fetchJsonOrThrow } from '<%= config.api.airentApiPackage ?? '@airent/api' %>';
+<% if (config.api.client.fetchOptionsImport?.length > 0) { -%>
+<%- config.api.client.fetchOptionsImport %>
 <% } -%>
-<%- config.baseUrlImport %>
+<%- config.api.client.baseUrlImport %>
 import {
     <%_ if (entity.api.booleans.hasGetMany) { -%>
   <%= entity.api.strings.getManyQuery %>,
@@ -130,7 +130,7 @@ async function callApi(
     credentials: 'include' as RequestCredentials,
     method: 'POST',
     body: JSON.stringify(body),
-    <%_ if (config.fetchOptionsImport?.length > 0) { -%>
+    <%_ if (config.api.client.fetchOptionsImport?.length > 0) { -%>
     ...fetchOptions,
     <%_ } -%>
     ...options,

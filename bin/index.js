@@ -25,6 +25,24 @@ async function getShouldEnable(name, isEnabled) {
   return shouldEnable === "yes";
 }
 
+/** @typedef {Object} ApiServerConfig
+ *  @property {string} actionServicePath semi-generated
+ *  @property {string} serviceInterfacePath semi-generated
+ *  @property {string} serviceEntityPath semi-generated
+ *  @property {string} handlerConfigImport
+ */
+
+/** @typedef {Object} ApiClientConfig
+ * @property {string} clientTypePath semi-generated
+ * @property {string} baseUrlImport
+ * @property {?string} fetchOptionsImport
+
+/** @typedef {Object} ApiConfig
+ *  @property {?string} airentApiPackage
+ *  @property {ApiServerConfig} server
+ *  @property {ApiClientConfig} client
+ */
+
 /** @typedef {Object} Config
  *  @property {"commonjs" | "module"} type
  *  @property {?string} airentPackage
@@ -33,8 +51,7 @@ async function getShouldEnable(name, isEnabled) {
  *  @property {string} contextImportPath
  *  @property {?string[]} [augmentors]
  *  @property {?Template[]} [templates]
- *  @property {?string} airentApiPackage
- *  @property {?string} clientTypePath
+ *  @property {?ApiConfig} api
  */
 
 const PROJECT_PATH = process.cwd();
@@ -80,6 +97,7 @@ async function configureApiServer(config) {
   if (!shouldEnableApiServer) {
     return;
   }
+  config.api.server = config.api.server ?? {};
 
   if (!isApiServerHandlersEnabled) {
     templates.push({
@@ -103,24 +121,24 @@ async function configureApiServer(config) {
       skippable: false,
     });
     const servicePath = await askQuestion("Service path", "./src/services");
-    if (config.actionServicePath === undefined) {
-      config.actionServicePath = path
+    if (config.api.server.actionServicePath === undefined) {
+      config.api.server.actionServicePath = path
         .relative(
           path.join(PROJECT_PATH, config.entityPath, "/generated"),
           path.join(PROJECT_PATH, servicePath)
         )
         .replaceAll("\\", "/");
     }
-    if (config.serviceInterfacePath === undefined) {
-      config.serviceInterfacePath = path
+    if (config.api.server.serviceInterfacePath === undefined) {
+      config.api.server.serviceInterfacePath = path
         .relative(
           path.join(PROJECT_PATH, servicePath),
           path.join(PROJECT_PATH, config.entityPath, "/generated")
         )
         .replaceAll("\\", "/");
     }
-    if (config.serviceEntityPath === undefined) {
-      config.serviceEntityPath = path
+    if (config.api.server.serviceEntityPath === undefined) {
+      config.api.server.serviceEntityPath = path
         .relative(
           path.join(PROJECT_PATH, servicePath),
           path.join(PROJECT_PATH, config.entityPath)
@@ -134,8 +152,8 @@ async function configureApiServer(config) {
     });
   }
 
-  if (config.handlerConfigImport === undefined) {
-    config.handlerConfigImport = await askQuestion(
+  if (config.api.server.handlerConfigImport === undefined) {
+    config.api.server.handlerConfigImport = await askQuestion(
       'Statement to import "handlerConfig"',
       "import { handlerConfig } from '@/framework';"
     );
@@ -154,12 +172,14 @@ async function configureApiClient(config) {
     return;
   }
 
+  config.api.client = config.api.client ?? {};
+
   const outputPath = await askQuestion(
     "Output path for Api Client",
     "src/clients"
   );
-  if (config.clientTypePath === undefined) {
-    config.clientTypePath = path
+  if (config.api.client.clientTypePath === undefined) {
+    config.api.client.clientTypePath = path
       .relative(
         path.join(PROJECT_PATH, outputPath),
         path.join(PROJECT_PATH, config.entityPath, "/generated")
@@ -172,15 +192,15 @@ async function configureApiClient(config) {
     skippable: false,
   });
 
-  if (config.baseUrlImport === undefined) {
-    config.baseUrlImport = await askQuestion(
+  if (config.api.client.baseUrlImport === undefined) {
+    config.api.client.baseUrlImport = await askQuestion(
       "Statement to import 'baseUrl'",
       "import { baseUrl } from '@/fetch';"
     );
   }
 
-  if (config.fetchOptionsImport === undefined) {
-    config.fetchOptionsImport = await askQuestion(
+  if (config.api.client.fetchOptionsImport === undefined) {
+    config.api.client.fetchOptionsImport = await askQuestion(
       "Statement to import 'fetchOptions'",
       "import { fetchOptions } from '@/fetch';"
     );
@@ -198,6 +218,7 @@ async function configure() {
     return;
   }
 
+  config.api = config.api ?? {};
   await configureApiServer(config);
   await configureApiClient(config);
 

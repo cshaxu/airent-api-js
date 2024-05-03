@@ -23,7 +23,7 @@ import {
   <%_ if (entity.api.booleans.hasDeleteOne) { -%>
   handleDeleteOne,
   <%_ } -%>
-} from '<%= config.airentApiPackage ?? '@airent/api' %>';
+} from '<%= config.api.airentApiPackage ?? '@airent/api' %>';
 import <%= entity.api.strings.actionsClass %> from '<%- getActionPackage() %>';
 import {
   <%_ if (entity.api.booleans.hasGetMany) { -%>
@@ -39,7 +39,7 @@ import {
   <%= entity.api.strings.updateOneBody %>,
   <%_ } -%>
 } from '<%= entity.api.request.import %>';
-<%- config.handlerConfigImport %>
+<%- config.api.server.handlerConfigImport %>
   <%_ if (entity.api.booleans.hasGetMany) { -%>
 
     <%_ if (entity.deprecated) { -%>

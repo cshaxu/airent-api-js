@@ -3,7 +3,6 @@
   "schemaPath": "test-schemas",
   "entityPath": "test-output/entities",
   "contextImportPath": "test-resources/framework",
-  "airentApiPackage": "../../../src",
   "augmentors": [
     "resources/augmentor.js"
   ],
@@ -34,11 +33,18 @@
       "skippable": false
     }
   ],
-  "baseUrlImport": "import { baseUrl } from '../../../test-resources/fetch';",
-  "fetchOptionsImport": "import { fetchOptions } from '../../../test-resources/fetch';",
-  "handlerConfigImport": "import { handlerConfig } from '../../../test-resources/framework';",
-  "actionServicePath": "../../services/semi-generated",
-  "serviceInterfacePath": "../../entities/generated",
-  "serviceEntityPath": "../../entities",
-  "clientTypePath": "../../entities/generated"
+  "api": {
+    "airentApiPackage": "../../../src",
+    "server": {
+      "actionServicePath": "../../services/semi-generated",
+      "serviceInterfacePath": "../../entities/generated",
+      "serviceEntityPath": "../../entities",
+      "handlerConfigImport": "import { handlerConfig } from '../../../test-resources/framework';"
+    },
+    "client": {
+      "clientTypePath": "../../entities/generated",
+      "baseUrlImport": "import { baseUrl } from '../../../test-resources/fetch';",
+      "fetchOptionsImport": "import { fetchOptions } from '../../../test-resources/fetch';"
+    }
+  }
 }

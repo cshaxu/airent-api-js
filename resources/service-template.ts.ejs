@@ -1,15 +1,15 @@
 <%
 function getEntityPackagePath() {
-  return `${config.serviceEntityPath}/${entity.strings.entityPackage}`;
+  return `${config.api.server.serviceEntityPath}/${entity.strings.entityPackage}`;
 }
 
 function getInterfacePackagePath() {
   const servicePackage = `${utils.toKababCase(entity.api.strings.serviceClass)}-interface${utils.getModuleSuffix(config)}`;
-  return `${config.serviceInterfacePath}/${servicePackage}`;
+  return `${config.api.server.serviceInterfacePath}/${servicePackage}`;
 }
 
 function getTypePackagePath() {
-  return `${config.serviceInterfacePath}/${entity.strings.typePackage}`;
+  return `${config.api.server.serviceInterfacePath}/${entity.strings.typePackage}`;
 }
 -%>
 <% if (utils.isPresentableEntity(entity) && entity.api.methods) { -%>
