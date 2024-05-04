@@ -43,7 +43,7 @@
     "@types/async-lock": "^1.4.2",
     "@types/http-errors": "^2.0.4",
     "@types/node": "^20.10.1",
-    "airent": "github:cshaxu/airent-js#ef499e105bb32f75f98180f6abd486eb22365ca4",
+    "airent": "github:cshaxu/airent-js#9ec4ea6598fcf86576bdb8e3f0e519579fdc1b3f",
     "crlf": "^1.1.1",
     "typescript": "^5.3.2"
   }

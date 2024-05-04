@@ -1,16 +1,23 @@
 const path = require("path");
 const utils = require("airent/resources/utils.js");
 
-function joinRelativePath(...elements) {
-  return `./${path.join(...elements).replaceAll("\\", "/")}`;
+function enforceRelativePath(relativePath) /* string */ {
+  return relativePath.startsWith(".") ? relativePath : `./${relativePath}`;
+}
+
+function joinRelativePath(...elements) /* string */ {
+  return enforceRelativePath(path.join(...elements).replaceAll("\\", "/"));
 }
 
 function buildRelativePackage(sourcePath, targetPath, config) /* string */ {
-  return targetPath.startsWith(".")
-    ? `${path
-        .relative(sourcePath, targetPath)
-        .replaceAll("\\", "/")}${utils.getModuleSuffix(config)}`
-    : targetPath;
+  if (!targetPath.startsWith(".")) {
+    return targetPath;
+  }
+  const suffix = utils.getModuleSuffix(config);
+  const relativePath = enforceRelativePath(
+    path.relative(sourcePath, targetPath).replaceAll("\\", "/")
+  );
+  return `${relativePath}${suffix}`;
 }
 
 // build config
@@ -18,11 +25,7 @@ function buildRelativePackage(sourcePath, targetPath, config) /* string */ {
 function augmentConfig(config) /* void */ {
   const { contextImportPath, api } = config;
   const { libImportPath } = api;
-  config.serviceContextPackage = buildRelativePackage(
-    config.api.server.servicePath,
-    contextImportPath,
-    config
-  );
+
   config.api.baseLibPackage = libImportPath
     ? buildRelativePackage(
         path.join(config.entityPath, "generated"),
@@ -33,14 +36,29 @@ function augmentConfig(config) /* void */ {
   config.api.entityLibPackage = libImportPath
     ? buildRelativePackage(config.entityPath, libImportPath, config)
     : "@airent/api";
-  config.api.clientLibPackage = libImportPath
-    ? buildRelativePackage(config.api.client.clientPath, libImportPath, config)
-    : "@airent/api";
-  config.api.server.handlerConfigPackage = buildRelativePackage(
-    path.join(config.entityPath, "generated"),
-    config.api.server.handlerConfigImportPath,
-    config
-  );
+
+  if (config.api.server) {
+    config.serviceContextPackage = buildRelativePackage(
+      config.api.server.servicePath,
+      contextImportPath,
+      config
+    );
+    config.api.server.handlerConfigPackage = buildRelativePackage(
+      path.join(config.entityPath, "generated"),
+      config.api.server.handlerConfigImportPath,
+      config
+    );
+  }
+
+  if (config.api.client) {
+    config.api.clientLibPackage = libImportPath
+      ? buildRelativePackage(
+          config.api.client.clientPath,
+          libImportPath,
+          config
+        )
+      : "@airent/api";
+  }
 }
 
 /**
@@ -80,50 +98,6 @@ function addStrings(entity, config, isVerbose) {
     updateOneBody: `UpdateOne${singularEntName}Body`,
   };
 
-  const kababEntName = utils.toKababCase(entity.name);
-
-  entity.api.strings.baseServicePackage = buildRelativePackage(
-    path.join(config.entityPath, "generated"),
-    joinRelativePath(config.api.server.servicePath, kababEntName),
-    config
-  );
-  entity.api.strings.entityServicePackage = buildRelativePackage(
-    config.entityPath,
-    joinRelativePath(config.api.server.servicePath, kababEntName),
-    config
-  );
-  entity.api.strings.serviceEntityPackage = buildRelativePackage(
-    config.api.server.servicePath,
-    joinRelativePath(config.entityPath, kababEntName),
-    config
-  );
-  entity.api.strings.serviceInterfacePackage = buildRelativePackage(
-    config.api.server.servicePath,
-    joinRelativePath(
-      config.entityPath,
-      "generated",
-      `${kababEntName}-service-interface`
-    ),
-    config
-  );
-  entity.api.strings.serviceTypePackage = buildRelativePackage(
-    config.api.server.servicePath,
-    joinRelativePath(config.entityPath, "generated", `${kababEntName}-type`),
-    config
-  );
-  entity.api.strings.clientTypePackage = buildRelativePackage(
-    config.api.client.clientPath,
-    joinRelativePath(config.entityPath, "generated", `${kababEntName}-type`),
-    config
-  );
-  entity.types.filter(utils.isImportType).forEach((type) => {
-    type.strings.serviceExternalPackage = buildRelativePackage(
-      config.api.server.servicePath,
-      type.import,
-      config
-    );
-  });
-
   const hasGetMany = hasApiMethod(entity, "getMany");
   const hasGetOne = hasApiMethod(entity, "getOne");
   const hasGetOneSafe = hasApiMethod(entity, "getOneSafe");
@@ -152,6 +126,55 @@ function addStrings(entity, config, isVerbose) {
         field.strings.minVar = `min${utils.toTitleCase(field.name)}`;
       }
     });
+
+  const kababEntName = utils.toKababCase(entity.name);
+
+  if (config.api.server) {
+    entity.api.strings.baseServicePackage = buildRelativePackage(
+      path.join(config.entityPath, "generated"),
+      joinRelativePath(config.api.server.servicePath, kababEntName),
+      config
+    );
+    entity.api.strings.entityServicePackage = buildRelativePackage(
+      config.entityPath,
+      joinRelativePath(config.api.server.servicePath, kababEntName),
+      config
+    );
+    entity.api.strings.serviceEntityPackage = buildRelativePackage(
+      config.api.server.servicePath,
+      joinRelativePath(config.entityPath, kababEntName),
+      config
+    );
+    entity.api.strings.serviceInterfacePackage = buildRelativePackage(
+      config.api.server.servicePath,
+      joinRelativePath(
+        config.entityPath,
+        "generated",
+        `${kababEntName}-service-interface`
+      ),
+      config
+    );
+    entity.api.strings.serviceTypePackage = buildRelativePackage(
+      config.api.server.servicePath,
+      joinRelativePath(config.entityPath, "generated", `${kababEntName}-type`),
+      config
+    );
+    entity.types.filter(utils.isImportType).forEach((type) => {
+      type.strings.serviceExternalPackage = buildRelativePackage(
+        config.api.server.servicePath,
+        type.import,
+        config
+      );
+    });
+  }
+
+  if (config.api.client) {
+    entity.api.strings.clientTypePackage = buildRelativePackage(
+      config.api.client.clientPath,
+      joinRelativePath(config.entityPath, "generated", `${kababEntName}-type`),
+      config
+    );
+  }
 }
 
 // augment entity - add api code

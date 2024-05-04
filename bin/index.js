@@ -77,10 +77,15 @@ async function configureApiServer(config) {
   const isApiServerActionsEnabled =
     templates.find((t) => t.name === API_SERVER_ACTIONS_TEMPLATE_PATH) !==
     undefined;
+  const apiServerServiceInterfaceTemplate = templates.find(
+    (t) => t.name === API_SERVER_SERVICE_INTERFACE_TEMPLATE_PATH
+  );
+  const apiServerServiceTemplate = templates.find(
+    (t) => t.name === API_SERVER_SERVICE_TEMPLATE_PATH
+  );
   const isApiServerServiceEnabled =
-    templates.find(
-      (t) => t.name === API_SERVER_SERVICE_INTERFACE_TEMPLATE_PATH
-    ) !== undefined;
+    apiServerServiceInterfaceTemplate !== undefined &&
+    apiServerServiceTemplate !== undefined;
   const isApiServerEnabled =
     isApiServerHandlersEnabled &&
     isApiServerActionsEnabled &&
@@ -112,18 +117,22 @@ async function configureApiServer(config) {
     'Output path for "service"',
     config.api.server.servicePath ?? "./src/services"
   );
-  if (!isApiServerServiceEnabled) {
+  if (apiServerServiceInterfaceTemplate === undefined) {
     templates.push({
       name: API_SERVER_SERVICE_INTERFACE_TEMPLATE_PATH,
       outputPath:
         "{entityPath}/generated/{kababEntityName}-service-interface.ts",
       skippable: false,
     });
+  }
+  if (apiServerServiceTemplate === undefined) {
     templates.push({
       name: API_SERVER_SERVICE_TEMPLATE_PATH,
       outputPath: `${config.api.server.servicePath}/{kababEntityName}.ts`,
       skippable: true,
     });
+  } else {
+    apiServerServiceTemplate.outputPath = `${config.api.server.servicePath}/{kababEntityName}.ts`;
   }
 
   config.api.server.handlerConfigImportPath = await askQuestion(
@@ -134,8 +143,10 @@ async function configureApiServer(config) {
 
 async function configureApiClient(config) {
   const { templates } = config;
-  const isApiClientEnabled =
-    templates.find((t) => t.name === API_CLIENT_TEMPLATE_PATH) !== undefined;
+  const apiClientTemplate = templates.find(
+    (t) => t.name === API_CLIENT_TEMPLATE_PATH
+  );
+  const isApiClientEnabled = apiClientTemplate !== undefined;
   const shouldEnableApiClient = isApiClientEnabled
     ? true
     : await getShouldEnable("Api Client");
@@ -149,12 +160,14 @@ async function configureApiClient(config) {
     "Output path for Api Client",
     config.api.client.clientPath ?? "src/clients"
   );
-  if (!isApiClientEnabled) {
+  if (apiClientTemplate === undefined) {
     templates.push({
       name: API_CLIENT_TEMPLATE_PATH,
       outputPath: `${config.api.client.clientPath}/{kababEntityName}.ts`,
       skippable: false,
     });
+  } else {
+    apiClientTemplate.outputPath = `${config.api.client.clientPath}/{kababEntityName}.ts`;
   }
 
   config.api.client.baseUrlImport = await askQuestion(
