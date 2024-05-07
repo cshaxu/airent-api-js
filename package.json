@@ -7,6 +7,7 @@
     "airent-api": "./bin/index.js"
   },
   "scripts": {
+    "update": "./scripts/update.js",
     "build": "rm -rf ./lib && tsc -p tsconfig.json && crlf --set=LF bin/*",
     "test": "rm -rf ./test-output && airent"
   },
