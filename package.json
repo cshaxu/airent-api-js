@@ -7,7 +7,7 @@
     "airent-api": "./bin/index.js"
   },
   "scripts": {
-    "update": "nekoutils-updater",
+    "update": "airent-updater",
     "build": "rm -rf ./lib && tsc -p tsconfig.json && crlf --set=LF bin/*",
     "test": "rm -rf ./test-output && airent"
   },
@@ -41,7 +41,7 @@
     "zod": "^3.22.4"
   },
   "devDependencies": {
-    "@nekoutils/updater": "github:cshaxu/updater-js#1ced3a600ae97063a3ad86437d589850e52cbacc",
+    "@airent/utils": "github:cshaxu/airent-utils-js#88a44b6a027e1b8c636f7e25283e310eac9c40ed",
     "@types/async-lock": "^1.4.2",
     "@types/http-errors": "^2.0.4",
     "@types/node": "^20.10.1",
