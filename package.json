@@ -41,11 +41,11 @@
     "zod": "^3.22.4"
   },
   "devDependencies": {
-    "@airent/utils": "github:cshaxu/airent-utils-js#88a44b6a027e1b8c636f7e25283e310eac9c40ed",
+    "@airent/utils": "github:cshaxu/airent-utils-js#4341312362c21dc3adbf2afeadfc900898cb5357",
     "@types/async-lock": "^1.4.2",
     "@types/http-errors": "^2.0.4",
     "@types/node": "^20.10.1",
-    "airent": "github:cshaxu/airent-js#9ec4ea6598fcf86576bdb8e3f0e519579fdc1b3f",
+    "airent": "github:cshaxu/airent-js#f66651813ce15e6da39d6551e830be5002322efc",
     "crlf": "^1.1.1",
     "typescript": "^5.3.2"
   }
