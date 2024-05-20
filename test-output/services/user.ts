@@ -1,15 +1,15 @@
-import { Context } from '../../../test-resources/framework';
-import { UserEntity } from '../../entities/user';
+import { Context } from '../../test-resources/framework';
+import { UserEntity } from '../entities/user';
 import {
   UserModel,
-} from '../../entities/generated/user-type';
+} from '../entities/generated/user-type';
 import {
   GetManyUsersQuery,
   GetOneUserParams,
   CreateOneUserBody,
   UpdateOneUserBody,
-} from '../../../test-resources/user-type';
-import { UserServiceInterface } from '../../entities/generated/user-service-interface';
+} from '../../test-resources/user-type';
+import { UserServiceInterface } from '../entities/generated/user-service-interface';
 import createHttpError from 'http-errors';
 
 async function getMany(query: GetManyUsersQuery, context: Context): Promise<UserEntity[]> {

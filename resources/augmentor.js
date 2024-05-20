@@ -23,24 +23,21 @@ function buildRelativePackage(sourcePath, targetPath, config) /* string */ {
 // build config
 
 function augmentConfig(config) /* void */ {
-  const { contextImportPath, api } = config;
-  const { libImportPath } = api;
-
-  config.api.baseLibPackage = libImportPath
+  config.api.baseLibPackage = config.api.libImportPath
     ? buildRelativePackage(
         path.join(config.entityPath, "generated"),
-        libImportPath,
+        config.api.libImportPath,
         config
       )
     : "@airent/api";
-  config.api.entityLibPackage = libImportPath
-    ? buildRelativePackage(config.entityPath, libImportPath, config)
+  config.api.entityLibPackage = config.api.libImportPath
+    ? buildRelativePackage(config.entityPath, config.api.libImportPath, config)
     : "@airent/api";
 
   if (config.api.server) {
-    config.serviceContextPackage = buildRelativePackage(
+    config.api.server.serviceContextPackage = buildRelativePackage(
       config.api.server.servicePath,
-      contextImportPath,
+      config.contextImportPath,
       config
     );
     config.api.server.handlerConfigPackage = buildRelativePackage(
@@ -51,10 +48,10 @@ function augmentConfig(config) /* void */ {
   }
 
   if (config.api.client) {
-    config.api.clientLibPackage = libImportPath
+    config.api.client.clientLibPackage = config.api.libImportPath
       ? buildRelativePackage(
           config.api.client.clientPath,
-          libImportPath,
+          config.api.libImportPath,
           config
         )
       : "@airent/api";
@@ -88,6 +85,7 @@ function addStrings(entity, config, isVerbose) {
     handlersClass: `${singularEntName}Handlers`,
     actionsClass: `${singularEntName}Actions`,
     serviceClass: `${singularEntName}Service`,
+    serviceInterfaceClass: `${singularEntName}ServiceInterface`,
     apiClientClass: `${singularEntName}ApiClient`,
     manyCursor: `Many${pluralEntName}Cursor`,
     manyResponse: `Many${pluralEntName}Response`,
@@ -104,6 +102,9 @@ function addStrings(entity, config, isVerbose) {
   const hasCreateOne = hasApiMethod(entity, "createOne");
   const hasUpdateOne = hasApiMethod(entity, "updateOne");
   const hasDeleteOne = hasApiMethod(entity, "deleteOne");
+  const hasGetOneRequest =
+    hasGetOne || hasGetOneSafe || hasUpdateOne | hasDeleteOne;
+  const hasAny = hasGetMany || hasGetOneRequest || hasCreateOne;
   entity.api.booleans = {
     hasGetMany,
     hasGetOne,
@@ -111,7 +112,8 @@ function addStrings(entity, config, isVerbose) {
     hasCreateOne,
     hasUpdateOne,
     hasDeleteOne,
-    hasGetOneRequest: hasGetOne || hasGetOneSafe || hasUpdateOne | hasDeleteOne,
+    hasGetOneRequest,
+    hasAny,
   };
   (entity.api?.cursors ?? [])
     .flatMap((c) => Object.keys(c).map((n) => ({ name: n, value: c[n] })))
@@ -127,25 +129,40 @@ function addStrings(entity, config, isVerbose) {
       }
     });
 
+  entity.api.packages = {};
   const kababEntName = utils.toKababCase(entity.name);
 
+  const requestImport = entity.api.request?.import;
+
   if (config.api.server) {
-    entity.api.strings.baseServicePackage = buildRelativePackage(
+    if (requestImport) {
+      entity.api.packages.baseRequest = buildRelativePackage(
+        path.join(config.entityPath, "generated"),
+        requestImport,
+        config
+      );
+      entity.api.packages.serviceRequest = buildRelativePackage(
+        config.api.server.servicePath,
+        requestImport,
+        config
+      );
+    }
+    entity.api.packages.baseService = buildRelativePackage(
       path.join(config.entityPath, "generated"),
       joinRelativePath(config.api.server.servicePath, kababEntName),
       config
     );
-    entity.api.strings.entityServicePackage = buildRelativePackage(
+    entity.api.packages.entityService = buildRelativePackage(
       config.entityPath,
       joinRelativePath(config.api.server.servicePath, kababEntName),
       config
     );
-    entity.api.strings.serviceEntityPackage = buildRelativePackage(
+    entity.api.packages.serviceEntity = buildRelativePackage(
       config.api.server.servicePath,
       joinRelativePath(config.entityPath, kababEntName),
       config
     );
-    entity.api.strings.serviceInterfacePackage = buildRelativePackage(
+    entity.api.packages.serviceInterface = buildRelativePackage(
       config.api.server.servicePath,
       joinRelativePath(
         config.entityPath,
@@ -154,13 +171,14 @@ function addStrings(entity, config, isVerbose) {
       ),
       config
     );
-    entity.api.strings.serviceTypePackage = buildRelativePackage(
+    entity.api.packages.serviceType = buildRelativePackage(
       config.api.server.servicePath,
       joinRelativePath(config.entityPath, "generated", `${kababEntName}-type`),
       config
     );
     entity.types.filter(utils.isImportType).forEach((type) => {
-      type.strings.serviceExternalPackage = buildRelativePackage(
+      type.packages = type.packages ?? {};
+      type.packages.serviceExternal = buildRelativePackage(
         config.api.server.servicePath,
         type.import,
         config
@@ -169,7 +187,14 @@ function addStrings(entity, config, isVerbose) {
   }
 
   if (config.api.client) {
-    entity.api.strings.clientTypePackage = buildRelativePackage(
+    if (requestImport) {
+      entity.api.packages.clientRequest = buildRelativePackage(
+        config.api.client.clientPath,
+        requestImport,
+        config
+      );
+    }
+    entity.api.packages.clientType = buildRelativePackage(
       config.api.client.clientPath,
       joinRelativePath(config.entityPath, "generated", `${kababEntName}-type`),
       config

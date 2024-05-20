@@ -1,9 +1,3 @@
-<%
-function getServicePackagePath() {
-  const servicePackage = `${utils.toKababCase(entity.name)}${utils.getModuleSuffix(config)}`;
-  return `${config.api.server.actionServiceRelativePath}/${servicePackage}`;
-}
--%>
 <% if (utils.isPresentableEntity(entity)) { -%>
   <%_ if (entity.fields.some((f) => f.strings.minVar || f.strings.maxVar)) { -%>
 import { getMax, getMin } from '<%- config.api.baseLibPackage %>';
@@ -21,7 +15,7 @@ import { <%= type.strings.externalClass %> } from '<%- type.strings.baseExternal
   <%_ entity.types.filter(utils.isCustomType).forEach((type) => { -%>
 import { <%= type.name %> } from './<%= entity.strings.typePackage %>';
   <%_ }); -%>
-  <%_ if (entity.api.methods) { -%>
+  <%_ if (entity.api.booleans.hasAny) { -%>
 import {
     <%_ if (entity.api.booleans.hasGetMany) { -%>
   <%= entity.api.strings.getManyQuery %>,
@@ -35,8 +29,8 @@ import {
     <%_ if (entity.api.booleans.hasUpdateOne) { -%>
   <%= entity.api.strings.updateOneBody %>,
     <%_ } -%>
-} from '<%= entity.api.request.import %>';
-import <%= entity.api.strings.serviceClass %> from '<%- entity.api.strings.baseServicePackage %>';
+} from '<%- entity.api.packages.baseRequest %>';
+import <%= entity.api.strings.serviceClass %> from '<%- entity.api.packages.baseService %>';
   <%_ } -%>
 
 // api response builders
@@ -92,7 +86,7 @@ async function buildOneSafeResponse<S extends <%= entity.strings.fieldRequestCla
   const <%= entity.api.strings.oneEntVar %> = one === null ? null : await one.present(fieldRequest);
   return { <%= entity.api.strings.oneEntVar %> };
 }
-  <%_ if (entity.api.methods) { -%>
+  <%_ if (entity.api.booleans.hasAny) { -%>
 
 // api executors
   <%_ } -%>

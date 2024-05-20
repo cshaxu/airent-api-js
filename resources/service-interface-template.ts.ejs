@@ -1,4 +1,4 @@
-<% if (utils.isPresentableEntity(entity) && entity.api.methods) { -%>
+<% if (utils.isPresentableEntity(entity) && entity.api.booleans.hasAny) { -%>
 import { Context } from '<%- config.baseContextPackage %>';
 import { <%= entity.strings.entityClass %> } from '../<%= entity.strings.entityPackage %>';
   <%_ entity.types.filter(utils.isImportType).forEach((type) => { -%>
@@ -22,12 +22,12 @@ import {
   <%_ if (entity.api.booleans.hasUpdateOne) { -%>
   <%= entity.api.strings.updateOneBody %>,
   <%_ } -%>
-} from '<%= entity.api.request.import %>';
+} from '<%- entity.api.packages.baseRequest %>';
 
   <%_ if (entity.deprecated) { -%>
 /** @deprecated */
   <%_ } -%>
-export interface <%= `${entity.api.strings.serviceClass}Interface` %> {
+export interface <%= entity.api.strings.serviceInterfaceClass %> {
   <%_ if (entity.api.booleans.hasGetMany) { -%>
   beforeGetMany?: (query: <%= entity.api.strings.getManyQuery %>, context: Context) => Promise<void>;
   afterGetMany?: (many: <%= entity.strings.entityClass %>[], query: <%= entity.api.strings.getManyQuery %>, context: Context) => Promise<void>;

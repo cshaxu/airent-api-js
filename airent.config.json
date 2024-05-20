@@ -24,25 +24,25 @@
     },
     {
       "name": "resources/service-template.ts.ejs",
-      "outputPath": "test-output/services/semi-generated/{kababEntityName}.ts",
+      "outputPath": "test-output/services/{kababEntityName}.ts",
       "skippable": true
     },
     {
       "name": "resources/client-template.ts.ejs",
-      "outputPath": "test-output/clients/generated/{kababEntityName}.ts",
+      "outputPath": "test-output/clients/{kababEntityName}.ts",
       "skippable": false
     }
   ],
   "api": {
     "libImportPath": "./src/index",
     "server": {
-      "servicePath": "./test-output/services/semi-generated",
+      "servicePath": "./test-output/services",
       "handlerConfigImportPath": "./test-resources/framework"
     },
     "client": {
-      "clientPath": "./test-output/clients/generated",
-      "baseUrlImport": "import { baseUrl } from '../../../test-resources/fetch';",
-      "fetchOptionsImport": "import { fetchOptions } from '../../../test-resources/fetch';"
+      "clientPath": "./test-output/clients",
+      "baseUrlImport": "import { baseUrl } from '../../test-resources/fetch';",
+      "fetchOptionsImport": "import { fetchOptions } from '../../test-resources/fetch';"
     }
   }
 }

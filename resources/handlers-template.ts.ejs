@@ -3,7 +3,7 @@ function getActionPackage() {
   return `${utils.toKababCase(entity.name)}-actions${utils.getModuleSuffix(config)}`;
 }
 -%>
-<% if (entity.api.methods) { -%>
+<% if (utils.isPresentableEntity(entity) && entity.api.booleans.hasAny) { -%>
 import {
   <%_ if (entity.api.booleans.hasGetMany) { -%>
   handleGetMany,
@@ -38,7 +38,7 @@ import {
   <%_ if (entity.api.booleans.hasUpdateOne) { -%>
   <%= entity.api.strings.updateOneBody %>,
   <%_ } -%>
-} from '<%= entity.api.request.import %>';
+} from '<%- entity.api.packages.baseRequest %>';
 import { handlerConfig } from '<%- config.api.server.handlerConfigPackage %>';
   <%_ if (entity.api.booleans.hasGetMany) { -%>
 

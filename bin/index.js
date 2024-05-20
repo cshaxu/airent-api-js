@@ -114,7 +114,7 @@ async function configureApiServer(config) {
   }
 
   config.api.server.servicePath = await askQuestion(
-    'Output path for "service"',
+    "Output path for Api Service",
     config.api.server.servicePath ?? "./src/services"
   );
   if (apiServerServiceInterfaceTemplate === undefined) {
@@ -158,7 +158,7 @@ async function configureApiClient(config) {
 
   config.api.client.clientPath = await askQuestion(
     "Output path for Api Client",
-    config.api.client.clientPath ?? "src/clients"
+    config.api.client.clientPath ?? "./src/clients"
   );
   if (apiClientTemplate === undefined) {
     templates.push({

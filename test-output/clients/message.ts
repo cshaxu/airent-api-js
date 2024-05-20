@@ -3,7 +3,7 @@ import {
   MessageFieldRequest,
   ManyMessagesResponse,
   OneMessageResponse,
-} from '../../entities/generated/message-type';
+} from '../entities/generated/message-type';
 
 function present<S extends MessageFieldRequest>(
   one: any,

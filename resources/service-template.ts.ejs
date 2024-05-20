@@ -1,14 +1,14 @@
-<% if (utils.isPresentableEntity(entity) && entity.api.methods) { -%>
-import { Context } from '<%- config.serviceContextPackage %>';
-import { <%= entity.strings.entityClass %> } from '<%- entity.api.strings.serviceEntityPackage %>';
+<% if (utils.isPresentableEntity(entity) && entity.api.booleans.hasAny) { -%>
+import { Context } from '<%- config.api.server.serviceContextPackage %>';
+import { <%= entity.strings.entityClass %> } from '<%- entity.api.packages.serviceEntity %>';
   <%_ entity.types.filter(utils.isImportType).forEach((type) => { -%>
-import { <%= type.strings.externalClass %> } from '<%- type.strings.serviceExternalPackage %>';
+import { <%= type.strings.externalClass %> } from '<%- type.packages.serviceExternal %>';
   <%_ }); -%>
 import {
   <%_ entity.types.filter(utils.isCustomType).forEach((type) => { -%>
   <%= type.name %>,
   <%_ }); -%>
-} from '<%- entity.api.strings.serviceTypePackage %>';
+} from '<%- entity.api.packages.serviceType %>';
 import {
   <%_ if (entity.api.booleans.hasGetMany) { -%>
   <%= entity.api.strings.getManyQuery %>,
@@ -22,8 +22,8 @@ import {
   <%_ if (entity.api.booleans.hasUpdateOne) { -%>
   <%= entity.api.strings.updateOneBody %>,
   <%_ } -%>
-} from '<%= entity.api.request.import %>';
-import { <%= `${entity.api.strings.serviceClass}Interface` %> } from '<%- entity.api.strings.serviceInterfacePackage %>';
+} from '<%- entity.api.packages.serviceRequest %>';
+import { <%= entity.api.strings.serviceInterfaceClass %> } from '<%- entity.api.packages.serviceInterface %>';
 import createHttpError from 'http-errors';
   <%_ if (entity.api.booleans.hasGetMany) { -%>
 
@@ -73,7 +73,7 @@ async function deleteOne(one: <%= entity.strings.entityClass %>, context: Contex
   <%_ if (entity.deprecated) { -%>
 /** @deprecated */
   <%_ } -%>
-const <%= `${entity.api.strings.serviceClass}` %>: <%= `${entity.api.strings.serviceClass}Interface` %> = {
+const <%= entity.api.strings.serviceClass %>: <%= entity.api.strings.serviceInterfaceClass %> = {
   <%_ if (entity.api.booleans.hasGetMany) { -%>
   getMany,
   <%_ } -%>
@@ -94,5 +94,5 @@ const <%= `${entity.api.strings.serviceClass}` %>: <%= `${entity.api.strings.ser
   <%_ } -%>
 };
 
-export default <%= `${entity.api.strings.serviceClass}` %>;
+export default <%= entity.api.strings.serviceClass %>;
 <% } -%>

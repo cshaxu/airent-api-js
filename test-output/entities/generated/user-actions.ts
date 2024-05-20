@@ -13,7 +13,7 @@ import {
   CreateOneUserBody,
   UpdateOneUserBody,
 } from '../../../test-resources/user-type';
-import UserService from '../../services/semi-generated/user';
+import UserService from '../../services/user';
 
 // api response builders
 

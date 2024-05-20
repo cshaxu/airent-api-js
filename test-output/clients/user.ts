@@ -3,17 +3,17 @@ import {
   UserFieldRequest,
   ManyUsersResponse,
   OneUserResponse,
-} from '../../entities/generated/user-type';
+} from '../entities/generated/user-type';
 import MessageApiClient from './message';
-import { fetchJsonOrThrow } from '../../../src/index';
-import { fetchOptions } from '../../../test-resources/fetch';
-import { baseUrl } from '../../../test-resources/fetch';
+import { fetchJsonOrThrow } from '../../src/index';
+import { fetchOptions } from '../../test-resources/fetch';
+import { baseUrl } from '../../test-resources/fetch';
 import {
   GetManyUsersQuery,
   GetOneUserParams,
   CreateOneUserBody,
   UpdateOneUserBody,
-} from '../../../test-resources/user-type';
+} from '../../test-resources/user-type';
 
 function present<S extends UserFieldRequest>(
   one: any,

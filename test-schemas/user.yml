@@ -2,7 +2,7 @@ name: User
 deprecated: true
 api:
   request:
-    import: "../../../test-resources/user-type"
+    import: "./test-resources/user-type"
   cursors:
     - createdAt: asc
     - createdAt: desc

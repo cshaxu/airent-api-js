@@ -36,12 +36,12 @@ import {
   <%= entity.strings.fieldRequestClass %>,
   <%= entity.api.strings.manyResponse %>,
   <%= entity.api.strings.oneResponse %>,
-} from '<%- entity.api.strings.clientTypePackage %>';
+} from '<%- entity.api.packages.clientType %>';
   <%_ entity.types.filter(utils.isPresentableEntityType).filter((t) => t.name !== entity.name).forEach((type) => { -%>
 import <%= type._entity.api.strings.apiClientClass %> from './<%= getApiClientPackage(type) %>';
   <%_ }); -%>
-  <%_ if (entity.api.methods) { -%>
-import { fetchJsonOrThrow } from '<%- config.api.clientLibPackage %>';
+  <%_ if (entity.api.booleans.hasAny) { -%>
+import { fetchJsonOrThrow } from '<%- config.api.client.clientLibPackage %>';
 <% if (config.api.client.fetchOptionsImport?.length > 0) { -%>
 <%- config.api.client.fetchOptionsImport %>
 <% } -%>
@@ -59,7 +59,7 @@ import {
     <%_ if (entity.api.booleans.hasUpdateOne) { -%>
   <%= entity.api.strings.updateOneBody %>,
     <%_ } -%>
-} from '<%= entity.api.request.import %>';
+} from '<%- entity.api.packages.clientRequest %>';
   <%_ } -%>
 
 function present<S extends <%= entity.strings.fieldRequestClass %>>(
@@ -114,7 +114,7 @@ function presentOneSafeResponse<S extends <%= entity.strings.fieldRequestClass %
   const <%= entity.api.strings.oneEntVar %> = one === null ? null : present(one, fieldRequest);
   return { <%= entity.api.strings.oneEntVar %> };
 }
-  <%_ if (entity.api.methods) { -%>
+  <%_ if (entity.api.booleans.hasAny) { -%>
 
 async function callApi(
   name: string, 
