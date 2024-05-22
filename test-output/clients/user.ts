@@ -1,3 +1,5 @@
+import { fetchJsonOrThrow } from '../../src/index';
+
 import {
   SelectedUserResponse,
   UserFieldRequest,
@@ -5,7 +7,6 @@ import {
   OneUserResponse,
 } from '../entities/generated/user-type';
 import MessageApiClient from './message';
-import { fetchJsonOrThrow } from '../../src/index';
 import { fetchOptions } from '../../test-resources/fetch';
 import { baseUrl } from '../../test-resources/fetch';
 import {

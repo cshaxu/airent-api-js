@@ -1,5 +1,8 @@
 <% if (utils.isPresentableEntity(entity) && entity.api.booleans.hasAny) { -%>
+import createHttpError from 'http-errors';
+
 import { Context } from '<%- config.api.server.serviceContextPackage %>';
+
 import { <%= entity.strings.entityClass %> } from '<%- entity.api.packages.serviceEntity %>';
   <%_ entity.types.filter(utils.isImportType).forEach((type) => { -%>
 import { <%= type.strings.externalClass %> } from '<%- type.packages.serviceExternal %>';
@@ -24,7 +27,6 @@ import {
   <%_ } -%>
 } from '<%- entity.api.packages.serviceRequest %>';
 import { <%= entity.api.strings.serviceInterfaceClass %> } from '<%- entity.api.packages.serviceInterface %>';
-import createHttpError from 'http-errors';
   <%_ if (entity.api.booleans.hasGetMany) { -%>
 
 async function getMany(query: <%= entity.api.strings.getManyQuery %>, context: Context): Promise<<%= entity.strings.entityClass %>[]> {

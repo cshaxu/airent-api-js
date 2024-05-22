@@ -1,3 +1,5 @@
+import { fetchJsonOrThrow } from '../../src/index';
+
 import {
   SelectedMessageResponse,
   MessageFieldRequest,

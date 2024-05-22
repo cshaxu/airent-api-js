@@ -31,6 +31,8 @@ function presentDateTypeField(field) {
 }
 -%>
 <% if (utils.isPresentableEntity(entity)) { -%>
+import { fetchJsonOrThrow } from '<%- config.api.client.clientLibPackage %>';
+
 import {
   <%= entity.strings.selectedResponseClass %>,
   <%= entity.strings.fieldRequestClass %>,
@@ -41,7 +43,6 @@ import {
 import <%= type._entity.api.strings.apiClientClass %> from './<%= getApiClientPackage(type) %>';
   <%_ }); -%>
   <%_ if (entity.api.booleans.hasAny) { -%>
-import { fetchJsonOrThrow } from '<%- config.api.client.clientLibPackage %>';
 <% if (config.api.client.fetchOptionsImport?.length > 0) { -%>
 <%- config.api.client.fetchOptionsImport %>
 <% } -%>

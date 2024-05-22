@@ -1,4 +1,7 @@
+import createHttpError from 'http-errors';
+
 import { Context } from '../../test-resources/framework';
+
 import { UserEntity } from '../entities/user';
 import {
   UserModel,
@@ -10,7 +13,6 @@ import {
   UpdateOneUserBody,
 } from '../../test-resources/user-type';
 import { UserServiceInterface } from '../entities/generated/user-service-interface';
-import createHttpError from 'http-errors';
 
 async function getMany(query: GetManyUsersQuery, context: Context): Promise<UserEntity[]> {
   throw createHttpError.NotImplemented();

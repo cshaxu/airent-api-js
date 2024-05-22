@@ -24,6 +24,9 @@ import {
   handleDeleteOne,
   <%_ } -%>
 } from '<%- config.api.baseLibPackage %>';
+
+import { handlerConfig } from '<%- config.api.server.handlerConfigPackage %>';
+
 import <%= entity.api.strings.actionsClass %> from './<%= getActionPackage() %>';
 import {
   <%_ if (entity.api.booleans.hasGetMany) { -%>
@@ -39,7 +42,6 @@ import {
   <%= entity.api.strings.updateOneBody %>,
   <%_ } -%>
 } from '<%- entity.api.packages.baseRequest %>';
-import { handlerConfig } from '<%- config.api.server.handlerConfigPackage %>';
   <%_ if (entity.api.booleans.hasGetMany) { -%>
 
     <%_ if (entity.deprecated) { -%>

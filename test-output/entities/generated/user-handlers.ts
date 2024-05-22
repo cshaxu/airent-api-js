@@ -6,6 +6,9 @@ import {
   handleUpdateOne,
   handleDeleteOne,
 } from '../../../src/index';
+
+import { handlerConfig } from '../../../test-resources/framework';
+
 import UserActions from './user-actions';
 import {
   GetManyUsersQuery,
@@ -13,7 +16,6 @@ import {
   CreateOneUserBody,
   UpdateOneUserBody,
 } from '../../../test-resources/user-type';
-import { handlerConfig } from '../../../test-resources/framework';
 
 /** @deprecated */
 const getMany = handleGetMany({
