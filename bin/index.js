@@ -128,11 +128,9 @@ async function configureApiServer(config) {
   if (apiServerServiceTemplate === undefined) {
     templates.push({
       name: API_SERVER_SERVICE_TEMPLATE_PATH,
-      outputPath: `${config.api.server.servicePath}/{kababEntityName}.ts`,
+      outputPath: "{api.server.servicePath}/{kababEntityName}.ts",
       skippable: true,
     });
-  } else {
-    apiServerServiceTemplate.outputPath = `${config.api.server.servicePath}/{kababEntityName}.ts`;
   }
 
   config.api.server.handlerConfigImportPath = await askQuestion(
@@ -163,11 +161,9 @@ async function configureApiClient(config) {
   if (apiClientTemplate === undefined) {
     templates.push({
       name: API_CLIENT_TEMPLATE_PATH,
-      outputPath: `${config.api.client.clientPath}/{kababEntityName}.ts`,
+      outputPath: "{api.client.clientPath}/{kababEntityName}.ts",
       skippable: false,
     });
-  } else {
-    apiClientTemplate.outputPath = `${config.api.client.clientPath}/{kababEntityName}.ts`;
   }
 
   config.api.client.baseUrlImport = await askQuestion(

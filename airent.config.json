@@ -1,7 +1,7 @@
 {
   "type": "commonjs",
-  "schemaPath": "./test-schemas",
-  "entityPath": "./test-output/entities",
+  "schemaPath": "test-schemas",
+  "entityPath": "test-output/entities",
   "contextImportPath": "./test-resources/framework",
   "augmentors": [
     "resources/augmentor.js"
@@ -24,23 +24,23 @@
     },
     {
       "name": "resources/service-template.ts.ejs",
-      "outputPath": "test-output/services/{kababEntityName}.ts",
+      "outputPath": "{api.server.servicePath}/{kababEntityName}.ts",
       "skippable": true
     },
     {
       "name": "resources/client-template.ts.ejs",
-      "outputPath": "test-output/clients/{kababEntityName}.ts",
+      "outputPath": "{api.client.clientPath}/{kababEntityName}.ts",
       "skippable": false
     }
   ],
   "api": {
     "libImportPath": "./src/index",
     "server": {
-      "servicePath": "./test-output/services",
+      "servicePath": "test-output/services",
       "handlerConfigImportPath": "./test-resources/framework"
     },
     "client": {
-      "clientPath": "./test-output/clients",
+      "clientPath": "test-output/clients",
       "baseUrlImport": "import { baseUrl } from '../../test-resources/fetch';",
       "fetchOptionsImport": "import { fetchOptions } from '../../test-resources/fetch';"
     }
