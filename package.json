@@ -41,7 +41,7 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
-    "@airent/utils": "github:cshaxu/airent-utils-js#5f70cfb05f5d89beced1b92cf5962afaf9ddfec1",
+    "@airent/utils": "github:cshaxu/airent-utils-js#3910c87fb6c858037bce0c003a4030f6565cce3b",
     "@types/async-lock": "^1.4.2",
     "@types/http-errors": "^2.0.4",
     "@types/node": "^20.12.12",
