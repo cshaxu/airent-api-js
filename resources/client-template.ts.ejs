@@ -31,8 +31,16 @@ function presentDateTypeField(field) {
 }
 -%>
 <% if (utils.isPresentableEntity(entity)) { -%>
+// airent imports
 import { fetchJsonOrThrow } from '<%- config.api.client.clientLibPackage %>';
 
+// config imports
+<%- config.api.client.baseUrlImport %>
+<% if (config.api.client.fetchOptionsImport?.length > 0) { -%>
+<%- config.api.client.fetchOptionsImport %>
+<% } -%>
+
+// entity imports
 import {
   <%= entity.strings.selectedResponseClass %>,
   <%= entity.strings.fieldRequestClass %>,
@@ -43,10 +51,6 @@ import {
 import <%= type._entity.api.strings.apiClientClass %> from './<%= getApiClientPackage(type) %>';
   <%_ }); -%>
   <%_ if (entity.api.booleans.hasAny) { -%>
-<% if (config.api.client.fetchOptionsImport?.length > 0) { -%>
-<%- config.api.client.fetchOptionsImport %>
-<% } -%>
-<%- config.api.client.baseUrlImport %>
 import {
     <%_ if (entity.api.booleans.hasGetMany) { -%>
   <%= entity.api.strings.getManyQuery %>,

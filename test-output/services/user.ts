@@ -1,7 +1,10 @@
+// library imports
 import createHttpError from 'http-errors';
 
+// config imports
 import { Context } from '../../test-resources/framework';
 
+// entity imports
 import { UserEntity } from '../entities/user';
 import {
   UserModel,

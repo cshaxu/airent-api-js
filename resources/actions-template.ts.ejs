@@ -1,10 +1,13 @@
 <% if (utils.isPresentableEntity(entity)) { -%>
   <%_ if (entity.fields.some((f) => f.strings.minVar || f.strings.maxVar)) { -%>
+// airent imports
 import { getMax, getMin } from '<%- config.api.baseLibPackage %>';
 
   <%_ } -%>
+// config imports
 import { Context } from '<%- config.baseContextPackage %>';
 
+// entity imports
 import {
   <%= entity.strings.fieldRequestClass %>,
   <%= entity.api.strings.manyResponse %>,

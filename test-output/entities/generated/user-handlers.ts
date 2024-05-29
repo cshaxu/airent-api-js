@@ -1,3 +1,4 @@
+// airent imports
 import {
   handleGetMany,
   handleGetOne,
@@ -7,8 +8,10 @@ import {
   handleDeleteOne,
 } from '../../../src/index';
 
+// config imports
 import { handlerConfig } from '../../../test-resources/framework';
 
+// entity imports
 import UserActions from './user-actions';
 import {
   GetManyUsersQuery,

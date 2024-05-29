@@ -4,6 +4,7 @@ function getActionPackage() {
 }
 -%>
 <% if (utils.isPresentableEntity(entity) && entity.api.booleans.hasAny) { -%>
+// airent imports
 import {
   <%_ if (entity.api.booleans.hasGetMany) { -%>
   handleGetMany,
@@ -25,8 +26,10 @@ import {
   <%_ } -%>
 } from '<%- config.api.baseLibPackage %>';
 
+// config imports
 import { handlerConfig } from '<%- config.api.server.handlerConfigPackage %>';
 
+// entity imports
 import <%= entity.api.strings.actionsClass %> from './<%= getActionPackage() %>';
 import {
   <%_ if (entity.api.booleans.hasGetMany) { -%>

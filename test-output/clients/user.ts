@@ -1,5 +1,11 @@
+// airent imports
 import { fetchJsonOrThrow } from '../../src/index';
 
+// config imports
+import { baseUrl } from '../../test-resources/fetch';
+import { fetchOptions } from '../../test-resources/fetch';
+
+// entity imports
 import {
   SelectedUserResponse,
   UserFieldRequest,
@@ -7,8 +13,6 @@ import {
   OneUserResponse,
 } from '../entities/generated/user-type';
 import MessageApiClient from './message';
-import { fetchOptions } from '../../test-resources/fetch';
-import { baseUrl } from '../../test-resources/fetch';
 import {
   GetManyUsersQuery,
   GetOneUserParams,

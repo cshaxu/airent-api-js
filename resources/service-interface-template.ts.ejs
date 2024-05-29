@@ -1,8 +1,11 @@
 <% if (utils.isPresentableEntity(entity) && entity.api.booleans.hasAny) { -%>
+// airent imports
 import { Awaitable } from '<%- config.api.baseLibPackage %>';
 
+// config imports
 import { Context } from '<%- config.baseContextPackage %>';
 
+// entity imports
 import { <%= entity.strings.entityClass %> } from '../<%= entity.strings.entityPackage %>';
   <%_ entity.types.filter(utils.isImportType).forEach((type) => { -%>
 import { <%= type.strings.externalClass %> } from '<%- type.strings.baseExternalPackage %>';

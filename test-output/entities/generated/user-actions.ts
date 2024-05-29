@@ -1,7 +1,10 @@
+// airent imports
 import { getMax, getMin } from '../../../src/index';
 
+// config imports
 import { Context } from '../../../test-resources/framework';
 
+// entity imports
 import {
   UserFieldRequest,
   ManyUsersResponse,

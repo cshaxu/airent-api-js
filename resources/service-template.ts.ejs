@@ -1,8 +1,11 @@
 <% if (utils.isPresentableEntity(entity) && entity.api.booleans.hasAny) { -%>
+// library imports
 import createHttpError from 'http-errors';
 
+// config imports
 import { Context } from '<%- config.api.server.serviceContextPackage %>';
 
+// entity imports
 import { <%= entity.strings.entityClass %> } from '<%- entity.api.packages.serviceEntity %>';
   <%_ entity.types.filter(utils.isImportType).forEach((type) => { -%>
 import { <%= type.strings.externalClass %> } from '<%- type.packages.serviceExternal %>';
