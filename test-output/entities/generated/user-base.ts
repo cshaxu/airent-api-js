@@ -1,5 +1,4 @@
 import createHttpError from 'http-errors';
-import { Awaitable } from '../../../src/index';
 import {
   AsyncLock,
   BaseEntity,
@@ -141,7 +140,7 @@ export class UserEntityBase extends BaseEntity<
     }
   }
 
-  protected authorizePrivate(): Awaitable<boolean> {
+  protected authorizePrivate(): boolean | Promise<boolean> {
     throw new Error('not implemented');
   }
 

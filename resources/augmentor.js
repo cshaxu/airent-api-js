@@ -311,7 +311,9 @@ function buildPolicyChecker(entity, policy, fields, utils) /* Code[] */ {
 function buildPolicyAuthorizer(policy, utils) /* Code[] */ {
   return [
     "",
-    `protected authorize${utils.toTitleCase(policy)}(): Awaitable<boolean> {`,
+    `protected authorize${utils.toTitleCase(
+      policy
+    )}(): boolean | Promise<boolean> {`,
     "  throw new Error('not implemented');",
     "}",
   ];
@@ -348,14 +350,8 @@ function addCode(entity, config, isVerbose) {
   const policyKeys = Object.keys(policies);
   if (policyKeys.length > 0) {
     entity.code.beforeBase.push("import createHttpError from 'http-errors';");
-    entity.code.beforeBase.push(
-      `import { Awaitable } from '${config.api.baseLibPackage}';`
-    );
     const insideBase = buildInsideBase(entity, policies, utils);
     entity.code.insideBase.push(...insideBase);
-    entity.code.beforeEntity.push(
-      `import { Awaitable } from '${config.api.entityLibPackage}';`
-    );
     const insideEntity = buildInsideEntity(policies, utils);
     entity.code.insideEntity.push(...insideEntity);
   }

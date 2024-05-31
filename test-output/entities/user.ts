@@ -1,4 +1,3 @@
-import { Awaitable } from '../../src/index';
 import { LoadKey, toArrayMap, toObjectMap } from 'airent';
 import { Context } from '../../test-resources/framework';
 import { UserEntityBase } from './generated/user-base';
@@ -23,7 +22,7 @@ export class UserEntity extends UserEntityBase {
     };
   }
 
-  protected authorizePrivate(): Awaitable<boolean> {
+  protected authorizePrivate(): boolean | Promise<boolean> {
     throw new Error('not implemented');
   }
 }

@@ -1,24 +1,22 @@
 import * as z from "zod";
 
-type Awaitable<T> = T | Promise<T>;
-
-type Authenticator<CONTEXT> = (request: Request) => Awaitable<CONTEXT>;
+type Authenticator<CONTEXT> = (request: Request) => CONTEXT | Promise<CONTEXT>;
 
 type Parser<CONTEXT, PARSED> = (
   request: Request,
   context: CONTEXT
-) => Awaitable<PARSED>;
+) => PARSED | Promise<PARSED>;
 
 type Validator<PARSED, CONTEXT, OPTIONS> = (
   parsed: PARSED,
   context: CONTEXT,
   options?: OPTIONS
-) => Awaitable<void>;
+) => void | Promise<void>;
 
 type Executor<PARSED, CONTEXT, RESULT> = (
   parsed: PARSED,
   context: CONTEXT
-) => Awaitable<RESULT>;
+) => RESULT | Promise<RESULT>;
 
 type HandlerContext<CONTEXT, PARSED, RESULT> = {
   request: Request;
@@ -30,7 +28,7 @@ type HandlerContext<CONTEXT, PARSED, RESULT> = {
 type ErrorHandler<CONTEXT, PARSED, RESULT> = (
   error: any,
   context: HandlerContext<CONTEXT, PARSED, RESULT>
-) => Awaitable<Response>;
+) => Response | Promise<Response>;
 
 type HandlerConfig<CONTEXT, PARSED, RESULT, OPTIONS> = {
   authenticator: Authenticator<CONTEXT>;
@@ -167,7 +165,6 @@ type UpdateOneApiHandlerConfig<
 
 export {
   Authenticator,
-  Awaitable,
   CreateOneAction,
   CreateOneApiHandlerConfig,
   ErrorHandler,
