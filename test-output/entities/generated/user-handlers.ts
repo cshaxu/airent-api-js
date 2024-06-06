@@ -1,5 +1,6 @@
 // airent imports
 import {
+  handleSearch,
   handleGetMany,
   handleGetOne,
   handleGetOneSafe,
@@ -14,13 +15,20 @@ import { handlerConfig } from '../../../test-resources/framework';
 // entity imports
 import UserActions from './user-actions';
 import {
+  SearchUsersQuery,
   GetManyUsersQuery,
   GetOneUserParams,
   CreateOneUserBody,
   UpdateOneUserBody,
 } from '../../../test-resources/user-type';
 
-/** @deprecated */
+const search = handleSearch({
+  ...handlerConfig,
+  queryZod: SearchUsersQuery,
+  action: UserActions.search,
+  options: { requireLogin: false },
+});
+
 const getMany = handleGetMany({
   ...handlerConfig,
   queryZod: GetManyUsersQuery,
@@ -28,7 +36,6 @@ const getMany = handleGetMany({
   options: { requireAdmin: true },
 });
 
-/** @deprecated */
 const getOne = handleGetOne({
   ...handlerConfig,
   paramsZod: GetOneUserParams,
@@ -36,7 +43,6 @@ const getOne = handleGetOne({
   options: { requireLogin: false },
 });
 
-/** @deprecated */
 const getOneSafe = handleGetOneSafe({
   ...handlerConfig,
   paramsZod: GetOneUserParams,
@@ -44,7 +50,6 @@ const getOneSafe = handleGetOneSafe({
   options: { requireLogin: false },
 });
 
-/** @deprecated */
 const createOne = handleCreateOne({
   ...handlerConfig,
   bodyZod: CreateOneUserBody,
@@ -52,7 +57,6 @@ const createOne = handleCreateOne({
   options: { requireLogin: false },
 });
 
-/** @deprecated */
 const updateOne = handleUpdateOne({
   ...handlerConfig,
   paramsZod: GetOneUserParams,
@@ -61,7 +65,6 @@ const updateOne = handleUpdateOne({
   options: { requireLogin: true },
 });
 
-/** @deprecated */
 const deleteOne = handleDeleteOne({
   ...handlerConfig,
   paramsZod: GetOneUserParams,
@@ -71,6 +74,7 @@ const deleteOne = handleDeleteOne({
 
 /** @deprecated */
 const UserHandlers = {
+  search,
   getMany,
   getOne,
   getOneSafe,

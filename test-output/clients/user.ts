@@ -14,6 +14,7 @@ import {
 } from '../entities/generated/user-type';
 import MessageApiClient from './message';
 import {
+  SearchUsersQuery,
   GetManyUsersQuery,
   GetOneUserParams,
   CreateOneUserBody,
@@ -79,6 +80,16 @@ async function callApi(
   return await fetchJsonOrThrow(input, init);
 }
 
+async function search<S extends UserFieldRequest>(
+  query: SearchUsersQuery,
+  fieldRequest: S,
+  options: RequestInit = {}
+): Promise<ManyUsersResponse<S>> {
+  const data = { query, fieldRequest };
+  const response = await callApi('search-users', data, options);
+  return presentManyResponse(response, fieldRequest);
+}
+
 async function getMany<S extends UserFieldRequest>(
   query: GetManyUsersQuery,
   fieldRequest: S,
@@ -142,25 +153,16 @@ async function deleteOne<S extends UserFieldRequest>(
 
 /** @deprecated */
 const UserApiClient = {
-  /** @deprecated */
   present,
-  /** @deprecated */
   presentManyResponse,
-  /** @deprecated */
   presentOneResponse,
-  /** @deprecated */
   presentOneSafeResponse,
-  /** @deprecated */
+  search,
   getMany,
-  /** @deprecated */
   getOne,
-  /** @deprecated */
   getOneSafe,
-  /** @deprecated */
   createOne,
-  /** @deprecated */
   updateOne,
-  /** @deprecated */
   deleteOne,
 };
 

@@ -60,6 +60,7 @@ const API_SERVER_HANDLERS_TEMPLATE_PATH = `${AIRENT_API_RESOURCES_PATH}/handlers
 const API_SERVER_ACTIONS_TEMPLATE_PATH = `${AIRENT_API_RESOURCES_PATH}/actions-template.ts.ejs`;
 const API_SERVER_SERVICE_INTERFACE_TEMPLATE_PATH = `${AIRENT_API_RESOURCES_PATH}/service-interface-template.ts.ejs`;
 const API_SERVER_SERVICE_TEMPLATE_PATH = `${AIRENT_API_RESOURCES_PATH}/service-template.ts.ejs`;
+const API_SERVER_SEARCH_SERVICE_TEMPLATE_PATH = `${AIRENT_API_RESOURCES_PATH}/search-service-template.ts.ejs`;
 
 async function loadConfig() {
   const configContent = await fs.promises.readFile(CONFIG_FILE_PATH, "utf8");
@@ -83,9 +84,13 @@ async function configureApiServer(config) {
   const apiServerServiceTemplate = templates.find(
     (t) => t.name === API_SERVER_SERVICE_TEMPLATE_PATH
   );
+  const apiServerSearchServiceTemplate = templates.find(
+    (t) => t.name === API_SERVER_SEARCH_SERVICE_TEMPLATE_PATH
+  );
   const isApiServerServiceEnabled =
     apiServerServiceInterfaceTemplate !== undefined &&
-    apiServerServiceTemplate !== undefined;
+    apiServerServiceTemplate !== undefined &&
+    apiServerSearchServiceTemplate !== undefined;
   const isApiServerEnabled =
     isApiServerHandlersEnabled &&
     isApiServerActionsEnabled &&
@@ -129,6 +134,13 @@ async function configureApiServer(config) {
     templates.push({
       name: API_SERVER_SERVICE_TEMPLATE_PATH,
       outputPath: "{api.server.servicePath}/{kababEntityName}.ts",
+      skippable: true,
+    });
+  }
+  if (apiServerSearchServiceTemplate === undefined) {
+    templates.push({
+      name: API_SERVER_SEARCH_SERVICE_TEMPLATE_PATH,
+      outputPath: "{api.server.servicePath}/{kababEntityName}-search.ts",
       skippable: true,
     });
   }

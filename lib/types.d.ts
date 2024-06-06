@@ -1,15 +1,16 @@
 import * as z from "zod";
-type Authenticator<CONTEXT> = (request: Request) => CONTEXT | Promise<CONTEXT>;
-type Parser<CONTEXT, PARSED> = (request: Request, context: CONTEXT) => PARSED | Promise<PARSED>;
-type Validator<PARSED, CONTEXT, OPTIONS> = (parsed: PARSED, context: CONTEXT, options?: OPTIONS) => void | Promise<void>;
-type Executor<PARSED, CONTEXT, RESULT> = (parsed: PARSED, context: CONTEXT) => RESULT | Promise<RESULT>;
+type Awaitable<T> = T | Promise<T>;
+type Authenticator<CONTEXT> = (request: Request) => Awaitable<CONTEXT>;
+type Parser<CONTEXT, PARSED> = (request: Request, context: CONTEXT) => Awaitable<PARSED>;
+type Validator<PARSED, CONTEXT, OPTIONS> = (parsed: PARSED, context: CONTEXT, options?: OPTIONS) => Awaitable<void>;
+type Executor<PARSED, CONTEXT, RESULT> = (parsed: PARSED, context: CONTEXT) => Awaitable<RESULT>;
 type HandlerContext<CONTEXT, PARSED, RESULT> = {
     request: Request;
     context?: CONTEXT;
     parsed?: PARSED;
     result?: RESULT;
 };
-type ErrorHandler<CONTEXT, PARSED, RESULT> = (error: any, context: HandlerContext<CONTEXT, PARSED, RESULT>) => Response | Promise<Response>;
+type ErrorHandler<CONTEXT, PARSED, RESULT> = (error: any, context: HandlerContext<CONTEXT, PARSED, RESULT>) => Awaitable<Response>;
 type HandlerConfig<CONTEXT, PARSED, RESULT, OPTIONS> = {
     authenticator: Authenticator<CONTEXT>;
     parser: Parser<CONTEXT, PARSED>;
@@ -57,4 +58,4 @@ type UpdateOneApiHandlerConfig<CONTEXT, RESULT, OPTIONS, PARAMS_ZOD extends z.Zo
     body: BODY;
     fieldRequest: FIELD_REQUEST;
 }, RESULT, OPTIONS>, "parser" | "executor">;
-export { Authenticator, CreateOneAction, CreateOneApiHandlerConfig, ErrorHandler, Executor, GetManyAction, GetManyApiHandlerConfig, GetOneAction, GetOneApiHandlerConfig, HandlerConfig, HandlerContext, Parser, UpdateOneAction, UpdateOneApiHandlerConfig, Validator, WrappableHandlerConfig, };
+export { Authenticator, Awaitable, CreateOneAction, CreateOneApiHandlerConfig, ErrorHandler, Executor, GetManyAction, GetManyApiHandlerConfig, GetOneAction, GetOneApiHandlerConfig, HandlerConfig, HandlerContext, Parser, UpdateOneAction, UpdateOneApiHandlerConfig, Validator, WrappableHandlerConfig, };

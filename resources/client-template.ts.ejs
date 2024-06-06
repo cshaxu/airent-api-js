@@ -52,6 +52,9 @@ import <%= type._entity.api.strings.apiClientClass %> from './<%= getApiClientPa
   <%_ }); -%>
   <%_ if (entity.api.booleans.hasAny) { -%>
 import {
+    <%_ if (entity.api.booleans.hasSearch) { -%>
+  <%= entity.api.strings.searchQuery %>,
+    <%_ } -%>
     <%_ if (entity.api.booleans.hasGetMany) { -%>
   <%= entity.api.strings.getManyQuery %>,
     <%_ } -%>
@@ -139,6 +142,18 @@ async function callApi(
   return await fetchJsonOrThrow(input, init);
 }
   <%_ } -%>
+  <%_ if (entity.api.booleans.hasSearch) { -%>
+
+async function search<S extends <%= entity.strings.fieldRequestClass %>>(
+  query: <%= entity.api.strings.searchQuery %>,
+  fieldRequest: S,
+  options: RequestInit = {}
+): Promise<<%= entity.api.strings.manyResponse %><S>> {
+  const data = { query, fieldRequest };
+  const response = await callApi('<%= `search-${utils.toKababCase(utils.pluralize(entity.name))}` %>', data, options);
+  return presentManyResponse(response, fieldRequest);
+}
+  <%_ } -%>
   <%_ if (entity.api.booleans.hasGetMany) { -%>
 
 async function getMany<S extends <%= entity.strings.fieldRequestClass %>>(
@@ -147,7 +162,7 @@ async function getMany<S extends <%= entity.strings.fieldRequestClass %>>(
   options: RequestInit = {}
 ): Promise<<%= entity.api.strings.manyResponse %><S>> {
   const data = { query, fieldRequest };
-  const response = await callApi('get-many-<%= utils.toKababCase(utils.pluralize(entity.name)) %>', data, options);
+  const response = await callApi('<%= `get-many-${utils.toKababCase(utils.pluralize(entity.name))}` %>', data, options);
   return presentManyResponse(response, fieldRequest);
 }
   <%_ } -%>
@@ -159,7 +174,7 @@ async function getOne<S extends <%= entity.strings.fieldRequestClass %>>(
   options: RequestInit = {}
 ): Promise<<%= entity.api.strings.oneResponse %><S>> {
   const data = { params, fieldRequest };
-  const response = await callApi('get-one-<%= utils.toKababCase(entity.name) %>', data, options);
+  const response = await callApi('<%= `get-one-${utils.toKababCase(entity.name)}` %>', data, options);
   return presentOneResponse(response, fieldRequest);
 }
   <%_ } -%>
@@ -171,7 +186,7 @@ async function getOneSafe<S extends <%= entity.strings.fieldRequestClass %>>(
   options: RequestInit = {}
 ): Promise<<%= entity.api.strings.oneResponse %><S, true>> {
   const data = { params, fieldRequest };
-  const response = await callApi('get-one-<%= utils.toKababCase(entity.name) %>-safe', data, options);
+  const response = await callApi('<%= `get-one-${utils.toKababCase(entity.name)}-safe` %>', data, options);
   return presentOneSafeResponse(response, fieldRequest);
 }
   <%_ } -%>
@@ -183,7 +198,7 @@ async function createOne<S extends <%= entity.strings.fieldRequestClass %>>(
   options: RequestInit = {}
 ): Promise<<%= entity.api.strings.oneResponse %><S>> {
   const data = { body, fieldRequest };
-  const response = await callApi('create-one-<%= utils.toKababCase(entity.name) %>', data, options);
+  const response = await callApi('<%= `create-one-${utils.toKababCase(entity.name)}` %>', data, options);
   return presentOneResponse(response, fieldRequest);
 }
   <%_ } -%>
@@ -196,7 +211,7 @@ async function updateOne<S extends <%= entity.strings.fieldRequestClass %>>(
   options: RequestInit = {}
 ): Promise<<%= entity.api.strings.oneResponse %><S>> {
   const data = { params, body, fieldRequest };
-  const response = await callApi('update-one-<%= utils.toKababCase(entity.name) %>', data, options);
+  const response = await callApi('<%= `update-one-${utils.toKababCase(entity.name)}` %>', data, options);
   return presentOneResponse(response, fieldRequest);
 }
   <%_ } -%>
@@ -208,7 +223,7 @@ async function deleteOne<S extends <%= entity.strings.fieldRequestClass %>>(
   options: RequestInit = {}
 ): Promise<<%= entity.api.strings.oneResponse %><S>> {
   const data = { params, fieldRequest };
-  const response = await callApi('delete-one-<%= utils.toKababCase(entity.name) %>', data, options)
+  const response = await callApi('<%= `delete-one-${utils.toKababCase(entity.name)}` %>', data, options)
   return presentOneResponse(response, fieldRequest);
 }
   <%_ } -%>
@@ -217,56 +232,29 @@ async function deleteOne<S extends <%= entity.strings.fieldRequestClass %>>(
 /** @deprecated */
   <%_ } -%>
 const <%= entity.api.strings.apiClientClass %> = {
-  <%_ if (entity.deprecated) { -%>
-  /** @deprecated */
-  <%_ } -%>
   present,
-  <%_ if (entity.deprecated) { -%>
-  /** @deprecated */
-  <%_ } -%>
   presentManyResponse,
-  <%_ if (entity.deprecated) { -%>
-  /** @deprecated */
-  <%_ } -%>
   presentOneResponse,
-  <%_ if (entity.deprecated) { -%>
-  /** @deprecated */
-  <%_ } -%>
   presentOneSafeResponse,
+  <%_ if (entity.api.booleans.hasSearch) { -%>
+  search,
+  <%_ } -%>
   <%_ if (entity.api.booleans.hasGetMany) { -%>
-    <%_ if (entity.deprecated) { -%>
-  /** @deprecated */
-    <%_ } -%>
   getMany,
   <%_ } -%>
   <%_ if (entity.api.booleans.hasGetOne) { -%>
-    <%_ if (entity.deprecated) { -%>
-  /** @deprecated */
-    <%_ } -%>
   getOne,
   <%_ } -%>
   <%_ if (entity.api.booleans.hasGetOneSafe) { -%>
-    <%_ if (entity.deprecated) { -%>
-  /** @deprecated */
-    <%_ } -%>
   getOneSafe,
   <%_ } -%>
   <%_ if (entity.api.booleans.hasCreateOne) { -%>
-    <%_ if (entity.deprecated) { -%>
-  /** @deprecated */
-    <%_ } -%>
   createOne,
   <%_ } -%>
   <%_ if (entity.api.booleans.hasUpdateOne) { -%>
-    <%_ if (entity.deprecated) { -%>
-  /** @deprecated */
-    <%_ } -%>
   updateOne,
   <%_ } -%>
   <%_ if (entity.api.booleans.hasDeleteOne) { -%>
-    <%_ if (entity.deprecated) { -%>
-  /** @deprecated */
-    <%_ } -%>
   deleteOne,
   <%_ } -%>
 };

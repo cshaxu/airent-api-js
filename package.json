@@ -7,7 +7,7 @@
     "airent-api": "./bin/index.js"
   },
   "scripts": {
-    "update": "airent-updater",
+    "update": "airdev-update",
     "build": "rm -rf ./lib && tsc -p tsconfig.json && crlf --set=LF bin/*",
     "test": "rm -rf ./test-output && airent"
   },
@@ -41,10 +41,10 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
-    "@airent/utils": "github:cshaxu/airent-utils-js#3910c87fb6c858037bce0c003a4030f6565cce3b",
     "@types/async-lock": "^1.4.2",
     "@types/http-errors": "^2.0.4",
     "@types/node": "^20.12.12",
+    "airdev": "github:cshaxu/airdev-js#191dc7b5b1fdff2c7a092ad7091c2774e686281b",
     "airent": "github:cshaxu/airent-js#a6f2588537aa3ec22624aeedcecdae3a1169442f",
     "crlf": "^1.1.1",
     "typescript": "^5.4.5"

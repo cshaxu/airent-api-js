@@ -10,12 +10,18 @@ import {
   UserModel,
 } from '../entities/generated/user-type';
 import {
+  SearchUsersQuery,
   GetManyUsersQuery,
   GetOneUserParams,
   CreateOneUserBody,
   UpdateOneUserBody,
 } from '../../test-resources/user-type';
 import { UserServiceInterface } from '../entities/generated/user-service-interface';
+import { UserSearchService } from './user-search';
+
+async function search(query: SearchUsersQuery, context: Context): Promise<UserEntity[]> {
+  return await new UserSearchService().search(query, context);
+}
 
 async function getMany(query: GetManyUsersQuery, context: Context): Promise<UserEntity[]> {
   throw createHttpError.NotImplemented();
@@ -47,6 +53,7 @@ async function deleteOne(one: UserEntity, context: Context): Promise<UserEntity>
 
 /** @deprecated */
 const UserService: UserServiceInterface = {
+  search,
   getMany,
   getOne,
   getOneSafe,

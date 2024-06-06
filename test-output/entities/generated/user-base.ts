@@ -1,4 +1,6 @@
+import { Awaitable } from '../../../src/index';
 import createHttpError from 'http-errors';
+// airent imports
 import {
   AsyncLock,
   BaseEntity,
@@ -10,18 +12,18 @@ import {
   toArrayMap,
   toObjectMap,
 } from 'airent';
+
+// config imports
 import { Context } from '../../../test-resources/framework';
 
-/** generated */
+// entity imports
+import { MessageEntity } from '../message';
 import {
   UserFieldRequest,
   UserResponse,
   SelectedUserResponse,
   UserModel,
 } from './user-type';
-
-/** associations */
-import { MessageEntity } from '../message';
 
 /** @deprecated */
 export class UserEntityBase extends BaseEntity<
@@ -140,7 +142,7 @@ export class UserEntityBase extends BaseEntity<
     }
   }
 
-  protected authorizePrivate(): boolean | Promise<boolean> {
+  protected authorizePrivate(): Awaitable<boolean> {
     throw new Error('not implemented');
   }
 

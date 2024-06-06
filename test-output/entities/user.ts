@@ -1,13 +1,19 @@
+import { Awaitable } from '../../src/index';
+// airent imports
 import { LoadKey, toArrayMap, toObjectMap } from 'airent';
+
+// config imports
 import { Context } from '../../test-resources/framework';
-import { UserEntityBase } from './generated/user-base';
+
+// entity imports
+import { MessageEntity } from './message';
 import {
   UserFieldRequest,
   UserResponse,
   SelectedUserResponse,
   UserModel,
 } from './generated/user-type';
-import { MessageEntity } from './message';
+import { UserEntityBase } from './generated/user-base';
 
 /** @deprecated */
 export class UserEntity extends UserEntityBase {
@@ -22,7 +28,7 @@ export class UserEntity extends UserEntityBase {
     };
   }
 
-  protected authorizePrivate(): boolean | Promise<boolean> {
+  protected authorizePrivate(): Awaitable<boolean> {
     throw new Error('not implemented');
   }
 }

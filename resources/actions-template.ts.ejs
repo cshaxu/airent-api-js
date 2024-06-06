@@ -1,9 +1,7 @@
 <% if (utils.isPresentableEntity(entity)) { -%>
-  <%_ if (entity.fields.some((f) => f.strings.minVar || f.strings.maxVar)) { -%>
 // airent imports
-import { getMax, getMin } from '<%- config.api.baseLibPackage %>';
+import { isFunction, max, min } from '<%- config.api.baseLibPackage %>';
 
-  <%_ } -%>
 // config imports
 import { Context } from '<%- config.baseContextPackage %>';
 
@@ -22,6 +20,9 @@ import { <%= type.name %> } from './<%= entity.strings.typePackage %>';
   <%_ }); -%>
   <%_ if (entity.api.booleans.hasAny) { -%>
 import {
+    <%_ if (entity.api.booleans.hasSearch) { -%>
+  <%= entity.api.strings.searchQuery %>,
+    <%_ } -%>
     <%_ if (entity.api.booleans.hasGetMany) { -%>
   <%= entity.api.strings.getManyQuery %>,
     <%_ } -%>
@@ -40,9 +41,6 @@ import <%= entity.api.strings.serviceClass %> from '<%- entity.api.packages.base
 
 // api response builders
 
-  <%_ if (entity.deprecated) { -%>
-/** @deprecated */
-  <%_ } -%>
 async function buildManyResponse<S extends <%= entity.strings.fieldRequestClass %>>(
   many: <%= entity.strings.entityClass %>[],
   fieldRequest: S,
@@ -51,10 +49,10 @@ async function buildManyResponse<S extends <%= entity.strings.fieldRequestClass 
   <%_ entity.fields.filter((f) => f.strings.minVar || f.strings.maxVar).forEach((field) => { -%>
   const <%= utils.pluralize(field.name) %> = many.map((one) => one.<%= field.name %>);
     <%_ if (field.strings.minVar) { -%>
-  const <%= field.strings.minVar %> = getMin(<%= utils.pluralize(field.name) %>);
+  const <%= field.strings.minVar %> = min(<%= utils.pluralize(field.name) %>);
     <%_ } -%>
     <%_ if (field.strings.maxVar) { -%>
-  const <%= field.strings.maxVar %> = getMax(<%= utils.pluralize(field.name) %>);
+  const <%= field.strings.maxVar %> = max(<%= utils.pluralize(field.name) %>);
     <%_ } -%>
   <%_ }); -%>
   const cursor = {
@@ -70,9 +68,6 @@ async function buildManyResponse<S extends <%= entity.strings.fieldRequestClass 
   return { cursor, <%= entity.api.strings.manyEntsVar %> };
 }
 
-  <%_ if (entity.deprecated) { -%>
-/** @deprecated */
-  <%_ } -%>
 async function buildOneResponse<S extends <%= entity.strings.fieldRequestClass %>>(
   one: <%= entity.strings.entityClass %>,
   fieldRequest: S,
@@ -81,9 +76,6 @@ async function buildOneResponse<S extends <%= entity.strings.fieldRequestClass %
   return { <%= entity.api.strings.oneEntVar %> };
 }
 
-  <%_ if (entity.deprecated) { -%>
-/** @deprecated */
-  <%_ } -%>
 async function buildOneSafeResponse<S extends <%= entity.strings.fieldRequestClass %>>(
   one: <%= entity.strings.entityClass %> | null,
   fieldRequest: S,
@@ -95,21 +87,35 @@ async function buildOneSafeResponse<S extends <%= entity.strings.fieldRequestCla
 
 // api executors
   <%_ } -%>
+  <%_ if (entity.api.booleans.hasSearch) { -%>
+
+async function search<S extends <%= entity.strings.fieldRequestClass %>>(
+  query: <%= entity.api.strings.searchQuery %>,
+  context: Context,
+  fieldRequest: S
+): Promise<<%= entity.api.strings.manyResponse %><S>> {
+  if ('beforeSearch' in <%= entity.api.strings.serviceClass %> && isFunction(<%= entity.api.strings.serviceClass %>.beforeSearch)) {
+    await <%= entity.api.strings.serviceClass %>.beforeSearch(query, context);
+  }
+  const many = await <%= entity.api.strings.serviceClass %>.search(query, context);
+  if ('afterSearch' in <%= entity.api.strings.serviceClass %> && isFunction(<%= entity.api.strings.serviceClass %>.afterSearch)) {
+    await <%= entity.api.strings.serviceClass %>.afterSearch(many, query, context);
+  }
+  return await buildManyResponse(many, fieldRequest);
+}
+  <%_ } -%>
   <%_ if (entity.api.booleans.hasGetMany) { -%>
 
-    <%_ if (entity.deprecated) { -%>
-/** @deprecated */
-    <%_ } -%>
 async function getMany<S extends <%= entity.strings.fieldRequestClass %>>(
   query: <%= entity.api.strings.getManyQuery %>,
   context: Context,
   fieldRequest: S,
 ): Promise<<%= entity.api.strings.manyResponse %><S>> {
-  if ('beforeGetMany' in <%= entity.api.strings.serviceClass %> && typeof <%= entity.api.strings.serviceClass %>.beforeGetMany === 'function') {
+  if ('beforeGetMany' in <%= entity.api.strings.serviceClass %> && isFunction(<%= entity.api.strings.serviceClass %>.beforeGetMany)) {
     await <%= entity.api.strings.serviceClass %>.beforeGetMany(query, context);
   }
   const many = await <%= entity.api.strings.serviceClass %>.getMany(query, context);
-  if ('afterGetMany' in <%= entity.api.strings.serviceClass %> && typeof <%= entity.api.strings.serviceClass %>.afterGetMany === 'function') {
+  if ('afterGetMany' in <%= entity.api.strings.serviceClass %> && isFunction(<%= entity.api.strings.serviceClass %>.afterGetMany)) {
     await <%= entity.api.strings.serviceClass %>.afterGetMany(many, query, context);
   }
   return await buildManyResponse(many, fieldRequest);
@@ -117,19 +123,16 @@ async function getMany<S extends <%= entity.strings.fieldRequestClass %>>(
   <%_ } -%>
   <%_ if (entity.api.booleans.hasGetOne) { -%>
 
-    <%_ if (entity.deprecated) { -%>
-/** @deprecated */
-    <%_ } -%>
 async function getOne<S extends <%= entity.strings.fieldRequestClass %>>(
   params: <%= entity.api.strings.getOneParams %>,
   context: Context,
   fieldRequest: S,
 ): Promise<<%= entity.api.strings.oneResponse %><S>> {
-  if ('beforeGetOne' in <%= entity.api.strings.serviceClass %> && typeof <%= entity.api.strings.serviceClass %>.beforeGetOne === 'function') {
+  if ('beforeGetOne' in <%= entity.api.strings.serviceClass %> && isFunction(<%= entity.api.strings.serviceClass %>.beforeGetOne)) {
     await <%= entity.api.strings.serviceClass %>.beforeGetOne(params, context);
   }
   const one = await <%= entity.api.strings.serviceClass %>.getOne(params, context);
-  if ('afterGetOne' in <%= entity.api.strings.serviceClass %> && typeof <%= entity.api.strings.serviceClass %>.afterGetOne === 'function') {
+  if ('afterGetOne' in <%= entity.api.strings.serviceClass %> && isFunction(<%= entity.api.strings.serviceClass %>.afterGetOne)) {
     await <%= entity.api.strings.serviceClass %>.afterGetOne(one, params, context);
   }
   return await buildOneResponse(one, fieldRequest);
@@ -137,19 +140,16 @@ async function getOne<S extends <%= entity.strings.fieldRequestClass %>>(
   <%_ } -%>
   <%_ if (entity.api.booleans.hasGetOneSafe) { -%>
 
-    <%_ if (entity.deprecated) { -%>
-/** @deprecated */
-    <%_ } -%>
 async function getOneSafe<S extends <%= entity.strings.fieldRequestClass %>>(
   params: <%= entity.api.strings.getOneParams %>,
   context: Context,
   fieldRequest: S,
 ): Promise<<%= entity.api.strings.oneResponse %><S, true>> {
-  if ('beforeGetOneSafe' in <%= entity.api.strings.serviceClass %> && typeof <%= entity.api.strings.serviceClass %>.beforeGetOneSafe === 'function') {
+  if ('beforeGetOneSafe' in <%= entity.api.strings.serviceClass %> && isFunction(<%= entity.api.strings.serviceClass %>.beforeGetOneSafe)) {
     await <%= entity.api.strings.serviceClass %>.beforeGetOneSafe(params, context);
   }
   const one = await <%= entity.api.strings.serviceClass %>.getOneSafe(params, context);
-  if ('afterGetOneSafe' in <%= entity.api.strings.serviceClass %> && typeof <%= entity.api.strings.serviceClass %>.afterGetOneSafe === 'function') {
+  if ('afterGetOneSafe' in <%= entity.api.strings.serviceClass %> && isFunction(<%= entity.api.strings.serviceClass %>.afterGetOneSafe)) {
     await <%= entity.api.strings.serviceClass %>.afterGetOneSafe(one, params, context);
   }
   return await buildOneSafeResponse(one, fieldRequest);
@@ -157,19 +157,16 @@ async function getOneSafe<S extends <%= entity.strings.fieldRequestClass %>>(
   <%_ } -%>
   <%_ if (entity.api.booleans.hasCreateOne) { -%>
 
-    <%_ if (entity.deprecated) { -%>
-/** @deprecated */
-    <%_ } -%>
 async function createOne<S extends <%= entity.strings.fieldRequestClass %>>(
   body: <%= entity.api.strings.createOneBody %>,
   context: Context,
   fieldRequest: S,
 ): Promise<<%= entity.api.strings.oneResponse %><S>> {
-  if ('beforeCreateOne' in <%= entity.api.strings.serviceClass %> && typeof <%= entity.api.strings.serviceClass %>.beforeCreateOne === 'function') {
+  if ('beforeCreateOne' in <%= entity.api.strings.serviceClass %> && isFunction(<%= entity.api.strings.serviceClass %>.beforeCreateOne)) {
     await <%= entity.api.strings.serviceClass %>.beforeCreateOne(body, context);
   }
   const one = await <%= entity.api.strings.serviceClass %>.createOne(body, context);
-  if ('afterCreateOne' in <%= entity.api.strings.serviceClass %> && typeof <%= entity.api.strings.serviceClass %>.afterCreateOne === 'function') {
+  if ('afterCreateOne' in <%= entity.api.strings.serviceClass %> && isFunction(<%= entity.api.strings.serviceClass %>.afterCreateOne)) {
     await <%= entity.api.strings.serviceClass %>.afterCreateOne(one, body, context);
   }
   return await buildOneResponse(one, fieldRequest);
@@ -177,9 +174,6 @@ async function createOne<S extends <%= entity.strings.fieldRequestClass %>>(
   <%_ } -%>
   <%_ if (entity.api.booleans.hasUpdateOne) { -%>
 
-    <%_ if (entity.deprecated) { -%>
-/** @deprecated */
-    <%_ } -%>
 async function updateOne<S extends <%= entity.strings.fieldRequestClass %>>(
   params: <%= entity.api.strings.getOneParams %>,
   body: <%= entity.api.strings.updateOneBody %>,
@@ -187,11 +181,11 @@ async function updateOne<S extends <%= entity.strings.fieldRequestClass %>>(
   fieldRequest: S,
 ): Promise<<%= entity.api.strings.oneResponse %><S>> {
   const one = await <%= entity.api.strings.serviceClass %>.getOne(params, context);
-  if ('beforeUpdateOne' in <%= entity.api.strings.serviceClass %> && typeof <%= entity.api.strings.serviceClass %>.beforeUpdateOne === 'function') {
+  if ('beforeUpdateOne' in <%= entity.api.strings.serviceClass %> && isFunction(<%= entity.api.strings.serviceClass %>.beforeUpdateOne)) {
     await <%= entity.api.strings.serviceClass %>.beforeUpdateOne(one, body, context);
   }
   const updatedOne = await <%= entity.api.strings.serviceClass %>.updateOne(one, body, context);
-  if ('afterUpdateOne' in <%= entity.api.strings.serviceClass %> && typeof <%= entity.api.strings.serviceClass %>.afterUpdateOne === 'function') {
+  if ('afterUpdateOne' in <%= entity.api.strings.serviceClass %> && isFunction(<%= entity.api.strings.serviceClass %>.afterUpdateOne)) {
     await <%= entity.api.strings.serviceClass %>.afterUpdateOne(updatedOne, body, context);
   }
   return await buildOneResponse(updatedOne, fieldRequest);
@@ -199,20 +193,17 @@ async function updateOne<S extends <%= entity.strings.fieldRequestClass %>>(
   <%_ } -%>
   <%_ if (entity.api.booleans.hasDeleteOne) { -%>
 
-    <%_ if (entity.deprecated) { -%>
-/** @deprecated */
-    <%_ } -%>
 async function deleteOne<S extends <%= entity.strings.fieldRequestClass %>>(
   params: <%= entity.api.strings.getOneParams %>,
   context: Context,
   fieldRequest: S,
 ): Promise<<%= entity.api.strings.oneResponse %><S>> {
   const one = await <%= entity.api.strings.serviceClass %>.getOne(params, context);
-  if ('beforeDeleteOne' in <%= entity.api.strings.serviceClass %> && typeof <%= entity.api.strings.serviceClass %>.beforeDeleteOne === 'function') {
+  if ('beforeDeleteOne' in <%= entity.api.strings.serviceClass %> && isFunction(<%= entity.api.strings.serviceClass %>.beforeDeleteOne)) {
     await <%= entity.api.strings.serviceClass %>.beforeDeleteOne(one, context);
   }
   const deletedOne = await <%= entity.api.strings.serviceClass %>.deleteOne(one, context);
-  if ('afterDeleteOne' in <%= entity.api.strings.serviceClass %> && typeof <%= entity.api.strings.serviceClass %>.afterDeleteOne === 'function') {
+  if ('afterDeleteOne' in <%= entity.api.strings.serviceClass %> && isFunction(<%= entity.api.strings.serviceClass %>.afterDeleteOne)) {
     await <%= entity.api.strings.serviceClass %>.afterDeleteOne(deletedOne, context);
   }
   return await buildOneResponse(deletedOne, fieldRequest);
@@ -226,6 +217,9 @@ const <%= entity.api.strings.actionsClass %> = {
   buildManyResponse,
   buildOneResponse,
   buildOneSafeResponse,
+  <%_ if (entity.api.booleans.hasSearch) { -%>
+  search,
+  <%_ } -%>
   <%_ if (entity.api.booleans.hasGetMany) { -%>
   getMany,
   <%_ } -%>

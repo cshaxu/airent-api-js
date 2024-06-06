@@ -1,5 +1,5 @@
 // airent imports
-import { getMax, getMin } from '../../../src/index';
+import { isFunction, max, min } from '../../../src/index';
 
 // config imports
 import { Context } from '../../../test-resources/framework';
@@ -13,6 +13,7 @@ import {
 import { UserEntity } from '../user';
 import { UserModel } from './user-type';
 import {
+  SearchUsersQuery,
   GetManyUsersQuery,
   GetOneUserParams,
   CreateOneUserBody,
@@ -22,15 +23,14 @@ import UserService from '../../services/user';
 
 // api response builders
 
-/** @deprecated */
 async function buildManyResponse<S extends UserFieldRequest>(
   many: UserEntity[],
   fieldRequest: S,
 ): Promise<ManyUsersResponse<S>> {
   const users = await UserEntity.presentMany(many, fieldRequest);
   const createdAts = many.map((one) => one.createdAt);
-  const minCreatedAt = getMin(createdAts);
-  const maxCreatedAt = getMax(createdAts);
+  const minCreatedAt = min(createdAts);
+  const maxCreatedAt = max(createdAts);
   const cursor = {
     count: many.length,
     minCreatedAt,
@@ -39,7 +39,6 @@ async function buildManyResponse<S extends UserFieldRequest>(
   return { cursor, users };
 }
 
-/** @deprecated */
 async function buildOneResponse<S extends UserFieldRequest>(
   one: UserEntity,
   fieldRequest: S,
@@ -48,7 +47,6 @@ async function buildOneResponse<S extends UserFieldRequest>(
   return { user };
 }
 
-/** @deprecated */
 async function buildOneSafeResponse<S extends UserFieldRequest>(
   one: UserEntity | null,
   fieldRequest: S,
@@ -59,71 +57,81 @@ async function buildOneSafeResponse<S extends UserFieldRequest>(
 
 // api executors
 
-/** @deprecated */
+async function search<S extends UserFieldRequest>(
+  query: SearchUsersQuery,
+  context: Context,
+  fieldRequest: S
+): Promise<ManyUsersResponse<S>> {
+  if ('beforeSearch' in UserService && isFunction(UserService.beforeSearch)) {
+    await UserService.beforeSearch(query, context);
+  }
+  const many = await UserService.search(query, context);
+  if ('afterSearch' in UserService && isFunction(UserService.afterSearch)) {
+    await UserService.afterSearch(many, query, context);
+  }
+  return await buildManyResponse(many, fieldRequest);
+}
+
 async function getMany<S extends UserFieldRequest>(
   query: GetManyUsersQuery,
   context: Context,
   fieldRequest: S,
 ): Promise<ManyUsersResponse<S>> {
-  if ('beforeGetMany' in UserService && typeof UserService.beforeGetMany === 'function') {
+  if ('beforeGetMany' in UserService && isFunction(UserService.beforeGetMany)) {
     await UserService.beforeGetMany(query, context);
   }
   const many = await UserService.getMany(query, context);
-  if ('afterGetMany' in UserService && typeof UserService.afterGetMany === 'function') {
+  if ('afterGetMany' in UserService && isFunction(UserService.afterGetMany)) {
     await UserService.afterGetMany(many, query, context);
   }
   return await buildManyResponse(many, fieldRequest);
 }
 
-/** @deprecated */
 async function getOne<S extends UserFieldRequest>(
   params: GetOneUserParams,
   context: Context,
   fieldRequest: S,
 ): Promise<OneUserResponse<S>> {
-  if ('beforeGetOne' in UserService && typeof UserService.beforeGetOne === 'function') {
+  if ('beforeGetOne' in UserService && isFunction(UserService.beforeGetOne)) {
     await UserService.beforeGetOne(params, context);
   }
   const one = await UserService.getOne(params, context);
-  if ('afterGetOne' in UserService && typeof UserService.afterGetOne === 'function') {
+  if ('afterGetOne' in UserService && isFunction(UserService.afterGetOne)) {
     await UserService.afterGetOne(one, params, context);
   }
   return await buildOneResponse(one, fieldRequest);
 }
 
-/** @deprecated */
 async function getOneSafe<S extends UserFieldRequest>(
   params: GetOneUserParams,
   context: Context,
   fieldRequest: S,
 ): Promise<OneUserResponse<S, true>> {
-  if ('beforeGetOneSafe' in UserService && typeof UserService.beforeGetOneSafe === 'function') {
+  if ('beforeGetOneSafe' in UserService && isFunction(UserService.beforeGetOneSafe)) {
     await UserService.beforeGetOneSafe(params, context);
   }
   const one = await UserService.getOneSafe(params, context);
-  if ('afterGetOneSafe' in UserService && typeof UserService.afterGetOneSafe === 'function') {
+  if ('afterGetOneSafe' in UserService && isFunction(UserService.afterGetOneSafe)) {
     await UserService.afterGetOneSafe(one, params, context);
   }
   return await buildOneSafeResponse(one, fieldRequest);
 }
 
-/** @deprecated */
 async function createOne<S extends UserFieldRequest>(
   body: CreateOneUserBody,
   context: Context,
   fieldRequest: S,
 ): Promise<OneUserResponse<S>> {
-  if ('beforeCreateOne' in UserService && typeof UserService.beforeCreateOne === 'function') {
+  if ('beforeCreateOne' in UserService && isFunction(UserService.beforeCreateOne)) {
     await UserService.beforeCreateOne(body, context);
   }
   const one = await UserService.createOne(body, context);
-  if ('afterCreateOne' in UserService && typeof UserService.afterCreateOne === 'function') {
+  if ('afterCreateOne' in UserService && isFunction(UserService.afterCreateOne)) {
     await UserService.afterCreateOne(one, body, context);
   }
   return await buildOneResponse(one, fieldRequest);
 }
 
-/** @deprecated */
 async function updateOne<S extends UserFieldRequest>(
   params: GetOneUserParams,
   body: UpdateOneUserBody,
@@ -131,28 +139,27 @@ async function updateOne<S extends UserFieldRequest>(
   fieldRequest: S,
 ): Promise<OneUserResponse<S>> {
   const one = await UserService.getOne(params, context);
-  if ('beforeUpdateOne' in UserService && typeof UserService.beforeUpdateOne === 'function') {
+  if ('beforeUpdateOne' in UserService && isFunction(UserService.beforeUpdateOne)) {
     await UserService.beforeUpdateOne(one, body, context);
   }
   const updatedOne = await UserService.updateOne(one, body, context);
-  if ('afterUpdateOne' in UserService && typeof UserService.afterUpdateOne === 'function') {
+  if ('afterUpdateOne' in UserService && isFunction(UserService.afterUpdateOne)) {
     await UserService.afterUpdateOne(updatedOne, body, context);
   }
   return await buildOneResponse(updatedOne, fieldRequest);
 }
 
-/** @deprecated */
 async function deleteOne<S extends UserFieldRequest>(
   params: GetOneUserParams,
   context: Context,
   fieldRequest: S,
 ): Promise<OneUserResponse<S>> {
   const one = await UserService.getOne(params, context);
-  if ('beforeDeleteOne' in UserService && typeof UserService.beforeDeleteOne === 'function') {
+  if ('beforeDeleteOne' in UserService && isFunction(UserService.beforeDeleteOne)) {
     await UserService.beforeDeleteOne(one, context);
   }
   const deletedOne = await UserService.deleteOne(one, context);
-  if ('afterDeleteOne' in UserService && typeof UserService.afterDeleteOne === 'function') {
+  if ('afterDeleteOne' in UserService && isFunction(UserService.afterDeleteOne)) {
     await UserService.afterDeleteOne(deletedOne, context);
   }
   return await buildOneResponse(deletedOne, fieldRequest);
@@ -163,6 +170,7 @@ const UserActions = {
   buildManyResponse,
   buildOneResponse,
   buildOneSafeResponse,
+  search,
   getMany,
   getOne,
   getOneSafe,

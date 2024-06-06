@@ -7,6 +7,7 @@ api:
     - createdAt: asc
     - createdAt: desc
   methods:
+    search: "{ requireLogin: false }"
     getMany: "{ requireAdmin: true }"
     getOne: "{ requireLogin: false }"
     getOneSafe: "{ requireLogin: false }"

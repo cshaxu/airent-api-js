@@ -81,8 +81,6 @@ function handleGetOne<
   return wrappableHandle({ ...config, parser, executor });
 }
 
-const handleGetOneSafe = handleGetOne;
-
 function handleCreateOne<
   CONTEXT,
   RESULT,
@@ -167,6 +165,8 @@ function handleUpdateOne<
   return wrappableHandle({ ...config, parser, executor });
 }
 
+const handleSearch = handleGetMany;
+const handleGetOneSafe = handleGetOne;
 const handleDeleteOne = handleGetOne;
 
 async function getRequestJson(request: Request): Promise<any> {
@@ -240,6 +240,7 @@ export {
   handleGetMany,
   handleGetOne,
   handleGetOneSafe,
+  handleSearch,
   handleUpdateOne,
   wrappableHandle,
 };

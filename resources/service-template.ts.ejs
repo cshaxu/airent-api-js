@@ -16,6 +16,9 @@ import {
   <%_ }); -%>
 } from '<%- entity.api.packages.serviceType %>';
 import {
+  <%_ if (entity.api.booleans.hasSearch) { -%>
+  <%= entity.api.strings.searchQuery %>,
+  <%_ } -%>
   <%_ if (entity.api.booleans.hasGetMany) { -%>
   <%= entity.api.strings.getManyQuery %>,
   <%_ } -%>
@@ -30,6 +33,13 @@ import {
   <%_ } -%>
 } from '<%- entity.api.packages.serviceRequest %>';
 import { <%= entity.api.strings.serviceInterfaceClass %> } from '<%- entity.api.packages.serviceInterface %>';
+  <%_ if (entity.api.booleans.hasSearch) { -%>
+import { <%= entity.api.strings.searchServiceClass %> } from './<%= entity.api.strings.searchServicePackage %>';
+
+async function search(query: <%= entity.api.strings.searchQuery %>, context: Context): Promise<<%= entity.strings.entityClass %>[]> {
+  return await new <%= entity.api.strings.searchServiceClass %>().search(query, context);
+}
+  <%_ } -%>
   <%_ if (entity.api.booleans.hasGetMany) { -%>
 
 async function getMany(query: <%= entity.api.strings.getManyQuery %>, context: Context): Promise<<%= entity.strings.entityClass %>[]> {
@@ -79,6 +89,9 @@ async function deleteOne(one: <%= entity.strings.entityClass %>, context: Contex
 /** @deprecated */
   <%_ } -%>
 const <%= entity.api.strings.serviceClass %>: <%= entity.api.strings.serviceInterfaceClass %> = {
+  <%_ if (entity.api.booleans.hasSearch) { -%>
+  search,
+  <%_ } -%>
   <%_ if (entity.api.booleans.hasGetMany) { -%>
   getMany,
   <%_ } -%>

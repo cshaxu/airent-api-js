@@ -6,6 +6,9 @@ function getActionPackage() {
 <% if (utils.isPresentableEntity(entity) && entity.api.booleans.hasAny) { -%>
 // airent imports
 import {
+  <%_ if (entity.api.booleans.hasSearch) { -%>
+  handleSearch,
+  <%_ } -%>
   <%_ if (entity.api.booleans.hasGetMany) { -%>
   handleGetMany,
   <%_ } -%>
@@ -32,6 +35,9 @@ import { handlerConfig } from '<%- config.api.server.handlerConfigPackage %>';
 // entity imports
 import <%= entity.api.strings.actionsClass %> from './<%= getActionPackage() %>';
 import {
+  <%_ if (entity.api.booleans.hasSearch) { -%>
+  <%= entity.api.strings.searchQuery %>,
+  <%_ } -%>
   <%_ if (entity.api.booleans.hasGetMany) { -%>
   <%= entity.api.strings.getManyQuery %>,
   <%_ } -%>
@@ -45,11 +51,17 @@ import {
   <%= entity.api.strings.updateOneBody %>,
   <%_ } -%>
 } from '<%- entity.api.packages.baseRequest %>';
+  <%_ if (entity.api.booleans.hasSearch) { -%>
+
+const search = handleSearch({
+  ...handlerConfig,
+  queryZod: <%= entity.api.strings.searchQuery %>,
+  action: <%= entity.api.strings.actionsClass %>.search,
+  options: <%= entity.api.methods.search ?? '{}' %>,
+});
+  <%_ } -%>
   <%_ if (entity.api.booleans.hasGetMany) { -%>
 
-    <%_ if (entity.deprecated) { -%>
-/** @deprecated */
-    <%_ } -%>
 const getMany = handleGetMany({
   ...handlerConfig,
   queryZod: <%= entity.api.strings.getManyQuery %>,
@@ -59,9 +71,6 @@ const getMany = handleGetMany({
   <%_ } -%>
   <%_ if (entity.api.booleans.hasGetOne) { -%>
 
-    <%_ if (entity.deprecated) { -%>
-/** @deprecated */
-    <%_ } -%>
 const getOne = handleGetOne({
   ...handlerConfig,
   paramsZod: <%= entity.api.strings.getOneParams %>,
@@ -71,9 +80,6 @@ const getOne = handleGetOne({
   <%_ } -%>
   <%_ if (entity.api.booleans.hasGetOneSafe) { -%>
 
-    <%_ if (entity.deprecated) { -%>
-/** @deprecated */
-    <%_ } -%>
 const getOneSafe = handleGetOneSafe({
   ...handlerConfig,
   paramsZod: <%= entity.api.strings.getOneParams %>,
@@ -83,9 +89,6 @@ const getOneSafe = handleGetOneSafe({
   <%_ } -%>
   <%_ if (entity.api.booleans.hasCreateOne) { -%>
 
-    <%_ if (entity.deprecated) { -%>
-/** @deprecated */
-    <%_ } -%>
 const createOne = handleCreateOne({
   ...handlerConfig,
   bodyZod: <%= entity.api.strings.createOneBody %>,
@@ -95,9 +98,6 @@ const createOne = handleCreateOne({
   <%_ } -%>
   <%_ if (entity.api.booleans.hasUpdateOne) { -%>
 
-    <%_ if (entity.deprecated) { -%>
-/** @deprecated */
-    <%_ } -%>
 const updateOne = handleUpdateOne({
   ...handlerConfig,
   paramsZod: <%= entity.api.strings.getOneParams %>,
@@ -108,9 +108,6 @@ const updateOne = handleUpdateOne({
   <%_ } -%>
   <%_ if (entity.api.booleans.hasDeleteOne) { -%>
 
-    <%_ if (entity.deprecated) { -%>
-/** @deprecated */
-    <%_ } -%>
 const deleteOne = handleDeleteOne({
   ...handlerConfig,
   paramsZod: <%= entity.api.strings.getOneParams %>,
@@ -123,6 +120,9 @@ const deleteOne = handleDeleteOne({
 /** @deprecated */
   <%_ } -%>
 const <%= entity.api.strings.handlersClass %> = {
+  <%_ if (entity.api.booleans.hasSearch) { -%>
+  search,
+  <%_ } -%>
   <%_ if (entity.api.booleans.hasGetMany) { -%>
   getMany,
   <%_ } -%>

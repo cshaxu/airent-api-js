@@ -1,3 +1,5 @@
+import { Awaitable } from '../../../src/index';
+// airent imports
 import {
   AsyncLock,
   BaseEntity,
@@ -9,9 +11,11 @@ import {
   toArrayMap,
   toObjectMap,
 } from 'airent';
+
+// config imports
 import { Context } from '../../../test-resources/framework';
 
-/** generated */
+// entity imports
 import {
   MessageFieldRequest,
   MessageResponse,

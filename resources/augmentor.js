@@ -35,6 +35,13 @@ function augmentConfig(config) /* void */ {
     : "@airent/api";
 
   if (config.api.server) {
+    config.api.server.serviceLibPackage = config.api.libImportPath
+      ? buildRelativePackage(
+          config.api.server.servicePath,
+          config.api.libImportPath,
+          config
+        )
+      : "@airent/api";
     config.api.server.serviceContextPackage = buildRelativePackage(
       config.api.server.servicePath,
       config.contextImportPath,
@@ -85,17 +92,24 @@ function addStrings(entity, config, isVerbose) {
     handlersClass: `${singularEntName}Handlers`,
     actionsClass: `${singularEntName}Actions`,
     serviceClass: `${singularEntName}Service`,
+    searchServiceClass: `${utils.toTitleCase(entity.name)}SearchService`,
+    searchServicePackage: `${utils.toKababCase(
+      entity.name
+    )}-search${utils.getModuleSuffix(config)}`,
     serviceInterfaceClass: `${singularEntName}ServiceInterface`,
     apiClientClass: `${singularEntName}ApiClient`,
     manyCursor: `Many${pluralEntName}Cursor`,
     manyResponse: `Many${pluralEntName}Response`,
     oneResponse: `One${singularEntName}Response`,
+    searchDocument: `${singularEntName}SearchDocument`,
+    searchQuery: `Search${pluralEntName}Query`,
     getManyQuery: `GetMany${pluralEntName}Query`,
     getOneParams: `GetOne${singularEntName}Params`,
     createOneBody: `CreateOne${singularEntName}Body`,
     updateOneBody: `UpdateOne${singularEntName}Body`,
   };
 
+  const hasSearch = hasApiMethod(entity, "search");
   const hasGetMany = hasApiMethod(entity, "getMany");
   const hasGetOne = hasApiMethod(entity, "getOne");
   const hasGetOneSafe = hasApiMethod(entity, "getOneSafe");
@@ -104,8 +118,9 @@ function addStrings(entity, config, isVerbose) {
   const hasDeleteOne = hasApiMethod(entity, "deleteOne");
   const hasGetOneRequest =
     hasGetOne || hasGetOneSafe || hasUpdateOne | hasDeleteOne;
-  const hasAny = hasGetMany || hasGetOneRequest || hasCreateOne;
+  const hasAny = hasSearch || hasGetMany || hasGetOneRequest || hasCreateOne;
   entity.api.booleans = {
+    hasSearch,
     hasGetMany,
     hasGetOne,
     hasGetOneSafe,
@@ -311,12 +326,17 @@ function buildPolicyChecker(entity, policy, fields, utils) /* Code[] */ {
 function buildPolicyAuthorizer(policy, utils) /* Code[] */ {
   return [
     "",
-    `protected authorize${utils.toTitleCase(
-      policy
-    )}(): boolean | Promise<boolean> {`,
+    `protected authorize${utils.toTitleCase(policy)}(): Awaitable<boolean> {`,
     "  throw new Error('not implemented');",
     "}",
   ];
+}
+
+function buildBeforeBase(entity, config) /* Code[] */ {
+  if (!utils.isPresentableEntity(entity)) {
+    return [];
+  }
+  return [`import { Awaitable } from '${config.api.baseLibPackage}';`];
 }
 
 function buildInsideBase(entity, policies, utils) /* Code[] */ {
@@ -330,6 +350,13 @@ function buildInsideBase(entity, policies, utils) /* Code[] */ {
   return [...policyCheckerAndAuthorizerBundles, ...beforePresent];
 }
 
+function buildBeforeEntity(entity, config) /* Code[] */ {
+  if (!utils.isPresentableEntity(entity)) {
+    return [];
+  }
+  return [`import { Awaitable } from '${config.api.entityLibPackage}';`];
+}
+
 function buildInsideEntity(policies, utils) /* Code[] */ {
   return Object.keys(policies).flatMap((policy) =>
     buildPolicyAuthorizer(policy, utils)
@@ -340,11 +367,18 @@ function addCode(entity, config, isVerbose) {
   if (isVerbose) {
     console.log(`[AIRENT-API/INFO] augmenting ${entity.name} - add code ...`);
   }
+
   const beforeType = buildBeforeType(entity);
   entity.code.beforeType.push(...beforeType);
 
   const afterType = buildAfterType(entity);
   entity.code.afterType.push(...afterType);
+
+  const beforeBase = buildBeforeBase(entity, config);
+  entity.code.beforeBase.push(...beforeBase);
+
+  const beforeEntity = buildBeforeEntity(entity, config);
+  entity.code.beforeEntity.push(...beforeEntity);
 
   const policies = entity.policies ?? new Map();
   const policyKeys = Object.keys(policies);

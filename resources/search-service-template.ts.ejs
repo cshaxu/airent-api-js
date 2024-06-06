@@ -1,0 +1,64 @@
+<% if (utils.isPresentableEntity(entity) && entity.api.booleans.hasSearch) { -%>
+// airent imports
+import { Awaitable, SearchEngineBase, SearchServiceBase } from '<%- config.api.server.serviceLibPackage %>';
+
+// config imports
+import { Context } from '<%- config.api.server.serviceContextPackage %>';
+
+// entity imports
+import { <%= entity.strings.entityClass %> } from '<%- entity.api.packages.serviceEntity %>';
+import { <%= entity.api.strings.searchQuery %> } from '<%- entity.api.packages.serviceRequest %>';
+
+  <%_ if (entity.deprecated) { -%>
+/** @deprecated */
+  <%_ } -%>
+export type <%= entity.api.strings.searchDocument %> = {
+  // TODO: add your fields here
+};
+
+  <%_ if (entity.deprecated) { -%>
+/** @deprecated */
+  <%_ } -%>
+export class <%= entity.api.strings.searchServiceClass %> extends SearchServiceBase<
+  <%= entity.strings.entityClass %>,
+  <%= entity.api.strings.searchQuery %>,
+  Context,
+  <%= entity.api.strings.searchDocument %>,
+  unknown /* ENGINE_QUERY: the search query type of your search engine */,
+  unknown /* SCHEMA: the search index schema type of your search engine */
+> {
+  protected engine: SearchEngineBase<<%= entity.api.strings.searchQuery %>, unknown /* ENGINE_QUERY */, unknown /* SCHEMA */>;
+
+  protected indexName = 'TODO: set your search index name for <%= utils.toTitleCase(entity.name) %>';
+
+  protected indexSchema = {/* TODO: set your search index schema for <%= utils.toTitleCase(entity.name) %> */};
+
+  protected entityKeyMapper(one: <%= entity.strings.entityClass %>): string {
+    // TODO: map your entity to a unique key, e.g. `return one.id;`
+    throw new Error('not implemented.');
+  }
+
+  protected documentKeyMapper(one: <%= entity.api.strings.searchDocument %>): string {
+    // TODO: map your entity to a unique key, e.g. `return one.id;`
+    throw new Error('not implemented.');
+  }
+
+  protected dehydrate(many: <%= entity.strings.entityClass %>[], context: Context): Awaitable<<%= entity.api.strings.searchDocument %>[]> {
+    // TODO: map your entities to search documents
+    throw new Error('not implemented.');
+  }
+
+  protected async hydrate(
+    documents: <%= entity.api.strings.searchDocument %>[],
+    context: Context
+  ): Promise<<%= entity.strings.entityClass %>[]> {
+    // TODO: map your search documents to entities
+    throw new Error('not implemented.');
+  }
+
+  protected prepareQuery(query: <%= entity.api.strings.searchQuery %>): Awaitable<unknown /* SCHEMA */> {
+    // TODO: map your service query to a search engine query
+    throw new Error('not implemented.');
+  }
+}
+<% } -%>

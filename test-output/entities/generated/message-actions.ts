@@ -1,3 +1,6 @@
+// airent imports
+import { isFunction, max, min } from '../../../src/index';
+
 // config imports
 import { Context } from '../../../test-resources/framework';
 

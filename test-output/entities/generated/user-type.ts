@@ -1,4 +1,7 @@
+// airent imports
 import { Select } from 'airent';
+
+// entity imports
 import { MessageFieldRequest, MessageResponse } from './message-type';
 
 /** structs */
