@@ -1,6 +1,6 @@
 {
   "name": "@airent/api",
-  "version": "0.1.9",
+  "version": "0.0.0",
   "description": "API Extension for Airent 0.1.9",
   "main": "./lib/index.js",
   "bin": {
@@ -44,7 +44,7 @@
     "@types/async-lock": "^1.4.2",
     "@types/http-errors": "^2.0.4",
     "@types/node": "^20.12.12",
-    "airdev": "github:cshaxu/airdev-js#191dc7b5b1fdff2c7a092ad7091c2774e686281b",
+    "airdev": "github:cshaxu/airdev-js#3eedbfba9ffdac967d772b6dae9dd79608f31d8b",
     "airent": "github:cshaxu/airent-js#a6f2588537aa3ec22624aeedcecdae3a1169442f",
     "crlf": "^1.1.1",
     "typescript": "^5.4.5"
