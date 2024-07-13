@@ -178,7 +178,11 @@ async function fetchJsonOrThrow(
   const response = await fetch(input, init);
   const json = await response.json();
   if (json.error) {
-    throw createHttpError(response.status, json.error);
+    if (typeof window === "undefined") {
+      throw createHttpError(response.status, json.error);
+    } else {
+      throw new Error(json.error);
+    }
   }
   return json;
 }
