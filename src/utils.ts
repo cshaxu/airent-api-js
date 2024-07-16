@@ -177,7 +177,7 @@ async function fetchJsonOrThrow(
   const response = await fetch(input, init);
   const json = await response.json();
   if (json.error) {
-    throw new Error(json.error);
+    throw new Error(json.error.message);
   }
   return json;
 }
