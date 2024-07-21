@@ -46,8 +46,7 @@
     },
     "client": {
       "clientPath": "test-output/clients",
-      "baseUrlImport": "import { baseUrl } from '../../test-resources/fetch';",
-      "fetchOptionsImport": "import { fetchOptions } from '../../test-resources/fetch';"
+      "baseUrlImport": "import { baseUrl } from '../../test-resources/fetch';"
     }
   }
 }

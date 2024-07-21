@@ -3,7 +3,6 @@ import { fetchJsonOrThrow } from '../../src/index';
 
 // config imports
 import { baseUrl } from '../../test-resources/fetch';
-import { fetchOptions } from '../../test-resources/fetch';
 
 // entity imports
 import {
@@ -64,29 +63,20 @@ function presentOneSafeResponse<S extends UserFieldRequest>(
   return { user };
 }
 
-async function callApi(
-  name: string, 
-  body: Record<string, any>,
-  options: RequestInit = {}
-): Promise<any> {
-  const input = `${baseUrl}/${name}`;
-  const init = {
-    credentials: 'include' as RequestCredentials,
-    method: 'POST',
-    body: JSON.stringify(body),
-    ...fetchOptions,
-    ...options,
-  };
-  return await fetchJsonOrThrow(input, init);
-}
-
 async function search<S extends UserFieldRequest>(
   query: SearchUsersQuery,
   fieldRequest: S,
   options: RequestInit = {}
 ): Promise<ManyUsersResponse<S>> {
+  const input = `${baseUrl}/search-users`;
   const data = { query, fieldRequest };
-  const response = await callApi('search-users', data, options);
+  const init = {
+    credentials: 'include' as RequestCredentials,
+    method: 'POST',
+    body: JSON.stringify(data),
+    ...options,
+  };
+  const response = await fetchJsonOrThrow(input, init);
   return presentManyResponse(response, fieldRequest);
 }
 
@@ -95,8 +85,15 @@ async function getMany<S extends UserFieldRequest>(
   fieldRequest: S,
   options: RequestInit = {}
 ): Promise<ManyUsersResponse<S>> {
+  const input = `${baseUrl}/get-many-users`;
   const data = { query, fieldRequest };
-  const response = await callApi('get-many-users', data, options);
+  const init = {
+    credentials: 'include' as RequestCredentials,
+    method: 'POST',
+    body: JSON.stringify(data),
+    ...options,
+  };
+  const response = await fetchJsonOrThrow(input, init);
   return presentManyResponse(response, fieldRequest);
 }
 
@@ -105,8 +102,15 @@ async function getOne<S extends UserFieldRequest>(
   fieldRequest: S,
   options: RequestInit = {}
 ): Promise<OneUserResponse<S>> {
+  const input = `${baseUrl}/get-one-user`;
   const data = { params, fieldRequest };
-  const response = await callApi('get-one-user', data, options);
+  const init = {
+    credentials: 'include' as RequestCredentials,
+    method: 'POST',
+    body: JSON.stringify(data),
+    ...options,
+  };
+  const response = await fetchJsonOrThrow(input, init);
   return presentOneResponse(response, fieldRequest);
 }
 
@@ -115,9 +119,16 @@ async function getOneSafe<S extends UserFieldRequest>(
   fieldRequest: S,
   options: RequestInit = {}
 ): Promise<OneUserResponse<S, true>> {
+  const input = `${baseUrl}/get-one-user-safe`;
   const data = { params, fieldRequest };
-  const response = await callApi('get-one-user-safe', data, options);
-  return presentOneSafeResponse(response, fieldRequest);
+  const init = {
+    credentials: 'include' as RequestCredentials,
+    method: 'POST',
+    body: JSON.stringify(data),
+    ...options,
+  };
+  const response = await fetchJsonOrThrow(input, init);
+  return presentOneResponse(response, fieldRequest);
 }
 
 async function createOne<S extends UserFieldRequest>(
@@ -125,8 +136,15 @@ async function createOne<S extends UserFieldRequest>(
   fieldRequest: S,
   options: RequestInit = {}
 ): Promise<OneUserResponse<S>> {
+  const input = `${baseUrl}/create-one-user`;
   const data = { body, fieldRequest };
-  const response = await callApi('create-one-user', data, options);
+  const init = {
+    credentials: 'include' as RequestCredentials,
+    method: 'POST',
+    body: JSON.stringify(data),
+    ...options,
+  };
+  const response = await fetchJsonOrThrow(input, init);
   return presentOneResponse(response, fieldRequest);
 }
 
@@ -136,8 +154,15 @@ async function updateOne<S extends UserFieldRequest>(
   fieldRequest: S,
   options: RequestInit = {}
 ): Promise<OneUserResponse<S>> {
+  const input = `${baseUrl}/update-one-user`;
   const data = { params, body, fieldRequest };
-  const response = await callApi('update-one-user', data, options);
+  const init = {
+    credentials: 'include' as RequestCredentials,
+    method: 'POST',
+    body: JSON.stringify(data),
+    ...options,
+  };
+  const response = await fetchJsonOrThrow(input, init);
   return presentOneResponse(response, fieldRequest);
 }
 
@@ -146,8 +171,15 @@ async function deleteOne<S extends UserFieldRequest>(
   fieldRequest: S,
   options: RequestInit = {}
 ): Promise<OneUserResponse<S>> {
+  const input = `${baseUrl}/delete-one-user`;
   const data = { params, fieldRequest };
-  const response = await callApi('delete-one-user', data, options)
+  const init = {
+    credentials: 'include' as RequestCredentials,
+    method: 'POST',
+    body: JSON.stringify(data),
+    ...options,
+  };
+  const response = await fetchJsonOrThrow(input, init);
   return presentOneResponse(response, fieldRequest);
 }
 

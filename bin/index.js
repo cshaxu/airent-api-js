@@ -30,7 +30,6 @@ async function getShouldEnable(name) {
 /** @typedef {Object} ApiClientConfig
  * @property {string} clientPath
  * @property {string} baseUrlImport
- * @property {?string} fetchOptionsImport
 
 /** @typedef {Object} ApiConfig
  *  @property {?string} libImportPath
@@ -181,12 +180,6 @@ async function configureApiClient(config) {
   config.api.client.baseUrlImport = await askQuestion(
     "Statement to import 'baseUrl'",
     config.api.client.baseUrlImport ?? "import { baseUrl } from '@/fetch';"
-  );
-
-  config.api.client.fetchOptionsImport = await askQuestion(
-    "Statement to import 'fetchOptions'",
-    config.api.client.fetchOptionsImport ??
-      "import { fetchOptions } from '@/fetch';"
   );
 }
 

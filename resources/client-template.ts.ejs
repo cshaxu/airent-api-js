@@ -31,14 +31,9 @@ function presentDateTypeField(field) {
 }
 -%>
 <% if (utils.isPresentableEntity(entity)) { -%>
-// airent imports
-import { fetchJsonOrThrow } from '<%- config.api.client.clientLibPackage %>';
-
-// config imports
-<%- config.api.client.baseUrlImport %>
-<% if (config.api.client.fetchOptionsImport?.length > 0) { -%>
-<%- config.api.client.fetchOptionsImport %>
-<% } -%>
+  <%_ entity.api.code.beforeClient.forEach((line) => { -%>
+<%- line %>
+  <%_ }); -%>
 
 // entity imports
 import {
@@ -122,26 +117,6 @@ function presentOneSafeResponse<S extends <%= entity.strings.fieldRequestClass %
   const <%= entity.api.strings.oneEntVar %> = one === null ? null : present(one, fieldRequest);
   return { <%= entity.api.strings.oneEntVar %> };
 }
-  <%_ if (entity.api.booleans.hasAny) { -%>
-
-async function callApi(
-  name: string, 
-  body: Record<string, any>,
-  options: RequestInit = {}
-): Promise<any> {
-  const input = `${baseUrl}/${name}`;
-  const init = {
-    credentials: 'include' as RequestCredentials,
-    method: 'POST',
-    body: JSON.stringify(body),
-    <%_ if (config.api.client.fetchOptionsImport?.length > 0) { -%>
-    ...fetchOptions,
-    <%_ } -%>
-    ...options,
-  };
-  return await fetchJsonOrThrow(input, init);
-}
-  <%_ } -%>
   <%_ if (entity.api.booleans.hasSearch) { -%>
 
 async function search<S extends <%= entity.strings.fieldRequestClass %>>(
@@ -149,9 +124,9 @@ async function search<S extends <%= entity.strings.fieldRequestClass %>>(
   fieldRequest: S,
   options: RequestInit = {}
 ): Promise<<%= entity.api.strings.manyResponse %><S>> {
-  const data = { query, fieldRequest };
-  const response = await callApi('<%= `search-${utils.toKababCase(utils.pluralize(entity.name))}` %>', data, options);
-  return presentManyResponse(response, fieldRequest);
+    <%_ entity.api.code.searchCaller.forEach((line) => { -%>
+  <%- line %>
+    <%_ }); -%>
 }
   <%_ } -%>
   <%_ if (entity.api.booleans.hasGetMany) { -%>
@@ -161,9 +136,9 @@ async function getMany<S extends <%= entity.strings.fieldRequestClass %>>(
   fieldRequest: S,
   options: RequestInit = {}
 ): Promise<<%= entity.api.strings.manyResponse %><S>> {
-  const data = { query, fieldRequest };
-  const response = await callApi('<%= `get-many-${utils.toKababCase(utils.pluralize(entity.name))}` %>', data, options);
-  return presentManyResponse(response, fieldRequest);
+    <%_ entity.api.code.getManyCaller.forEach((line) => { -%>
+  <%- line %>
+    <%_ }); -%>
 }
   <%_ } -%>
   <%_ if (entity.api.booleans.hasGetOne) { -%>
@@ -173,9 +148,9 @@ async function getOne<S extends <%= entity.strings.fieldRequestClass %>>(
   fieldRequest: S,
   options: RequestInit = {}
 ): Promise<<%= entity.api.strings.oneResponse %><S>> {
-  const data = { params, fieldRequest };
-  const response = await callApi('<%= `get-one-${utils.toKababCase(entity.name)}` %>', data, options);
-  return presentOneResponse(response, fieldRequest);
+    <%_ entity.api.code.getOneCaller.forEach((line) => { -%>
+  <%- line %>
+    <%_ }); -%>
 }
   <%_ } -%>
   <%_ if (entity.api.booleans.hasGetOneSafe) { -%>
@@ -185,9 +160,9 @@ async function getOneSafe<S extends <%= entity.strings.fieldRequestClass %>>(
   fieldRequest: S,
   options: RequestInit = {}
 ): Promise<<%= entity.api.strings.oneResponse %><S, true>> {
-  const data = { params, fieldRequest };
-  const response = await callApi('<%= `get-one-${utils.toKababCase(entity.name)}-safe` %>', data, options);
-  return presentOneSafeResponse(response, fieldRequest);
+    <%_ entity.api.code.getOneSafeCaller.forEach((line) => { -%>
+  <%- line %>
+    <%_ }); -%>
 }
   <%_ } -%>
   <%_ if (entity.api.booleans.hasCreateOne) { -%>
@@ -197,9 +172,9 @@ async function createOne<S extends <%= entity.strings.fieldRequestClass %>>(
   fieldRequest: S,
   options: RequestInit = {}
 ): Promise<<%= entity.api.strings.oneResponse %><S>> {
-  const data = { body, fieldRequest };
-  const response = await callApi('<%= `create-one-${utils.toKababCase(entity.name)}` %>', data, options);
-  return presentOneResponse(response, fieldRequest);
+    <%_ entity.api.code.createOneCaller.forEach((line) => { -%>
+  <%- line %>
+    <%_ }); -%>
 }
   <%_ } -%>
   <%_ if (entity.api.booleans.hasUpdateOne) { -%>
@@ -210,9 +185,9 @@ async function updateOne<S extends <%= entity.strings.fieldRequestClass %>>(
   fieldRequest: S,
   options: RequestInit = {}
 ): Promise<<%= entity.api.strings.oneResponse %><S>> {
-  const data = { params, body, fieldRequest };
-  const response = await callApi('<%= `update-one-${utils.toKababCase(entity.name)}` %>', data, options);
-  return presentOneResponse(response, fieldRequest);
+    <%_ entity.api.code.updateOneCaller.forEach((line) => { -%>
+  <%- line %>
+    <%_ }); -%>
 }
   <%_ } -%>
   <%_ if (entity.api.booleans.hasDeleteOne) { -%>
@@ -222,9 +197,9 @@ async function deleteOne<S extends <%= entity.strings.fieldRequestClass %>>(
   fieldRequest: S,
   options: RequestInit = {}
 ): Promise<<%= entity.api.strings.oneResponse %><S>> {
-  const data = { params, fieldRequest };
-  const response = await callApi('<%= `delete-one-${utils.toKababCase(entity.name)}` %>', data, options)
-  return presentOneResponse(response, fieldRequest);
+    <%_ entity.api.code.deleteOneCaller.forEach((line) => { -%>
+  <%- line %>
+    <%_ }); -%>
 }
   <%_ } -%>
 
