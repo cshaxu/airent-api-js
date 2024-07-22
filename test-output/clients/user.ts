@@ -128,7 +128,7 @@ async function getOneSafe<S extends UserFieldRequest>(
     ...options,
   };
   const response = await fetchJsonOrThrow(input, init);
-  return presentOneResponse(response, fieldRequest);
+  return presentOneSafeResponse(response, fieldRequest);
 }
 
 async function createOne<S extends UserFieldRequest>(

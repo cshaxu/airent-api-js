@@ -433,7 +433,7 @@ function addCode(entity, config, isVerbose) {
     `const input = \`\${baseUrl}/get-one-${singularKababEntityName}-safe\`;`,
     "const data = { params, fieldRequest };",
     ...apiCallerLines,
-    "return presentOneResponse(response, fieldRequest);",
+    "return presentOneSafeResponse(response, fieldRequest);",
   ];
   entity.api.code.createOneCaller = entity.api.code.createOneCaller ?? [
     `const input = \`\${baseUrl}/create-one-${singularKababEntityName}\`;`,
