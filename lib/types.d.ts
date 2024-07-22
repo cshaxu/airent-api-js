@@ -14,15 +14,13 @@ type ErrorHandler<CONTEXT, PARSED, RESULT> = (error: any, context: HandlerContex
 type HandlerConfig<CONTEXT, PARSED, RESULT, OPTIONS> = {
     authenticator: Authenticator<CONTEXT>;
     parser: Parser<CONTEXT, PARSED>;
+    parserWrapper?: (parser: Parser<CONTEXT, PARSED>, options?: OPTIONS) => Parser<CONTEXT, PARSED>;
     validator?: Validator<PARSED, CONTEXT, OPTIONS>;
     executor: Executor<PARSED, CONTEXT, RESULT>;
+    executorWrapper?: (executor: Executor<PARSED, CONTEXT, RESULT>, options?: OPTIONS) => Executor<PARSED, CONTEXT, RESULT>;
     errorHandler?: ErrorHandler<CONTEXT, PARSED, RESULT>;
     options?: OPTIONS;
     code?: number;
-};
-type WrappableHandlerConfig<CONTEXT, PARSED, RESULT, OPTIONS> = HandlerConfig<CONTEXT, PARSED, RESULT, OPTIONS> & {
-    parserWrapper?: (parser: Parser<CONTEXT, PARSED>, options?: OPTIONS) => Parser<CONTEXT, PARSED>;
-    executorWrapper?: (executor: Executor<PARSED, CONTEXT, RESULT>, options?: OPTIONS) => Executor<PARSED, CONTEXT, RESULT>;
 };
 type GetManyAction<QUERY, FIELD_REQUEST> = (query: QUERY, context: any, fieldRequest: FIELD_REQUEST) => Promise<any>;
 type GetOneAction<PARAMS, FIELD_REQUEST> = (params: PARAMS, context: any, fieldRequest: FIELD_REQUEST) => Promise<any>;
@@ -31,21 +29,21 @@ type UpdateOneAction<PARAMS, BODY, FIELD_REQUEST> = (params: PARAMS, body: BODY,
 type GetManyApiHandlerConfig<CONTEXT, RESULT, OPTIONS, QUERY_ZOD extends z.ZodTypeAny, FIELD_REQUEST> = {
     queryZod: QUERY_ZOD;
     action: GetManyAction<z.infer<QUERY_ZOD>, FIELD_REQUEST>;
-} & Omit<WrappableHandlerConfig<CONTEXT, {
+} & Omit<HandlerConfig<CONTEXT, {
     query: z.infer<QUERY_ZOD>;
     fieldRequest: FIELD_REQUEST;
 }, RESULT, OPTIONS>, "parser" | "executor">;
 type GetOneApiHandlerConfig<CONTEXT, RESULT, OPTIONS, PARAMS_ZOD extends z.ZodTypeAny, FIELD_REQUEST> = {
     paramsZod: PARAMS_ZOD;
     action: GetOneAction<z.infer<PARAMS_ZOD>, FIELD_REQUEST>;
-} & Omit<WrappableHandlerConfig<CONTEXT, {
+} & Omit<HandlerConfig<CONTEXT, {
     params: z.infer<PARAMS_ZOD>;
     fieldRequest: FIELD_REQUEST;
 }, RESULT, OPTIONS>, "parser" | "executor">;
 type CreateOneApiHandlerConfig<CONTEXT, RESULT, OPTIONS, BODY_ZOD extends z.ZodTypeAny, FIELD_REQUEST> = {
     bodyZod: BODY_ZOD;
     action: CreateOneAction<z.infer<BODY_ZOD>, FIELD_REQUEST>;
-} & Omit<WrappableHandlerConfig<CONTEXT, {
+} & Omit<HandlerConfig<CONTEXT, {
     body: z.infer<BODY_ZOD>;
     fieldRequest: FIELD_REQUEST;
 }, RESULT, OPTIONS>, "parser" | "executor">;
@@ -53,9 +51,9 @@ type UpdateOneApiHandlerConfig<CONTEXT, RESULT, OPTIONS, PARAMS_ZOD extends z.Zo
     paramsZod: PARAMS_ZOD;
     bodyZod: z.ZodTypeAny;
     action: UpdateOneAction<z.infer<PARAMS_ZOD>, BODY, FIELD_REQUEST>;
-} & Omit<WrappableHandlerConfig<CONTEXT, {
+} & Omit<HandlerConfig<CONTEXT, {
     params: z.infer<PARAMS_ZOD>;
     body: BODY;
     fieldRequest: FIELD_REQUEST;
 }, RESULT, OPTIONS>, "parser" | "executor">;
-export { Authenticator, Awaitable, CreateOneAction, CreateOneApiHandlerConfig, ErrorHandler, Executor, GetManyAction, GetManyApiHandlerConfig, GetOneAction, GetOneApiHandlerConfig, HandlerConfig, HandlerContext, Parser, UpdateOneAction, UpdateOneApiHandlerConfig, Validator, WrappableHandlerConfig, };
+export { Authenticator, Awaitable, CreateOneAction, CreateOneApiHandlerConfig, ErrorHandler, Executor, GetManyAction, GetManyApiHandlerConfig, GetOneAction, GetOneApiHandlerConfig, HandlerConfig, HandlerContext, Parser, UpdateOneAction, UpdateOneApiHandlerConfig, Validator, };

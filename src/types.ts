@@ -35,27 +35,19 @@ type ErrorHandler<CONTEXT, PARSED, RESULT> = (
 type HandlerConfig<CONTEXT, PARSED, RESULT, OPTIONS> = {
   authenticator: Authenticator<CONTEXT>;
   parser: Parser<CONTEXT, PARSED>;
-  validator?: Validator<PARSED, CONTEXT, OPTIONS>;
-  executor: Executor<PARSED, CONTEXT, RESULT>;
-  errorHandler?: ErrorHandler<CONTEXT, PARSED, RESULT>;
-  options?: OPTIONS;
-  code?: number;
-};
-
-type WrappableHandlerConfig<CONTEXT, PARSED, RESULT, OPTIONS> = HandlerConfig<
-  CONTEXT,
-  PARSED,
-  RESULT,
-  OPTIONS
-> & {
   parserWrapper?: (
     parser: Parser<CONTEXT, PARSED>,
     options?: OPTIONS
   ) => Parser<CONTEXT, PARSED>;
+  validator?: Validator<PARSED, CONTEXT, OPTIONS>;
+  executor: Executor<PARSED, CONTEXT, RESULT>;
   executorWrapper?: (
     executor: Executor<PARSED, CONTEXT, RESULT>,
     options?: OPTIONS
   ) => Executor<PARSED, CONTEXT, RESULT>;
+  errorHandler?: ErrorHandler<CONTEXT, PARSED, RESULT>;
+  options?: OPTIONS;
+  code?: number;
 };
 
 // api action types
@@ -97,7 +89,7 @@ type GetManyApiHandlerConfig<
   queryZod: QUERY_ZOD;
   action: GetManyAction<z.infer<QUERY_ZOD>, FIELD_REQUEST>;
 } & Omit<
-  WrappableHandlerConfig<
+  HandlerConfig<
     CONTEXT,
     { query: z.infer<QUERY_ZOD>; fieldRequest: FIELD_REQUEST },
     RESULT,
@@ -116,7 +108,7 @@ type GetOneApiHandlerConfig<
   paramsZod: PARAMS_ZOD;
   action: GetOneAction<z.infer<PARAMS_ZOD>, FIELD_REQUEST>;
 } & Omit<
-  WrappableHandlerConfig<
+  HandlerConfig<
     CONTEXT,
     { params: z.infer<PARAMS_ZOD>; fieldRequest: FIELD_REQUEST },
     RESULT,
@@ -135,7 +127,7 @@ type CreateOneApiHandlerConfig<
   bodyZod: BODY_ZOD;
   action: CreateOneAction<z.infer<BODY_ZOD>, FIELD_REQUEST>;
 } & Omit<
-  WrappableHandlerConfig<
+  HandlerConfig<
     CONTEXT,
     { body: z.infer<BODY_ZOD>; fieldRequest: FIELD_REQUEST },
     RESULT,
@@ -156,7 +148,7 @@ type UpdateOneApiHandlerConfig<
   bodyZod: z.ZodTypeAny;
   action: UpdateOneAction<z.infer<PARAMS_ZOD>, BODY, FIELD_REQUEST>;
 } & Omit<
-  WrappableHandlerConfig<
+  HandlerConfig<
     CONTEXT,
     { params: z.infer<PARAMS_ZOD>; body: BODY; fieldRequest: FIELD_REQUEST },
     RESULT,
@@ -182,5 +174,4 @@ export {
   UpdateOneAction,
   UpdateOneApiHandlerConfig,
   Validator,
-  WrappableHandlerConfig,
 };

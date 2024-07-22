@@ -7,7 +7,6 @@ import {
   HandlerConfig,
   HandlerContext,
   UpdateOneApiHandlerConfig,
-  WrappableHandlerConfig,
 } from "./types";
 import { isReadableStream } from "./utils";
 
@@ -43,7 +42,7 @@ function handleGetMany<
     parsed: { query: z.infer<QUERY_ZOD>; fieldRequest: FIELD_REQUEST },
     context: CONTEXT
   ) => config.action(parsed.query, context, parsed.fieldRequest);
-  return wrappableHandle({ ...config, parser, executor });
+  return handle({ ...config, parser, executor });
 }
 
 function handleGetOne<
@@ -78,7 +77,7 @@ function handleGetOne<
     parsed: { params: z.infer<PARAMS_ZOD>; fieldRequest: FIELD_REQUEST },
     context: CONTEXT
   ) => config.action(parsed.params, context, parsed.fieldRequest);
-  return wrappableHandle({ ...config, parser, executor });
+  return handle({ ...config, parser, executor });
 }
 
 function handleCreateOne<
@@ -113,7 +112,7 @@ function handleCreateOne<
     parsed: { body: z.infer<BODY_ZOD>; fieldRequest: FIELD_REQUEST },
     context: CONTEXT
   ) => config.action(parsed.body, context, parsed.fieldRequest);
-  return wrappableHandle({ ...config, parser, executor, code: 201 });
+  return handle({ ...config, parser, executor, code: 201 });
 }
 
 function handleUpdateOne<
@@ -162,7 +161,7 @@ function handleUpdateOne<
     },
     context: CONTEXT
   ) => config.action(parsed.params, parsed.body, context, parsed.fieldRequest);
-  return wrappableHandle({ ...config, parser, executor });
+  return handle({ ...config, parser, executor });
 }
 
 const handleSearch = handleGetMany;
@@ -177,44 +176,34 @@ async function getRequestJson(request: Request): Promise<any> {
   }
 }
 
-function wrappableHandle<CONTEXT, PARSED, RESULT, OPTIONS>(
-  config: WrappableHandlerConfig<CONTEXT, PARSED, RESULT, OPTIONS>
-): (request: Request) => Promise<Response> {
-  const {
-    parserWrapper,
-    executorWrapper,
-    parser: parserRaw,
-    executor: executorRaw,
-    ...rest
-  } = config;
-  const parser =
-    parserWrapper === undefined ? parserRaw : parserWrapper(parserRaw);
-  const executor =
-    executorWrapper === undefined ? executorRaw : executorWrapper(executorRaw);
-  return handle({ ...rest, parser, executor });
-}
-
 // Note: request => authenticate => parse => execute => respond
 function handle<CONTEXT, PARSED, RESULT, OPTIONS>(
   config: HandlerConfig<CONTEXT, PARSED, RESULT, OPTIONS>
 ): (request: Request) => Promise<Response> {
+  const { authenticator, options, code } = config;
+
+  const parserWrapper = config.parserWrapper ?? ((f) => f);
+  const executorWrapper = config.executorWrapper ?? ((f) => f);
+  const parser = parserWrapper(config.parser, options);
+  const validator = config.validator ?? (() => {});
+  const executor = executorWrapper(config.executor, options);
+  const errorHandler =
+    config.errorHandler ??
+    ((error) => {
+      throw error;
+    });
+
   return async (request: Request) => {
     const data: HandlerContext<CONTEXT, PARSED, RESULT> = { request };
     try {
       kill();
-      data.context = await config.authenticator(request);
-      data.parsed = await config.parser(request, data.context);
-      if (config.validator !== undefined) {
-        await config.validator(data.parsed, data.context, config.options);
-      }
-      data.result = await config.executor(data.parsed, data.context);
-      return respond(data.result, config.code);
+      data.context = await authenticator(request);
+      data.parsed = await parser(request, data.context);
+      await validator(data.parsed, data.context, options);
+      data.result = await executor(data.parsed, data.context);
+      return respond(data.result, code);
     } catch (error) {
-      if (config.errorHandler === undefined) {
-        throw error;
-      } else {
-        return await config.errorHandler(error, data);
-      }
+      return await errorHandler(error, data);
     }
   };
 }
@@ -242,5 +231,4 @@ export {
   handleGetOneSafe,
   handleSearch,
   handleUpdateOne,
-  wrappableHandle,
 };
