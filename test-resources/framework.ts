@@ -1,18 +1,13 @@
-import { Executor, Parser } from "../src";
+import { CommonResponse, Executor, Parser } from "../src";
 
 export type Context = {};
 
-export const handlerConfig = {
-  authenticator,
+export const dispatcherConfig = {
   validator,
   errorHandler,
   parserWrapper,
   executorWrapper,
 };
-
-async function authenticator(_request: Request): Promise<Context> {
-  return {};
-}
 
 async function validator(
   _parsed: any,
@@ -20,14 +15,14 @@ async function validator(
   _options?: {}
 ): Promise<void> {}
 
-function errorHandler(_error: any, _ec: any): Response {
-  return Response.json({}, { status: 500 });
+function errorHandler(_error: any, _ec: any): CommonResponse {
+  return { code: 500, error: {} };
 }
 
 function parserWrapper<PARSED>(
-  parser: Parser<Context, PARSED>,
+  parser: Parser<Context, any, PARSED>,
   _options?: {}
-): Parser<Context, PARSED> {
+): Parser<Context, any, PARSED> {
   return parser;
 }
 

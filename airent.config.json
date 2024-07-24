@@ -8,8 +8,8 @@
   ],
   "templates": [
     {
-      "name": "resources/handlers-template.ts.ejs",
-      "outputPath": "{entityPath}/generated/{kababEntityName}-handlers.ts",
+      "name": "resources/dispatcher-template.ts.ejs",
+      "outputPath": "{entityPath}/generated/{kababEntityName}-dispatcher.ts",
       "skippable": false
     },
     {
@@ -42,7 +42,7 @@
     "libImportPath": "./src/index",
     "server": {
       "servicePath": "test-output/services",
-      "handlerConfigImportPath": "./test-resources/framework"
+      "dispatcherConfigImportPath": "./test-resources/framework"
     },
     "client": {
       "clientPath": "test-output/clients",

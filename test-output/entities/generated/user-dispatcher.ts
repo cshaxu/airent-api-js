@@ -1,16 +1,16 @@
 // airent imports
 import {
-  handleSearch,
-  handleGetMany,
-  handleGetOne,
-  handleGetOneSafe,
-  handleCreateOne,
-  handleUpdateOne,
-  handleDeleteOne,
+  dispatchSearchWith,
+  dispatchGetManyWith,
+  dispatchGetOneWith,
+  dispatchGetOneSafeWith,
+  dispatchCreateOneWith,
+  dispatchUpdateOneWith,
+  dispatchDeleteOneWith,
 } from '../../../src/index';
 
 // config imports
-import { handlerConfig } from '../../../test-resources/framework';
+import { dispatcherConfig } from '../../../test-resources/framework';
 
 // entity imports
 import UserActions from './user-actions';
@@ -22,58 +22,86 @@ import {
   UpdateOneUserBody,
 } from '../../../test-resources/user-type';
 
-const search = handleSearch({
-  ...handlerConfig,
+const searchConfig = {
   queryZod: SearchUsersQuery,
   action: UserActions.search,
   options: { requireLogin: false },
+};
+
+const search = dispatchSearchWith({
+  ...dispatcherConfig,
+  ...searchConfig,
 });
 
-const getMany = handleGetMany({
-  ...handlerConfig,
+const getManyConfig = {
   queryZod: GetManyUsersQuery,
   action: UserActions.getMany,
   options: { requireAdmin: true },
+};
+
+const getMany = dispatchGetManyWith({
+  ...dispatcherConfig,
+  ...getManyConfig,
 });
 
-const getOne = handleGetOne({
-  ...handlerConfig,
+const getOneConfig = {
   paramsZod: GetOneUserParams,
   action: UserActions.getOne,
   options: { requireLogin: false },
+};
+
+const getOne = dispatchGetOneWith({
+  ...dispatcherConfig,
+  ...getOneConfig,
 });
 
-const getOneSafe = handleGetOneSafe({
-  ...handlerConfig,
+const getOneSafeConfig = {
   paramsZod: GetOneUserParams,
   action: UserActions.getOneSafe,
   options: { requireLogin: false },
+};
+
+const getOneSafe = dispatchGetOneSafeWith({
+  ...dispatcherConfig,
+  ...getOneSafeConfig,
 });
 
-const createOne = handleCreateOne({
-  ...handlerConfig,
+const createOneConfig = {
   bodyZod: CreateOneUserBody,
   action: UserActions.createOne,
   options: { requireLogin: false },
+};
+
+const createOne = dispatchCreateOneWith({
+  ...dispatcherConfig,
+  ...createOneConfig,
 });
 
-const updateOne = handleUpdateOne({
-  ...handlerConfig,
+const updateOneConfig = {
   paramsZod: GetOneUserParams,
   bodyZod: UpdateOneUserBody,
   action: UserActions.updateOne,
   options: { requireLogin: true },
+};
+
+const updateOne = dispatchUpdateOneWith({
+  ...dispatcherConfig,
+  ...updateOneConfig,
 });
 
-const deleteOne = handleDeleteOne({
-  ...handlerConfig,
+const deleteOneConfig = {
   paramsZod: GetOneUserParams,
   action: UserActions.deleteOne,
   options: { requireLogin: true },
+};
+
+const deleteOne = dispatchDeleteOneWith({
+  ...dispatcherConfig,
+  ...deleteOneConfig,
 });
 
 /** @deprecated */
-const UserHandlers = {
+const UserDispatcher = {
   search,
   getMany,
   getOne,
@@ -83,4 +111,4 @@ const UserHandlers = {
   deleteOne,
 };
 
-export default UserHandlers;
+export default UserDispatcher;

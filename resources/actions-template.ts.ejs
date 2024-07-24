@@ -91,8 +91,8 @@ async function buildOneSafeResponse<S extends <%= entity.strings.fieldRequestCla
 
 async function search<S extends <%= entity.strings.fieldRequestClass %>>(
   query: <%= entity.api.strings.searchQuery %>,
+  fieldRequest: S,
   context: Context,
-  fieldRequest: S
 ): Promise<<%= entity.api.strings.manyResponse %><S>> {
   if ('beforeSearch' in <%= entity.api.strings.serviceClass %> && isFunction(<%= entity.api.strings.serviceClass %>.beforeSearch)) {
     await <%= entity.api.strings.serviceClass %>.beforeSearch(query, context);
@@ -108,8 +108,8 @@ async function search<S extends <%= entity.strings.fieldRequestClass %>>(
 
 async function getMany<S extends <%= entity.strings.fieldRequestClass %>>(
   query: <%= entity.api.strings.getManyQuery %>,
-  context: Context,
   fieldRequest: S,
+  context: Context,
 ): Promise<<%= entity.api.strings.manyResponse %><S>> {
   if ('beforeGetMany' in <%= entity.api.strings.serviceClass %> && isFunction(<%= entity.api.strings.serviceClass %>.beforeGetMany)) {
     await <%= entity.api.strings.serviceClass %>.beforeGetMany(query, context);
@@ -125,8 +125,8 @@ async function getMany<S extends <%= entity.strings.fieldRequestClass %>>(
 
 async function getOne<S extends <%= entity.strings.fieldRequestClass %>>(
   params: <%= entity.api.strings.getOneParams %>,
-  context: Context,
   fieldRequest: S,
+  context: Context,
 ): Promise<<%= entity.api.strings.oneResponse %><S>> {
   if ('beforeGetOne' in <%= entity.api.strings.serviceClass %> && isFunction(<%= entity.api.strings.serviceClass %>.beforeGetOne)) {
     await <%= entity.api.strings.serviceClass %>.beforeGetOne(params, context);
@@ -142,8 +142,8 @@ async function getOne<S extends <%= entity.strings.fieldRequestClass %>>(
 
 async function getOneSafe<S extends <%= entity.strings.fieldRequestClass %>>(
   params: <%= entity.api.strings.getOneParams %>,
-  context: Context,
   fieldRequest: S,
+  context: Context,
 ): Promise<<%= entity.api.strings.oneResponse %><S, true>> {
   if ('beforeGetOneSafe' in <%= entity.api.strings.serviceClass %> && isFunction(<%= entity.api.strings.serviceClass %>.beforeGetOneSafe)) {
     await <%= entity.api.strings.serviceClass %>.beforeGetOneSafe(params, context);
@@ -159,8 +159,8 @@ async function getOneSafe<S extends <%= entity.strings.fieldRequestClass %>>(
 
 async function createOne<S extends <%= entity.strings.fieldRequestClass %>>(
   body: <%= entity.api.strings.createOneBody %>,
-  context: Context,
   fieldRequest: S,
+  context: Context,
 ): Promise<<%= entity.api.strings.oneResponse %><S>> {
   if ('beforeCreateOne' in <%= entity.api.strings.serviceClass %> && isFunction(<%= entity.api.strings.serviceClass %>.beforeCreateOne)) {
     await <%= entity.api.strings.serviceClass %>.beforeCreateOne(body, context);
@@ -177,8 +177,8 @@ async function createOne<S extends <%= entity.strings.fieldRequestClass %>>(
 async function updateOne<S extends <%= entity.strings.fieldRequestClass %>>(
   params: <%= entity.api.strings.getOneParams %>,
   body: <%= entity.api.strings.updateOneBody %>,
-  context: Context,
   fieldRequest: S,
+  context: Context,
 ): Promise<<%= entity.api.strings.oneResponse %><S>> {
   const one = await <%= entity.api.strings.serviceClass %>.getOne(params, context);
   if ('beforeUpdateOne' in <%= entity.api.strings.serviceClass %> && isFunction(<%= entity.api.strings.serviceClass %>.beforeUpdateOne)) {
@@ -195,8 +195,8 @@ async function updateOne<S extends <%= entity.strings.fieldRequestClass %>>(
 
 async function deleteOne<S extends <%= entity.strings.fieldRequestClass %>>(
   params: <%= entity.api.strings.getOneParams %>,
-  context: Context,
   fieldRequest: S,
+  context: Context,
 ): Promise<<%= entity.api.strings.oneResponse %><S>> {
   const one = await <%= entity.api.strings.serviceClass %>.getOne(params, context);
   if ('beforeDeleteOne' in <%= entity.api.strings.serviceClass %> && isFunction(<%= entity.api.strings.serviceClass %>.beforeDeleteOne)) {

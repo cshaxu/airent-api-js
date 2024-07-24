@@ -1,10 +1,7 @@
+import { FieldRequest } from "./types";
 import { isNil } from "./utils";
 
-interface FieldRequestBase {
-  [key: string]: boolean | FieldRequestBase;
-}
-
-type FieldRequest = FieldRequestBase | boolean;
+type BooleanOrFieldRequest = boolean | FieldRequest;
 
 type IsBoolean<T> = T extends boolean ? true : false;
 
@@ -16,7 +13,7 @@ type IsBothBooleans<T1, T2> = IsBoolean<T1> extends true
 
 type IsFieldRequest<T> = T extends FieldRequest ? true : false;
 
-type IsBothFieldRequest<T1, T2> = IsFieldRequest<T1> extends true
+type IsBothFieldRequests<T1, T2> = IsFieldRequest<T1> extends true
   ? IsFieldRequest<T2> extends true
     ? true
     : false
@@ -28,21 +25,59 @@ type Conform<T> = IsBoolean<T> extends true
   ? T
   : never;
 
-type Merge1<T> = T;
-
-type Merge2<T1, T2> = IsBothBooleans<T1, T2> extends true
+type MergeInternal<T1, T2> = IsBothBooleans<T1, T2> extends true
   ? boolean
-  : IsBothFieldRequest<T1, T2> extends true
+  : IsBothFieldRequests<T1, T2> extends true
   ? {
       [K in keyof T1 | keyof T2]: K extends keyof T1
         ? K extends keyof T2
-          ? /* both types have K */ Merge2<T1[K], T2[K]>
+          ? /* both types have K */ MergeInternal<T1[K], T2[K]>
           : /* only T1 has K */ Conform<T1[K]>
         : K extends keyof T2
         ? /* only T2 has K */ Conform<T2[K]>
         : /* impossible */ never;
     }
   : never;
+
+type Merge1<T> = IsFieldRequest<T> extends true ? T : never;
+
+type Merge2<T1, T2> = IsBothFieldRequests<T1, T2> extends true
+  ? MergeInternal<T1, T2>
+  : never;
+
+type Merge3<T1, T2, T3> = Merge2<Merge2<T1, T2>, T3>;
+
+type Merge4<T1, T2, T3, T4> = Merge2<Merge2<T1, T2>, Merge2<T3, T4>>;
+
+type Merge5<T1, T2, T3, T4, T5> = Merge3<Merge2<T1, T2>, Merge2<T3, T4>, T5>;
+
+type Merge6<T1, T2, T3, T4, T5, T6> = Merge3<
+  Merge2<T1, T2>,
+  Merge2<T3, T4>,
+  Merge2<T5, T6>
+>;
+
+type Merge7<T1, T2, T3, T4, T5, T6, T7> = Merge4<
+  Merge2<T1, T2>,
+  Merge2<T3, T4>,
+  Merge2<T5, T6>,
+  T7
+>;
+
+type Merge8<T1, T2, T3, T4, T5, T6, T7, T8> = Merge4<
+  Merge2<T1, T2>,
+  Merge2<T3, T4>,
+  Merge2<T5, T6>,
+  Merge2<T7, T8>
+>;
+
+type Merge9<T1, T2, T3, T4, T5, T6, T7, T8, T9> = Merge5<
+  Merge2<T1, T2>,
+  Merge2<T3, T4>,
+  Merge2<T5, T6>,
+  Merge2<T7, T8>,
+  T9
+>;
 
 const isBoolean = (object: any) => typeof object === "boolean";
 
@@ -53,16 +88,15 @@ const isObject = (object: any) =>
 
 const isBothObjects = (o1: any, o2: any) => isObject(o1) && isObject(o2);
 
-const isFieldRequest = (object: any) => isBoolean(object) || isObject(object);
+const isBooleanOrObject = (object: any) =>
+  isBoolean(object) || isObject(object);
 
-const merge1 = <T1 extends FieldRequest>(o1: T1) => o1;
-
-function merge2<T1 extends FieldRequest, T2 extends FieldRequest>(
-  o1: T1,
-  o2: T2
-): Merge2<T1, T2> {
+function mergeInternal<
+  T1 extends BooleanOrFieldRequest,
+  T2 extends BooleanOrFieldRequest
+>(o1: T1, o2: T2): BooleanOrFieldRequest {
   if (isBothBooleans(o1, o2)) {
-    return true as Merge2<T1, T2>;
+    return true;
   }
   if (isBothObjects(o1, o2)) {
     const keys1 = Object.keys(o1);
@@ -73,24 +107,40 @@ function merge2<T1 extends FieldRequest, T2 extends FieldRequest>(
       const v2 = (o2 as any)[k];
       if (isNil(v1)) {
         /* only o2 has k */
-        if (isFieldRequest(v2)) {
+        if (isBooleanOrObject(v2)) {
           result[k] = v2;
         }
       } else if (isNil(v2)) {
         /* only o1 has k */
-        if (isFieldRequest(v1)) {
+        if (isBooleanOrObject(v1)) {
           result[k] = v1;
         }
       } else {
-        result[k] = merge2(v1, v2);
+        result[k] = mergeInternal(v1, v2);
       }
     });
-    return result as Merge2<T1, T2>;
+    return result as FieldRequest;
   }
   throw new Error("both arguments must be booleans or objects");
 }
 
-type Merge3<T1, T2, T3> = Merge2<Merge2<T1, T2>, T3>;
+function merge1<T1 extends FieldRequest>(o1: T1): Merge1<T1> {
+  if (isObject(o1)) {
+    return o1 as Merge1<T1>;
+  }
+  throw new Error("argument must be object");
+}
+
+function merge2<T1 extends FieldRequest, T2 extends FieldRequest>(
+  o1: T1,
+  o2: T2
+): Merge2<T1, T2> {
+  if (isBothObjects(o1, o2)) {
+    return mergeInternal(o1, o2) as Merge2<T1, T2>;
+  }
+  throw new Error("both arguments must be objects");
+}
+
 const merge3 = <
   T1 extends FieldRequest,
   T2 extends FieldRequest,
@@ -101,7 +151,6 @@ const merge3 = <
   o3: T3
 ) => merge2(merge2(o1, o2) as FieldRequest, o3) as Merge3<T1, T2, T3>;
 
-type Merge4<T1, T2, T3, T4> = Merge2<Merge2<T1, T2>, Merge2<T3, T4>>;
 const merge4 = <
   T1 extends FieldRequest,
   T2 extends FieldRequest,
@@ -118,7 +167,6 @@ const merge4 = <
     merge2(o3, o4) as FieldRequest
   ) as unknown as Merge4<T1, T2, T3, T4>;
 
-type Merge5<T1, T2, T3, T4, T5> = Merge3<Merge2<T1, T2>, Merge2<T3, T4>, T5>;
 const merge5 = <
   T1 extends FieldRequest,
   T2 extends FieldRequest,
@@ -138,11 +186,6 @@ const merge5 = <
     o5
   ) as unknown as Merge5<T1, T2, T3, T4, T5>;
 
-type Merge6<T1, T2, T3, T4, T5, T6> = Merge3<
-  Merge2<T1, T2>,
-  Merge2<T3, T4>,
-  Merge2<T5, T6>
->;
 const merge6 = <
   T1 extends FieldRequest,
   T2 extends FieldRequest,
@@ -164,12 +207,6 @@ const merge6 = <
     merge2(o5, o6) as FieldRequest
   ) as unknown as Merge6<T1, T2, T3, T4, T5, T6>;
 
-type Merge7<T1, T2, T3, T4, T5, T6, T7> = Merge4<
-  Merge2<T1, T2>,
-  Merge2<T3, T4>,
-  Merge2<T5, T6>,
-  T7
->;
 const merge7 = <
   T1 extends FieldRequest,
   T2 extends FieldRequest,
@@ -194,12 +231,6 @@ const merge7 = <
     o7
   ) as unknown as Merge7<T1, T2, T3, T4, T5, T6, T7>;
 
-type Merge8<T1, T2, T3, T4, T5, T6, T7, T8> = Merge4<
-  Merge2<T1, T2>,
-  Merge2<T3, T4>,
-  Merge2<T5, T6>,
-  Merge2<T7, T8>
->;
 const merge8 = <
   T1 extends FieldRequest,
   T2 extends FieldRequest,
@@ -226,13 +257,6 @@ const merge8 = <
     merge2(o7, o8) as FieldRequest
   ) as unknown as Merge8<T1, T2, T3, T4, T5, T6, T7, T8>;
 
-type Merge9<T1, T2, T3, T4, T5, T6, T7, T8, T9> = Merge5<
-  Merge2<T1, T2>,
-  Merge2<T3, T4>,
-  Merge2<T5, T6>,
-  Merge2<T7, T8>,
-  T9
->;
 const merge9 = <
   T1 extends FieldRequest,
   T2 extends FieldRequest,
@@ -264,21 +288,21 @@ const merge9 = <
 
 export {
   Merge1,
-  Merge2,
-  Merge3,
-  Merge4,
-  Merge5,
-  Merge6,
-  Merge7,
-  Merge8,
-  Merge9,
   merge1,
+  Merge2,
   merge2,
+  Merge3,
   merge3,
+  Merge4,
   merge4,
+  Merge5,
   merge5,
+  Merge6,
   merge6,
+  Merge7,
   merge7,
+  Merge8,
   merge8,
+  Merge9,
   merge9,
 };

@@ -47,9 +47,9 @@ function augmentConfig(config) /* void */ {
       config.contextImportPath,
       config
     );
-    config.api.server.handlerConfigPackage = buildRelativePackage(
+    config.api.server.dispatcherConfigPackage = buildRelativePackage(
       path.join(config.entityPath, "generated"),
-      config.api.server.handlerConfigImportPath,
+      config.api.server.dispatcherConfigImportPath,
       config
     );
   }
@@ -89,7 +89,7 @@ function addStrings(entity, config, isVerbose) {
   entity.api.strings = {
     manyEntsVar: utils.toCamelCase(utils.pluralize(entity.name)),
     oneEntVar: utils.toCamelCase(entity.name),
-    handlersClass: `${singularEntName}Handlers`,
+    dispatcherClass: `${singularEntName}Dispatcher`,
     actionsClass: `${singularEntName}Actions`,
     serviceClass: `${singularEntName}Service`,
     searchServiceClass: `${utils.toTitleCase(entity.name)}SearchService`,
@@ -404,55 +404,57 @@ function addCode(entity, config, isVerbose) {
 
   entity.api = entity.api ?? {};
   entity.api.code = entity.api.code ?? {};
-  entity.api.code.beforeClient = entity.api.code.beforeClient ?? [
-    "// airent imports",
-    `import { fetchJsonOrThrow } from '${config.api.client.clientLibPackage}';`,
-    "",
-    "// config imports",
-    config.api.client.baseUrlImport,
-  ];
-  entity.api.code.searchCaller = entity.api.code.searchCaller ?? [
-    `const input = \`\${baseUrl}/search-${pluralKababEntityName}\`;`,
-    "const data = { query, fieldRequest };",
-    ...apiCallerLines,
-    "return presentManyResponse(response, fieldRequest);",
-  ];
-  entity.api.code.getManyCaller = entity.api.code.getManyCaller ?? [
-    `const input = \`\${baseUrl}/get-many-${pluralKababEntityName}\`;`,
-    "const data = { query, fieldRequest };",
-    ...apiCallerLines,
-    "return presentManyResponse(response, fieldRequest);",
-  ];
-  entity.api.code.getOneCaller = entity.api.code.getOneCaller ?? [
-    `const input = \`\${baseUrl}/get-one-${singularKababEntityName}\`;`,
-    "const data = { params, fieldRequest };",
-    ...apiCallerLines,
-    "return presentOneResponse(response, fieldRequest);",
-  ];
-  entity.api.code.getOneSafeCaller = entity.api.code.getOneSafeCaller ?? [
-    `const input = \`\${baseUrl}/get-one-${singularKababEntityName}-safe\`;`,
-    "const data = { params, fieldRequest };",
-    ...apiCallerLines,
-    "return presentOneSafeResponse(response, fieldRequest);",
-  ];
-  entity.api.code.createOneCaller = entity.api.code.createOneCaller ?? [
-    `const input = \`\${baseUrl}/create-one-${singularKababEntityName}\`;`,
-    "const data = { body, fieldRequest };",
-    ...apiCallerLines,
-    "return presentOneResponse(response, fieldRequest);",
-  ];
-  entity.api.code.updateOneCaller = entity.api.code.updateOneCaller ?? [
-    `const input = \`\${baseUrl}/update-one-${singularKababEntityName}\`;`,
-    "const data = { params, body, fieldRequest };",
-    ...apiCallerLines,
-    "return presentOneResponse(response, fieldRequest);",
-  ];
-  entity.api.code.deleteOneCaller = entity.api.code.deleteOneCaller ?? [
-    `const input = \`\${baseUrl}/delete-one-${singularKababEntityName}\`;`,
-    "const data = { params, fieldRequest };",
-    ...apiCallerLines,
-    "return presentOneResponse(response, fieldRequest);",
-  ];
+  if (config.api.client) {
+    entity.api.code.beforeClient = entity.api.code.beforeClient ?? [
+      "// airent imports",
+      `import { fetchJsonOrThrow } from '${config.api.client.clientLibPackage}';`,
+      "",
+      "// config imports",
+      config.api.client.baseUrlImport,
+    ];
+    entity.api.code.searchCaller = entity.api.code.searchCaller ?? [
+      `const input = \`\${baseUrl}/search-${pluralKababEntityName}\`;`,
+      "const data = { query, fieldRequest };",
+      ...apiCallerLines,
+      "return presentManyResponse(response, fieldRequest);",
+    ];
+    entity.api.code.getManyCaller = entity.api.code.getManyCaller ?? [
+      `const input = \`\${baseUrl}/get-many-${pluralKababEntityName}\`;`,
+      "const data = { query, fieldRequest };",
+      ...apiCallerLines,
+      "return presentManyResponse(response, fieldRequest);",
+    ];
+    entity.api.code.getOneCaller = entity.api.code.getOneCaller ?? [
+      `const input = \`\${baseUrl}/get-one-${singularKababEntityName}\`;`,
+      "const data = { params, fieldRequest };",
+      ...apiCallerLines,
+      "return presentOneResponse(response, fieldRequest);",
+    ];
+    entity.api.code.getOneSafeCaller = entity.api.code.getOneSafeCaller ?? [
+      `const input = \`\${baseUrl}/get-one-${singularKababEntityName}-safe\`;`,
+      "const data = { params, fieldRequest };",
+      ...apiCallerLines,
+      "return presentOneSafeResponse(response, fieldRequest);",
+    ];
+    entity.api.code.createOneCaller = entity.api.code.createOneCaller ?? [
+      `const input = \`\${baseUrl}/create-one-${singularKababEntityName}\`;`,
+      "const data = { body, fieldRequest };",
+      ...apiCallerLines,
+      "return presentOneResponse(response, fieldRequest);",
+    ];
+    entity.api.code.updateOneCaller = entity.api.code.updateOneCaller ?? [
+      `const input = \`\${baseUrl}/update-one-${singularKababEntityName}\`;`,
+      "const data = { params, body, fieldRequest };",
+      ...apiCallerLines,
+      "return presentOneResponse(response, fieldRequest);",
+    ];
+    entity.api.code.deleteOneCaller = entity.api.code.deleteOneCaller ?? [
+      `const input = \`\${baseUrl}/delete-one-${singularKababEntityName}\`;`,
+      "const data = { params, fieldRequest };",
+      ...apiCallerLines,
+      "return presentOneResponse(response, fieldRequest);",
+    ];
+  }
 }
 
 function augment(data, isVerbose) {

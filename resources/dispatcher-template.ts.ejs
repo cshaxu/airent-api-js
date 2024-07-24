@@ -7,30 +7,30 @@ function getActionPackage() {
 // airent imports
 import {
   <%_ if (entity.api.booleans.hasSearch) { -%>
-  handleSearch,
+  dispatchSearchWith,
   <%_ } -%>
   <%_ if (entity.api.booleans.hasGetMany) { -%>
-  handleGetMany,
+  dispatchGetManyWith,
   <%_ } -%>
   <%_ if (entity.api.booleans.hasGetOne) { -%>
-  handleGetOne,
+  dispatchGetOneWith,
   <%_ } -%>
   <%_ if (entity.api.booleans.hasGetOneSafe) { -%>
-  handleGetOneSafe,
+  dispatchGetOneSafeWith,
   <%_ } -%>
   <%_ if (entity.api.booleans.hasCreateOne) { -%>
-  handleCreateOne,
+  dispatchCreateOneWith,
   <%_ } -%>
   <%_ if (entity.api.booleans.hasUpdateOne) { -%>
-  handleUpdateOne,
+  dispatchUpdateOneWith,
   <%_ } -%>
   <%_ if (entity.api.booleans.hasDeleteOne) { -%>
-  handleDeleteOne,
+  dispatchDeleteOneWith,
   <%_ } -%>
 } from '<%- config.api.baseLibPackage %>';
 
 // config imports
-import { handlerConfig } from '<%- config.api.server.handlerConfigPackage %>';
+import { dispatcherConfig } from '<%- config.api.server.dispatcherConfigPackage %>';
 
 // entity imports
 import <%= entity.api.strings.actionsClass %> from './<%= getActionPackage() %>';
@@ -53,73 +53,101 @@ import {
 } from '<%- entity.api.packages.baseRequest %>';
   <%_ if (entity.api.booleans.hasSearch) { -%>
 
-const search = handleSearch({
-  ...handlerConfig,
+const searchConfig = {
   queryZod: <%= entity.api.strings.searchQuery %>,
   action: <%= entity.api.strings.actionsClass %>.search,
   options: <%= entity.api.methods.search ?? '{}' %>,
+};
+
+const search = dispatchSearchWith({
+  ...dispatcherConfig,
+  ...searchConfig,
 });
   <%_ } -%>
   <%_ if (entity.api.booleans.hasGetMany) { -%>
 
-const getMany = handleGetMany({
-  ...handlerConfig,
+const getManyConfig = {
   queryZod: <%= entity.api.strings.getManyQuery %>,
   action: <%= entity.api.strings.actionsClass %>.getMany,
   options: <%= entity.api.methods.getMany ?? '{}' %>,
+};
+
+const getMany = dispatchGetManyWith({
+  ...dispatcherConfig,
+  ...getManyConfig,
 });
   <%_ } -%>
   <%_ if (entity.api.booleans.hasGetOne) { -%>
 
-const getOne = handleGetOne({
-  ...handlerConfig,
+const getOneConfig = {
   paramsZod: <%= entity.api.strings.getOneParams %>,
   action: <%= entity.api.strings.actionsClass %>.getOne,
   options: <%= entity.api.methods.getOne ?? '{}' %>,
+};
+
+const getOne = dispatchGetOneWith({
+  ...dispatcherConfig,
+  ...getOneConfig,
 });
   <%_ } -%>
   <%_ if (entity.api.booleans.hasGetOneSafe) { -%>
 
-const getOneSafe = handleGetOneSafe({
-  ...handlerConfig,
+const getOneSafeConfig = {
   paramsZod: <%= entity.api.strings.getOneParams %>,
   action: <%= entity.api.strings.actionsClass %>.getOneSafe,
   options: <%= entity.api.methods.getOneSafe ?? '{}' %>,
+};
+
+const getOneSafe = dispatchGetOneSafeWith({
+  ...dispatcherConfig,
+  ...getOneSafeConfig,
 });
   <%_ } -%>
   <%_ if (entity.api.booleans.hasCreateOne) { -%>
 
-const createOne = handleCreateOne({
-  ...handlerConfig,
+const createOneConfig = {
   bodyZod: <%= entity.api.strings.createOneBody %>,
   action: <%= entity.api.strings.actionsClass %>.createOne,
   options: <%= entity.api.methods.createOne ?? '{}' %>,
+};
+
+const createOne = dispatchCreateOneWith({
+  ...dispatcherConfig,
+  ...createOneConfig,
 });
   <%_ } -%>
   <%_ if (entity.api.booleans.hasUpdateOne) { -%>
 
-const updateOne = handleUpdateOne({
-  ...handlerConfig,
+const updateOneConfig = {
   paramsZod: <%= entity.api.strings.getOneParams %>,
   bodyZod: <%= entity.api.strings.updateOneBody %>,
   action: <%= entity.api.strings.actionsClass %>.updateOne,
   options: <%= entity.api.methods.updateOne ?? '{}' %>,
+};
+
+const updateOne = dispatchUpdateOneWith({
+  ...dispatcherConfig,
+  ...updateOneConfig,
 });
   <%_ } -%>
   <%_ if (entity.api.booleans.hasDeleteOne) { -%>
 
-const deleteOne = handleDeleteOne({
-  ...handlerConfig,
+const deleteOneConfig = {
   paramsZod: <%= entity.api.strings.getOneParams %>,
   action: <%= entity.api.strings.actionsClass %>.deleteOne,
   options: <%= entity.api.methods.deleteOne ?? '{}' %>,
+};
+
+const deleteOne = dispatchDeleteOneWith({
+  ...dispatcherConfig,
+  ...deleteOneConfig,
 });
   <%_ } -%>
 
   <%_ if (entity.deprecated) { -%>
 /** @deprecated */
   <%_ } -%>
-const <%= entity.api.strings.handlersClass %> = {
+const <%= entity.api.strings.dispatcherClass %> = {
   <%_ if (entity.api.booleans.hasSearch) { -%>
   search,
   <%_ } -%>
@@ -143,5 +171,5 @@ const <%= entity.api.strings.handlersClass %> = {
   <%_ } -%>
 };
 
-export default <%= entity.api.strings.handlersClass %>;
+export default <%= entity.api.strings.dispatcherClass %>;
 <% } -%>

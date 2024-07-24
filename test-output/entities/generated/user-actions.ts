@@ -59,8 +59,8 @@ async function buildOneSafeResponse<S extends UserFieldRequest>(
 
 async function search<S extends UserFieldRequest>(
   query: SearchUsersQuery,
+  fieldRequest: S,
   context: Context,
-  fieldRequest: S
 ): Promise<ManyUsersResponse<S>> {
   if ('beforeSearch' in UserService && isFunction(UserService.beforeSearch)) {
     await UserService.beforeSearch(query, context);
@@ -74,8 +74,8 @@ async function search<S extends UserFieldRequest>(
 
 async function getMany<S extends UserFieldRequest>(
   query: GetManyUsersQuery,
-  context: Context,
   fieldRequest: S,
+  context: Context,
 ): Promise<ManyUsersResponse<S>> {
   if ('beforeGetMany' in UserService && isFunction(UserService.beforeGetMany)) {
     await UserService.beforeGetMany(query, context);
@@ -89,8 +89,8 @@ async function getMany<S extends UserFieldRequest>(
 
 async function getOne<S extends UserFieldRequest>(
   params: GetOneUserParams,
-  context: Context,
   fieldRequest: S,
+  context: Context,
 ): Promise<OneUserResponse<S>> {
   if ('beforeGetOne' in UserService && isFunction(UserService.beforeGetOne)) {
     await UserService.beforeGetOne(params, context);
@@ -104,8 +104,8 @@ async function getOne<S extends UserFieldRequest>(
 
 async function getOneSafe<S extends UserFieldRequest>(
   params: GetOneUserParams,
-  context: Context,
   fieldRequest: S,
+  context: Context,
 ): Promise<OneUserResponse<S, true>> {
   if ('beforeGetOneSafe' in UserService && isFunction(UserService.beforeGetOneSafe)) {
     await UserService.beforeGetOneSafe(params, context);
@@ -119,8 +119,8 @@ async function getOneSafe<S extends UserFieldRequest>(
 
 async function createOne<S extends UserFieldRequest>(
   body: CreateOneUserBody,
-  context: Context,
   fieldRequest: S,
+  context: Context,
 ): Promise<OneUserResponse<S>> {
   if ('beforeCreateOne' in UserService && isFunction(UserService.beforeCreateOne)) {
     await UserService.beforeCreateOne(body, context);
@@ -135,8 +135,8 @@ async function createOne<S extends UserFieldRequest>(
 async function updateOne<S extends UserFieldRequest>(
   params: GetOneUserParams,
   body: UpdateOneUserBody,
-  context: Context,
   fieldRequest: S,
+  context: Context,
 ): Promise<OneUserResponse<S>> {
   const one = await UserService.getOne(params, context);
   if ('beforeUpdateOne' in UserService && isFunction(UserService.beforeUpdateOne)) {
@@ -151,8 +151,8 @@ async function updateOne<S extends UserFieldRequest>(
 
 async function deleteOne<S extends UserFieldRequest>(
   params: GetOneUserParams,
-  context: Context,
   fieldRequest: S,
+  context: Context,
 ): Promise<OneUserResponse<S>> {
   const one = await UserService.getOne(params, context);
   if ('beforeDeleteOne' in UserService && isFunction(UserService.beforeDeleteOne)) {

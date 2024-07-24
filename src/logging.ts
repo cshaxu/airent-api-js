@@ -1,12 +1,4 @@
-import { Awaitable } from "./types";
-
-type NormalizedError = {
-  name: string;
-  status: number;
-  message: string;
-  stack?: string[];
-  original?: any;
-};
+import { Awaitable, NormalizedError } from "./types";
 
 async function logTime<T>(
   fn: () => Awaitable<T>,
@@ -101,8 +93,6 @@ function buildMissingErrorMessage(
 }
 
 export {
-  Awaitable,
-  NormalizedError,
   buildInvalidErrorMessage,
   buildMissingErrorMessage,
   getCaller,
@@ -111,4 +101,5 @@ export {
   logInfo,
   logTime,
   logWarn,
+  NormalizedError,
 };

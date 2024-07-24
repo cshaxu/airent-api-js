@@ -44,8 +44,7 @@
     "@types/async-lock": "^1.4.2",
     "@types/http-errors": "^2.0.4",
     "@types/node": "^20.12.12",
-    "airdev": "github:cshaxu/airdev-js#a2bf0e7bdabfbad644f72487b3042bbad54baf65",
-    "airent": "github:cshaxu/airent-js#a3c5b0c774754633e7722c1206decd96bb761426",
+    "airent": "github:cshaxu/airent-js#d7f4d96577022de0ee0f7281c8ac0038e84ed32f",
     "crlf": "^1.1.1",
     "typescript": "^5.4.5"
   }

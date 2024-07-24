@@ -24,7 +24,7 @@ async function getShouldEnable(name) {
 
 /** @typedef {Object} ApiServerConfig
  *  @property {string} servicePath
- *  @property {string} handlerConfigImportPath
+ *  @property {string} dispatcherConfigImportPath
  */
 
 /** @typedef {Object} ApiClientConfig
@@ -52,14 +52,47 @@ const PROJECT_PATH = process.cwd();
 const CONFIG_FILE_PATH = path.join(PROJECT_PATH, "airent.config.json");
 
 const AIRENT_API_RESOURCES_PATH = "node_modules/@airent/api/resources";
-
 const API_AUGMENTOR_PATH = `${AIRENT_API_RESOURCES_PATH}/augmentor.js`;
-const API_CLIENT_TEMPLATE_PATH = `${AIRENT_API_RESOURCES_PATH}/client-template.ts.ejs`;
-const API_SERVER_HANDLERS_TEMPLATE_PATH = `${AIRENT_API_RESOURCES_PATH}/handlers-template.ts.ejs`;
-const API_SERVER_ACTIONS_TEMPLATE_PATH = `${AIRENT_API_RESOURCES_PATH}/actions-template.ts.ejs`;
-const API_SERVER_SERVICE_INTERFACE_TEMPLATE_PATH = `${AIRENT_API_RESOURCES_PATH}/service-interface-template.ts.ejs`;
-const API_SERVER_SERVICE_TEMPLATE_PATH = `${AIRENT_API_RESOURCES_PATH}/service-template.ts.ejs`;
-const API_SERVER_SEARCH_SERVICE_TEMPLATE_PATH = `${AIRENT_API_RESOURCES_PATH}/search-service-template.ts.ejs`;
+
+const API_CLIENT_TEMPLATE_CONFIG = {
+  name: `${AIRENT_API_RESOURCES_PATH}/client-template.ts.ejs`,
+  outputPath: "{api.client.clientPath}/{kababEntityName}.ts",
+  skippable: false,
+};
+const API_CLIENT_TEMPLATE_CONFIGS = [API_CLIENT_TEMPLATE_CONFIG];
+
+const API_SERVER_DISPATCHER_TEMPLATE_CONFIG = {
+  name: `${AIRENT_API_RESOURCES_PATH}/dispatcher-template.ts.ejs`,
+  outputPath: "{entityPath}/generated/{kababEntityName}-dispatcher.ts",
+  skippable: false,
+};
+const API_SERVER_ACTIONS_TEMPLATE_CONFIG = {
+  name: `${AIRENT_API_RESOURCES_PATH}/actions-template.ts.ejs`,
+  outputPath: "{entityPath}/generated/{kababEntityName}-actions.ts",
+  skippable: false,
+};
+const API_SERVER_SERVICE_INTERFACE_TEMPLATE_CONFIG = {
+  name: `${AIRENT_API_RESOURCES_PATH}/service-interface-template.ts.ejs`,
+  outputPath: "{entityPath}/generated/{kababEntityName}-service-interface.ts",
+  skippable: false,
+};
+const API_SERVER_SERVICE_TEMPLATE_CONFIG = {
+  name: `${AIRENT_API_RESOURCES_PATH}/service-template.ts.ejs`,
+  outputPath: "{api.server.servicePath}/{kababEntityName}.ts",
+  skippable: true,
+};
+const API_SERVER_SEARCH_SERVICE_TEMPLATE_CONFIG = {
+  name: `${AIRENT_API_RESOURCES_PATH}/search-service-template.ts.ejs`,
+  outputPath: "{api.server.servicePath}/{kababEntityName}-search.ts",
+  skippable: true,
+};
+const API_SERVER_TEMPLATE_CONFIGS = [
+  API_SERVER_DISPATCHER_TEMPLATE_CONFIG,
+  API_SERVER_ACTIONS_TEMPLATE_CONFIG,
+  API_SERVER_SERVICE_INTERFACE_TEMPLATE_CONFIG,
+  API_SERVER_SERVICE_TEMPLATE_CONFIG,
+  API_SERVER_SEARCH_SERVICE_TEMPLATE_CONFIG,
+];
 
 async function loadConfig() {
   const configContent = await fs.promises.readFile(CONFIG_FILE_PATH, "utf8");
@@ -69,99 +102,52 @@ async function loadConfig() {
   return { ...config, augmentors, templates };
 }
 
+function addTemplate(config, draftTemplate) {
+  const { templates } = config;
+  const template = templates.find((t) => t.name === draftTemplate.name);
+  if (template === undefined) {
+    templates.push(draftTemplate);
+  }
+}
+
 async function configureApiServer(config) {
   const { templates } = config;
-  const isApiServerHandlersEnabled =
-    templates.find((t) => t.name === API_SERVER_HANDLERS_TEMPLATE_PATH) !==
-    undefined;
-  const isApiServerActionsEnabled =
-    templates.find((t) => t.name === API_SERVER_ACTIONS_TEMPLATE_PATH) !==
-    undefined;
-  const apiServerServiceInterfaceTemplate = templates.find(
-    (t) => t.name === API_SERVER_SERVICE_INTERFACE_TEMPLATE_PATH
+  const isApiServerEnabled = templates.some((t) =>
+    API_SERVER_TEMPLATE_CONFIGS.some((c) => c.name === t.name)
   );
-  const apiServerServiceTemplate = templates.find(
-    (t) => t.name === API_SERVER_SERVICE_TEMPLATE_PATH
-  );
-  const apiServerSearchServiceTemplate = templates.find(
-    (t) => t.name === API_SERVER_SEARCH_SERVICE_TEMPLATE_PATH
-  );
-  const isApiServerServiceEnabled =
-    apiServerServiceInterfaceTemplate !== undefined &&
-    apiServerServiceTemplate !== undefined &&
-    apiServerSearchServiceTemplate !== undefined;
-  const isApiServerEnabled =
-    isApiServerHandlersEnabled &&
-    isApiServerActionsEnabled &&
-    isApiServerServiceEnabled;
   const shouldEnableApiServer = isApiServerEnabled
     ? true
     : await getShouldEnable("Api Server");
   if (!shouldEnableApiServer) {
     return;
   }
-  config.api.server = config.api.server ?? {};
+  API_SERVER_TEMPLATE_CONFIGS.forEach((t) => addTemplate(config, t));
 
-  if (!isApiServerHandlersEnabled) {
-    templates.push({
-      name: API_SERVER_HANDLERS_TEMPLATE_PATH,
-      outputPath: "{entityPath}/generated/{kababEntityName}-handlers.ts",
-      skippable: false,
-    });
-  }
-  if (!isApiServerActionsEnabled) {
-    templates.push({
-      name: API_SERVER_ACTIONS_TEMPLATE_PATH,
-      outputPath: "{entityPath}/generated/{kababEntityName}-actions.ts",
-      skippable: false,
-    });
-  }
+  config.api.server = config.api.server ?? {};
 
   config.api.server.servicePath = await askQuestion(
     "Output path for Api Service",
     config.api.server.servicePath ?? "./src/services"
   );
-  if (apiServerServiceInterfaceTemplate === undefined) {
-    templates.push({
-      name: API_SERVER_SERVICE_INTERFACE_TEMPLATE_PATH,
-      outputPath:
-        "{entityPath}/generated/{kababEntityName}-service-interface.ts",
-      skippable: false,
-    });
-  }
-  if (apiServerServiceTemplate === undefined) {
-    templates.push({
-      name: API_SERVER_SERVICE_TEMPLATE_PATH,
-      outputPath: "{api.server.servicePath}/{kababEntityName}.ts",
-      skippable: true,
-    });
-  }
-  if (apiServerSearchServiceTemplate === undefined) {
-    templates.push({
-      name: API_SERVER_SEARCH_SERVICE_TEMPLATE_PATH,
-      outputPath: "{api.server.servicePath}/{kababEntityName}-search.ts",
-      skippable: true,
-    });
-  }
 
-  config.api.server.handlerConfigImportPath = await askQuestion(
-    'Import path for "handlerConfig"',
-    config.api.server.handlerConfigImportPath ?? "./src/framework';"
+  config.api.server.dispatcherConfigImportPath = await askQuestion(
+    'Import path for "dispatcherConfig"',
+    config.api.server.dispatcherConfigImportPath ?? "./src/framework"
   );
 }
 
 async function configureApiClient(config) {
   const { templates } = config;
-  const apiClientTemplate = templates.find(
-    (t) => t.name === API_CLIENT_TEMPLATE_PATH
+  const isApiClientEnabled = templates.some((t) =>
+    API_CLIENT_TEMPLATE_CONFIGS.some((c) => c.name === t.name)
   );
-  const isApiClientEnabled = apiClientTemplate !== undefined;
   const shouldEnableApiClient = isApiClientEnabled
     ? true
     : await getShouldEnable("Api Client");
   if (!shouldEnableApiClient) {
     return;
   }
+  API_CLIENT_TEMPLATE_CONFIGS.forEach((t) => addTemplate(config, t));
 
   config.api.client = config.api.client ?? {};
 
@@ -169,13 +155,6 @@ async function configureApiClient(config) {
     "Output path for Api Client",
     config.api.client.clientPath ?? "./src/clients"
   );
-  if (apiClientTemplate === undefined) {
-    templates.push({
-      name: API_CLIENT_TEMPLATE_PATH,
-      outputPath: "{api.client.clientPath}/{kababEntityName}.ts",
-      skippable: false,
-    });
-  }
 
   config.api.client.baseUrlImport = await askQuestion(
     "Statement to import 'baseUrl'",
