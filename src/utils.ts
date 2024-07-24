@@ -175,6 +175,10 @@ async function fetchJsonOrThrow(
   init?: RequestInit
 ): Promise<any> {
   const response = await fetch(input, init);
+  return await getJsonOrThrow(response);
+}
+
+async function getJsonOrThrow(response: Response): Promise<any> {
   const json = await response.json();
   if (json.error) {
     throw new Error(json.error.message);
@@ -193,6 +197,7 @@ export {
   bufferify,
   existify,
   fetchJsonOrThrow,
+  getJsonOrThrow,
   isFunction,
   isNil,
   isReadableStream,
