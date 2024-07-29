@@ -24,6 +24,12 @@ type UpdateOneParsed<PARAMS, BODY> = {
   fieldRequest: FieldRequest;
 };
 
+type SearchParsed<QUERY> = GetManyParsed<QUERY>;
+
+type GetOneSafeParsed<PARAMS> = GetOneParsed<PARAMS>;
+
+type DeleteOneParsed<PARAMS> = GetOneParsed<PARAMS>;
+
 // api action types
 
 type GetManyAction<QUERY, CONTEXT, RESULT> = (
@@ -51,7 +57,25 @@ type UpdateOneAction<PARAMS, BODY, CONTEXT, RESULT> = (
   context: CONTEXT
 ) => Promise<RESULT>;
 
-// api dispatcher types
+type SearchAction<QUERY, CONTEXT, RESULT> = GetManyAction<
+  QUERY,
+  CONTEXT,
+  RESULT
+>;
+
+type GetOneSafeAction<PARAMS, CONTEXT, RESULT> = GetOneAction<
+  PARAMS,
+  CONTEXT,
+  RESULT
+>;
+
+type DeleteOneAction<PARAMS, CONTEXT, RESULT> = GetOneAction<
+  PARAMS,
+  CONTEXT,
+  RESULT
+>;
+
+// api dispatcher config types
 
 type GetManyDispatcherConfig<
   OPTIONS,
@@ -148,6 +172,33 @@ type UpdateOneDispatcherConfig<
   "parser" | "executor"
 >;
 
+type SearchDispatcherConfig<
+  OPTIONS,
+  CONTEXT,
+  DATA extends object,
+  QUERY_ZOD extends z.ZodTypeAny,
+  RESULT,
+  ERROR
+> = GetManyDispatcherConfig<OPTIONS, CONTEXT, DATA, QUERY_ZOD, RESULT, ERROR>;
+
+type GetOneSafeDispatcherConfig<
+  OPTIONS,
+  CONTEXT,
+  DATA extends object,
+  PARAMS_ZOD extends z.ZodTypeAny,
+  RESULT,
+  ERROR
+> = GetOneDispatcherConfig<OPTIONS, CONTEXT, DATA, PARAMS_ZOD, RESULT, ERROR>;
+
+type DeleteOneDispatcherConfig<
+  OPTIONS,
+  CONTEXT,
+  DATA extends object,
+  PARAMS_ZOD extends z.ZodTypeAny,
+  RESULT,
+  ERROR
+> = GetOneDispatcherConfig<OPTIONS, CONTEXT, DATA, PARAMS_ZOD, RESULT, ERROR>;
+
 // api parsers
 
 function parseGetManyWith<
@@ -173,10 +224,14 @@ function parseGetManyWith<
   };
 }
 
-function parseGetOneWith<CONTEXT, DATA, PARAMS_ZOD extends z.ZodTypeAny>(
+function parseGetOneWith<
+  CONTEXT,
+  DATA extends object,
+  PARAMS_ZOD extends z.ZodTypeAny
+>(
   paramsZod: PARAMS_ZOD
 ): Parser<CONTEXT, DATA, GetOneParsed<z.infer<PARAMS_ZOD>>> {
-  return async (data: any) => {
+  return async (data: DATA) => {
     const paramsRaw = "params" in data ? data.params : undefined;
     const fieldRequestRaw =
       "fieldRequest" in data ? data.fieldRequest : undefined;
@@ -194,19 +249,25 @@ function parseGetOneWith<CONTEXT, DATA, PARAMS_ZOD extends z.ZodTypeAny>(
   };
 }
 
-function parseCreateOneWith<CONTEXT, DATA, BODY_ZOD extends z.ZodTypeAny>(
+function parseCreateOneWith<
+  CONTEXT,
+  DATA extends object,
+  BODY_ZOD extends z.ZodTypeAny
+>(
   bodyZod: BODY_ZOD
 ): Parser<CONTEXT, DATA, CreateOneParsed<z.infer<BODY_ZOD>>> {
-  return async (data: any) => {
+  return async (data: DATA) => {
     const bodyRaw = "body" in data ? data.body : undefined;
-    const fieldRequest = "fieldRequest" in data ? data.fieldRequest : undefined;
+    const fieldRequestRaw =
+      "fieldRequest" in data ? data.fieldRequest : undefined;
     if (bodyRaw === undefined) {
       throw createHttpError.BadRequest("Missing `body`");
     }
-    if (fieldRequest === undefined) {
+    if (fieldRequestRaw === undefined) {
       throw createHttpError.BadRequest("Missing `fieldRequest`");
     }
     const body = (await bodyZod.parseAsync(bodyRaw)) as z.infer<BODY_ZOD>;
+    const fieldRequest = fieldRequestRaw as FieldRequest;
     return { body, fieldRequest };
   };
 }
@@ -247,6 +308,10 @@ function parseUpdateOneWith<
   };
 }
 
+const parseSearchWith = parseGetManyWith;
+const parseGetOneSafeWith = parseGetOneWith;
+const parseDeleteOneWith = parseGetOneWith;
+
 // api executors
 
 function executeGetManyWith<CONTEXT, QUERY_ZOD extends z.ZodTypeAny, RESULT>(
@@ -257,14 +322,14 @@ function executeGetManyWith<CONTEXT, QUERY_ZOD extends z.ZodTypeAny, RESULT>(
 }
 
 function executeGetOneWith<CONTEXT, PARAMS_ZOD extends z.ZodTypeAny, RESULT>(
-  action: GetOneAction<CONTEXT, z.infer<PARAMS_ZOD>, RESULT>
+  action: GetOneAction<z.infer<PARAMS_ZOD>, CONTEXT, RESULT>
 ): Executor<GetOneParsed<z.infer<PARAMS_ZOD>>, CONTEXT, RESULT> {
   return (parsed: GetOneParsed<z.infer<PARAMS_ZOD>>, context: CONTEXT) =>
     action(parsed.params, parsed.fieldRequest, context);
 }
 
 function executeCreateOneWith<CONTEXT, BODY_ZOD extends z.ZodTypeAny, RESULT>(
-  action: CreateOneAction<CONTEXT, z.infer<BODY_ZOD>, RESULT>
+  action: CreateOneAction<z.infer<BODY_ZOD>, CONTEXT, RESULT>
 ): Executor<CreateOneParsed<z.infer<BODY_ZOD>>, CONTEXT, RESULT> {
   return (parsed: CreateOneParsed<z.infer<BODY_ZOD>>, context: CONTEXT) =>
     action(parsed.body, parsed.fieldRequest, context);
@@ -277,9 +342,9 @@ function executeUpdateOneWith<
   RESULT
 >(
   action: UpdateOneAction<
-    CONTEXT,
     z.infer<PARAMS_ZOD>,
     z.infer<BODY_ZOD>,
+    CONTEXT,
     RESULT
   >
 ): Executor<
@@ -296,6 +361,10 @@ function executeUpdateOneWith<
     context: CONTEXT
   ) => action(parsed.params, parsed.body, parsed.fieldRequest, context);
 }
+
+const executeSearchWith = executeGetManyWith;
+const executeGetOneSafeWith = executeGetOneWith;
+const executeDeleteOneWith = executeGetOneWith;
 
 // api dispatchers
 
@@ -315,7 +384,7 @@ function dispatchGetManyWith<
     RESULT,
     ERROR
   >
-): Dispatcher<CONTEXT, DATA, RESULT, ERROR> {
+): Dispatcher<CONTEXT, DATA, any, ERROR> {
   const parser = parseGetManyWith(config.queryZod);
   const executor = executeGetManyWith(config.action);
   return dispatchWith({ ...config, parser, executor });
@@ -337,8 +406,8 @@ function dispatchGetOneWith<
     RESULT,
     ERROR
   >
-): Dispatcher<CONTEXT, DATA, RESULT, ERROR> {
-  const parser = parseGetOneWith(config.paramsZod);
+): Dispatcher<CONTEXT, DATA, any, ERROR> {
+  const parser = parseGetOneWith<CONTEXT, DATA, PARAMS_ZOD>(config.paramsZod);
   const executor = executeGetOneWith(config.action);
   return dispatchWith({ ...config, parser, executor });
 }
@@ -359,8 +428,8 @@ function dispatchCreateOneWith<
     RESULT,
     ERROR
   >
-): Dispatcher<CONTEXT, DATA, RESULT, ERROR> {
-  const parser = parseCreateOneWith(config.bodyZod);
+): Dispatcher<CONTEXT, DATA, any, ERROR> {
+  const parser = parseCreateOneWith<CONTEXT, DATA, BODY_ZOD>(config.bodyZod);
   const executor = executeCreateOneWith(config.action);
   return dispatchWith({ ...config, parser, executor });
 }
@@ -383,21 +452,14 @@ function dispatchUpdateOneWith<
     RESULT,
     ERROR
   >
-): Dispatcher<CONTEXT, DATA, RESULT, ERROR> {
-  const parser = parseUpdateOneWith(config.paramsZod, config.bodyZod);
+): Dispatcher<CONTEXT, DATA, any, ERROR> {
+  const parser = parseUpdateOneWith<CONTEXT, DATA, PARAMS_ZOD, BODY_ZOD>(
+    config.paramsZod,
+    config.bodyZod as BODY_ZOD
+  );
   const executor = executeUpdateOneWith(config.action);
   return dispatchWith({ ...config, parser, executor });
 }
-
-// api aliases
-
-const parseSearchWith = parseGetManyWith;
-const parseGetOneSafeWith = parseGetOneWith;
-const parseDeleteOneWith = parseGetOneWith;
-
-const executeSearchWith = executeGetManyWith;
-const executeGetOneSafeWith = executeGetOneWith;
-const executeDeleteOneWith = executeGetOneWith;
 
 const dispatchSearchWith = dispatchGetManyWith;
 const dispatchGetOneSafeWith = dispatchGetOneWith;
@@ -407,6 +469,9 @@ export {
   CreateOneAction,
   CreateOneDispatcherConfig,
   CreateOneParsed,
+  DeleteOneAction,
+  DeleteOneDispatcherConfig,
+  DeleteOneParsed,
   dispatchCreateOneWith,
   dispatchDeleteOneWith,
   dispatchGetManyWith,
@@ -427,6 +492,9 @@ export {
   GetOneAction,
   GetOneDispatcherConfig,
   GetOneParsed,
+  GetOneSafeAction,
+  GetOneSafeDispatcherConfig,
+  GetOneSafeParsed,
   parseCreateOneWith,
   parseDeleteOneWith,
   parseGetManyWith,
@@ -434,6 +502,9 @@ export {
   parseGetOneWith,
   parseSearchWith,
   parseUpdateOneWith,
+  SearchAction,
+  SearchDispatcherConfig,
+  SearchParsed,
   UpdateOneAction,
   UpdateOneDispatcherConfig,
   UpdateOneParsed,

@@ -2,11 +2,11 @@
 import { Awaitable, SearchEngineBase, SearchServiceBase } from '../../src/index';
 
 // config imports
-import { Context } from '../../test-resources/framework';
+import { Context } from '../../test-sources/framework';
 
 // entity imports
 import { UserEntity } from '../entities/user';
-import { SearchUsersQuery } from '../../test-resources/user-type';
+import { SearchUsersQuery } from '../../test-sources/user-type';
 
 /** @deprecated */
 export type UserSearchDocument = {

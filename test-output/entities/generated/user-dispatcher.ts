@@ -10,7 +10,7 @@ import {
 } from '../../../src/index';
 
 // config imports
-import { dispatcherConfig } from '../../../test-resources/framework';
+import { dispatcherConfig } from '../../../test-sources/framework';
 
 // entity imports
 import UserActions from './user-actions';
@@ -20,7 +20,7 @@ import {
   GetOneUserParams,
   CreateOneUserBody,
   UpdateOneUserBody,
-} from '../../../test-resources/user-type';
+} from '../../../test-sources/user-type';
 
 const searchConfig = {
   queryZod: SearchUsersQuery,

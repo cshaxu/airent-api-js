@@ -13,7 +13,7 @@ import {
 } from 'airent';
 
 // config imports
-import { Context } from '../../../test-resources/framework';
+import { Context } from '../../../test-sources/framework';
 
 // entity imports
 import {
@@ -74,7 +74,7 @@ export class MessageEntityBase extends BaseEntity<
   ): Promise<ENTITY | null> {
     return await (this as any)
       .getMany([key])
-      .then((array: ENTITY[]) => array.at(0) ?? null);
+      .then((array: ENTITY[]) => array.length > 0 ? array[0] : null);
   }
 
   public static async getMany<ENTITY extends MessageEntityBase>(

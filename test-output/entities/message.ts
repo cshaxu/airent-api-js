@@ -3,7 +3,7 @@ import { Awaitable } from '../../src/index';
 import { LoadKey, toArrayMap, toObjectMap } from 'airent';
 
 // config imports
-import { Context } from '../../test-resources/framework';
+import { Context } from '../../test-sources/framework';
 
 // entity imports
 import {

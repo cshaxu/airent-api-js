@@ -2,7 +2,7 @@
 import { isFunction, max, min } from '../../../src/index';
 
 // config imports
-import { Context } from '../../../test-resources/framework';
+import { Context } from '../../../test-sources/framework';
 
 // entity imports
 import {

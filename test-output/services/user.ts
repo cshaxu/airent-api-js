@@ -2,7 +2,7 @@
 import createHttpError from 'http-errors';
 
 // config imports
-import { Context } from '../../test-resources/framework';
+import { Context } from '../../test-sources/framework';
 
 // entity imports
 import { UserEntity } from '../entities/user';
@@ -15,7 +15,7 @@ import {
   GetOneUserParams,
   CreateOneUserBody,
   UpdateOneUserBody,
-} from '../../test-resources/user-type';
+} from '../../test-sources/user-type';
 import { UserServiceInterface } from '../entities/generated/user-service-interface';
 import { UserSearchService } from './user-search';
 

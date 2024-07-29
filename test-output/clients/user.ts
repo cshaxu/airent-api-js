@@ -2,7 +2,7 @@
 import { fetchJsonOrThrow } from '../../src/index';
 
 // config imports
-import { baseUrl } from '../../test-resources/fetch';
+import { baseUrl } from '../../test-sources/fetch';
 
 // entity imports
 import {
@@ -18,7 +18,7 @@ import {
   GetOneUserParams,
   CreateOneUserBody,
   UpdateOneUserBody,
-} from '../../test-resources/user-type';
+} from '../../test-sources/user-type';
 
 function present<S extends UserFieldRequest>(
   one: any,

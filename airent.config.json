@@ -2,7 +2,7 @@
   "type": "commonjs",
   "schemaPath": "test-schemas",
   "entityPath": "test-output/entities",
-  "contextImportPath": "./test-resources/framework",
+  "contextImportPath": "./test-sources/framework",
   "augmentors": [
     "resources/augmentor.js"
   ],
@@ -42,11 +42,11 @@
     "libImportPath": "./src/index",
     "server": {
       "servicePath": "test-output/services",
-      "dispatcherConfigImportPath": "./test-resources/framework"
+      "dispatcherConfigImportPath": "./test-sources/framework"
     },
     "client": {
       "clientPath": "test-output/clients",
-      "baseUrlImport": "import { baseUrl } from '../../test-resources/fetch';"
+      "baseUrlImport": "import { baseUrl } from '../../test-sources/fetch';"
     }
   }
 }

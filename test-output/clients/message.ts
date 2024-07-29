@@ -2,7 +2,7 @@
 import { fetchJsonOrThrow } from '../../src/index';
 
 // config imports
-import { baseUrl } from '../../test-resources/fetch';
+import { baseUrl } from '../../test-sources/fetch';
 
 // entity imports
 import {

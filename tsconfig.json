@@ -14,7 +14,7 @@
     "preserveWatchOutput": true,
     "sourceMap": true,
     "strict": true,
-    "target": "es5"
+    "target": "es2015"
   },
   "include": ["src/**/*.ts"],
   "exclude": ["lib", "node_modules"]

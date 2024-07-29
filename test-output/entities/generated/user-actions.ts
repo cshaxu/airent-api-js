@@ -2,7 +2,7 @@
 import { isFunction, max, min } from '../../../src/index';
 
 // config imports
-import { Context } from '../../../test-resources/framework';
+import { Context } from '../../../test-sources/framework';
 
 // entity imports
 import {
@@ -18,7 +18,7 @@ import {
   GetOneUserParams,
   CreateOneUserBody,
   UpdateOneUserBody,
-} from '../../../test-resources/user-type';
+} from '../../../test-sources/user-type';
 import UserService from '../../services/user';
 
 // api response builders

@@ -63,7 +63,7 @@ function dispatchWith<OPTIONS, CONTEXT, DATA, PARSED, RESULT, ERROR>(
       throw error;
     });
 
-  return async (data: any, context: CONTEXT) => {
+  return async (data: DATA, context: CONTEXT) => {
     const dispatcherContext: DispatcherContext<CONTEXT, DATA, PARSED, RESULT> =
       { data, context };
     try {
