@@ -5,7 +5,9 @@ interface SearchEngineBase<DOCUMENT, ENGINE_QUERY, SCHEMA> {
   index(indexName: string, documents: DOCUMENT[]): Awaitable<boolean[]>;
   unindex(indexName: string, documents: DOCUMENT[]): Awaitable<boolean[]>;
   retrieve(indexName: string, query: ENGINE_QUERY): Awaitable<DOCUMENT[]>;
-  reset(indexName: string, schema: SCHEMA): Awaitable<boolean>;
+  create(indexName: string, schema: SCHEMA): Awaitable<boolean>;
+  rename(oldOndexName: string, newIndexName: string): Awaitable<boolean>;
+  delete(indexName: string): Awaitable<boolean>;
 }
 
 abstract class SearchServiceBase<
@@ -40,6 +42,8 @@ abstract class SearchServiceBase<
     query: SERVICE_QUERY,
     context: CONTEXT
   ): Awaitable<ENGINE_QUERY>;
+
+  public abstract resetIndex(): Awaitable<boolean>;
 
   public async search(query: SERVICE_QUERY, context: CONTEXT) {
     const engineQuery = await this.prepareQuery(query, context);
@@ -79,10 +83,6 @@ abstract class SearchServiceBase<
   ): Promise<boolean[]> {
     const documents = await this.dehydrate(many, context);
     return await this.engine.unindex(this.indexName, documents);
-  }
-
-  public async resetIndex(): Promise<boolean> {
-    return await this.engine.reset(this.indexName, this.indexSchema);
   }
 }
 
