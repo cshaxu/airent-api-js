@@ -55,4 +55,9 @@ export class UserSearchService extends SearchServiceBase<
     // TODO: map your service query to a search engine query
     throw new Error('not implemented.');
   }
+
+  public resetIndex(context: Context): Awaitable<boolean> {
+    // TODO: reset your search index
+    throw new Error('not implemented.');
+  }
 }

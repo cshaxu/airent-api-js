@@ -60,5 +60,10 @@ export class <%= entity.api.strings.searchServiceClass %> extends SearchServiceB
     // TODO: map your service query to a search engine query
     throw new Error('not implemented.');
   }
+
+  public resetIndex(context: Context): Awaitable<boolean> {
+    // TODO: reset your search index
+    throw new Error('not implemented.');
+  }
 }
 <% } -%>
