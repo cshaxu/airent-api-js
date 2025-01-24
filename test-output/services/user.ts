@@ -8,7 +8,7 @@ import { Context } from '../../test-sources/framework';
 import { UserEntity } from '../entities/user';
 import {
   UserModel,
-} from '../entities/generated/user-type';
+} from '../generated/types/user';
 import {
   SearchUsersQuery,
   GetManyUsersQuery,
@@ -16,7 +16,7 @@ import {
   CreateOneUserBody,
   UpdateOneUserBody,
 } from '../../test-sources/user-type';
-import { UserServiceInterface } from '../entities/generated/user-service-interface';
+import { UserServiceInterface } from '../generated/services/user';
 import { UserSearchService } from './user-search';
 
 async function search(query: SearchUsersQuery, context: Context): Promise<UserEntity[]> {

@@ -13,7 +13,7 @@ import {
 import { dispatcherConfig } from '../../../test-sources/framework';
 
 // entity imports
-import UserActions from './user-actions';
+import UserActions from '../actions/user';
 import {
   SearchUsersQuery,
   GetManyUsersQuery,

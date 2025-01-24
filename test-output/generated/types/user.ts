@@ -2,7 +2,7 @@
 import { Select } from 'airent';
 
 // entity imports
-import { MessageFieldRequest, MessageResponse } from './message-type';
+import { MessageFieldRequest, MessageResponse } from './message';
 
 /** structs */
 

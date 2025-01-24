@@ -1,67 +1,104 @@
 const path = require("path");
 const utils = require("airent/resources/utils.js");
 
-function enforceRelativePath(relativePath) /* string */ {
-  return relativePath.startsWith(".") ? relativePath : `./${relativePath}`;
+function buildRelativePath(sourcePath, targetPath) /* string */ {
+  const rawRelativePath = path
+    .relative(sourcePath, targetPath)
+    .replaceAll("\\", "/");
+  return rawRelativePath.startsWith(".")
+    ? rawRelativePath
+    : `./${rawRelativePath}`;
 }
 
-function joinRelativePath(...elements) /* string */ {
-  return enforceRelativePath(path.join(...elements).replaceAll("\\", "/"));
-}
-
-function buildRelativePackage(sourcePath, targetPath, config) /* string */ {
+function buildRelativeFull(sourcePath, targetPath, config) /* string */ {
   if (!targetPath.startsWith(".")) {
     return targetPath;
   }
   const suffix = utils.getModuleSuffix(config);
-  const relativePath = enforceRelativePath(
-    path.relative(sourcePath, targetPath).replaceAll("\\", "/")
-  );
+  const relativePath = buildRelativePath(sourcePath, targetPath);
   return `${relativePath}${suffix}`;
 }
 
 // build config
 
 function augmentConfig(config) /* void */ {
-  config.api.baseLibPackage = config.api.libImportPath
-    ? buildRelativePackage(
-        path.join(config.entityPath, "generated"),
+  config._packages.api = config._packages.api ?? {};
+  config._packages.api.baseToLibFull = config.api.libImportPath
+    ? buildRelativeFull(
+        path.join(config.generatedPath, "entities"),
         config.api.libImportPath,
         config
       )
     : "@airent/api";
-  config.api.entityLibPackage = config.api.libImportPath
-    ? buildRelativePackage(config.entityPath, config.api.libImportPath, config)
+  config._packages.api.entityToLibFull = config.api.libImportPath
+    ? buildRelativeFull(config.entityPath, config.api.libImportPath, config)
     : "@airent/api";
 
   if (config.api.server) {
-    config.api.server.serviceLibPackage = config.api.libImportPath
-      ? buildRelativePackage(
+    config._packages.api.dispatcherToLibFull = config.api.libImportPath
+      ? buildRelativeFull(
+          path.join(config.generatedPath, "dispatchers"),
+          config.api.libImportPath,
+          config
+        )
+      : "@airent/api";
+    config._packages.api.actionToLibFull = config.api.libImportPath
+      ? buildRelativeFull(
+          path.join(config.generatedPath, "actions"),
+          config.api.libImportPath,
+          config
+        )
+      : "@airent/api";
+    config._packages.api.serviceInterfaceToLibFull = config.api.libImportPath
+      ? buildRelativeFull(
+          path.join(config.generatedPath, "services"),
+          config.api.libImportPath,
+          config
+        )
+      : "@airent/api";
+    config._packages.api.serviceToLibFull = config.api.libImportPath
+      ? buildRelativeFull(
           config.api.server.servicePath,
           config.api.libImportPath,
           config
         )
       : "@airent/api";
-    config.api.server.serviceContextPackage = buildRelativePackage(
+
+    config._packages.api.actionToContextFull = buildRelativeFull(
+      path.join(config.generatedPath, "actions"),
+      config.contextImportPath,
+      config
+    );
+    config._packages.api.serviceInterfaceToContextFull = buildRelativeFull(
+      path.join(config.generatedPath, "services"),
+      config.contextImportPath,
+      config
+    );
+    config._packages.api.serviceToContextFull = buildRelativeFull(
       config.api.server.servicePath,
       config.contextImportPath,
       config
     );
-    config.api.server.dispatcherConfigPackage = buildRelativePackage(
-      path.join(config.entityPath, "generated"),
+    config._packages.api.dispatcherToDispatcherConfigFull = buildRelativeFull(
+      path.join(config.generatedPath, "dispatchers"),
       config.api.server.dispatcherConfigImportPath,
       config
     );
   }
 
   if (config.api.client) {
-    config.api.client.clientLibPackage = config.api.libImportPath
-      ? buildRelativePackage(
-          config.api.client.clientPath,
+    config._packages.api.clientToLibFull = config.api.libImportPath
+      ? buildRelativeFull(
+          path.join(config.generatedPath, "clients"),
           config.api.libImportPath,
           config
         )
       : "@airent/api";
+    config._packages.api.clientToBaseUrlFull = buildRelativeFull(
+      path.join(config.generatedPath, "clients"),
+      config.api.client.baseUrlImportPath,
+      config
+    );
   }
 }
 
@@ -80,20 +117,19 @@ function hasApiMethod(entity, methodName) {
 function addStrings(entity, config, isVerbose) {
   const pluralEntName = utils.toTitleCase(utils.pluralize(entity.name));
   const singularEntName = utils.toTitleCase(entity.name);
-  entity.api = entity.api ?? {};
   if (isVerbose) {
     console.log(
       `[AIRENT-API/INFO] augmenting ${entity.name} - add strings ...`
     );
   }
-  entity.api.strings = {
+  entity._strings.api = {
     manyEntsVar: utils.toCamelCase(utils.pluralize(entity.name)),
     oneEntVar: utils.toCamelCase(entity.name),
     dispatcherClass: `${singularEntName}Dispatcher`,
     actionsClass: `${singularEntName}Actions`,
     serviceClass: `${singularEntName}Service`,
     searchServiceClass: `${utils.toTitleCase(entity.name)}SearchService`,
-    searchServicePackage: `${utils.toKababCase(
+    searchServiceModuleName: `${utils.toKababCase(
       entity.name
     )}-search${utils.getModuleSuffix(config)}`,
     serviceInterfaceClass: `${singularEntName}ServiceInterface`,
@@ -109,6 +145,26 @@ function addStrings(entity, config, isVerbose) {
     updateOneBody: `UpdateOne${singularEntName}Body`,
   };
 
+  entity.fields.forEach(
+    (field) => (field._strings.api = field._strings.api ?? {})
+  );
+
+  (entity.api?.cursors ?? [])
+    .flatMap((c) => Object.keys(c).map((n) => ({ name: n, value: c[n] })))
+    .map((c) => ({ ...utils.queryField(c.name, entity), value: c.value }))
+    .filter(utils.isPrimitiveField)
+    .filter(utils.isPresentableField)
+    .forEach((field) => {
+      if (field.value === "asc") {
+        field._strings.api.maxVar = `max${utils.toTitleCase(field.name)}`;
+      }
+      if (field.value === "desc") {
+        field._strings.api.minVar = `min${utils.toTitleCase(field.name)}`;
+      }
+    });
+}
+
+function addBooleans(entity) {
   const hasSearch = hasApiMethod(entity, "search");
   const hasGetMany = hasApiMethod(entity, "getMany");
   const hasGetOne = hasApiMethod(entity, "getOne");
@@ -119,7 +175,8 @@ function addStrings(entity, config, isVerbose) {
   const hasGetOneRequest =
     hasGetOne || hasGetOneSafe || hasUpdateOne | hasDeleteOne;
   const hasAny = hasSearch || hasGetMany || hasGetOneRequest || hasCreateOne;
-  entity.api.booleans = {
+  entity._booleans = entity._booleans ?? {};
+  entity._booleans.api = {
     hasSearch,
     hasGetMany,
     hasGetOne,
@@ -130,90 +187,138 @@ function addStrings(entity, config, isVerbose) {
     hasGetOneRequest,
     hasAny,
   };
-  (entity.api?.cursors ?? [])
-    .flatMap((c) => Object.keys(c).map((n) => ({ name: n, value: c[n] })))
-    .map((c) => ({ ...utils.queryField(c.name, entity), value: c.value }))
-    .filter(utils.isPrimitiveField)
-    .filter(utils.isPresentableField)
-    .forEach((field) => {
-      if (field.value === "asc") {
-        field.strings.maxVar = `max${utils.toTitleCase(field.name)}`;
-      }
-      if (field.value === "desc") {
-        field.strings.minVar = `min${utils.toTitleCase(field.name)}`;
-      }
-    });
+}
 
-  entity.api.packages = {};
-  const kababEntName = utils.toKababCase(entity.name);
+// augment entity - add api packages
+function buildTypePackages(type, config) /* Object */ {
+  if (type._entity !== undefined) {
+    return {};
+  } else if (utils.isImportType(type)) {
+    const actionToExternalFull = buildRelativeFull(
+      path.join(config.generatedPath, "actions"),
+      type.import,
+      config
+    );
+    const serviceInterfaceToExternalFull = buildRelativeFull(
+      path.join(config.generatedPath, "services"),
+      type.import,
+      config
+    );
+    const serviceToExternalFull = buildRelativeFull(
+      path.join(config.api.server.servicePath),
+      type.import,
+      config
+    );
+    return {
+      actionToExternalFull,
+      serviceInterfaceToExternalFull,
+      serviceToExternalFull,
+    };
+  } else if (utils.isDefineType(type)) {
+    return {};
+  } else if (utils.isEnumType(type)) {
+    return {};
+  }
+}
+
+function addPackages(entity, config, isVerbose) {
+  if (isVerbose) {
+    console.log(
+      `[AIRENT-API/INFO] augmenting ${entity.name} - add packages ...`
+    );
+  }
+
+  entity._packages = entity._packages ?? {};
+  entity._packages.api = entity._packages.api ?? {};
 
   const requestImport = entity.api.request?.import;
 
   if (config.api.server) {
+    entity._packages.api.dispatcherToActionFull = buildRelativePath(
+      path.join(config.generatedPath, "dispatchers"),
+      path.join(config.generatedPath, "actions", entity._strings.moduleName)
+    );
+
+    entity._packages.api.actionToTypeFull = buildRelativePath(
+      path.join(config.generatedPath, "actions"),
+      path.join(config.generatedPath, "types", entity._strings.moduleName)
+    );
+    entity._packages.api.actionToEntityFull = buildRelativePath(
+      path.join(config.generatedPath, "actions"),
+      path.join(config.entityPath, entity._strings.moduleName)
+    );
+    entity._packages.api.actionToServiceFull = buildRelativePath(
+      path.join(config.generatedPath, "actions"),
+      path.join(config.api.server.servicePath, entity._strings.moduleName)
+    );
+
+    entity._packages.api.serviceInterfaceToTypeFull = buildRelativePath(
+      path.join(config.generatedPath, "services"),
+      path.join(config.generatedPath, "types", entity._strings.moduleName),
+      config
+    );
+    entity._packages.api.serviceInterfaceToEntityFull = buildRelativePath(
+      path.join(config.generatedPath, "services"),
+      path.join(config.entityPath, entity._strings.moduleName),
+      config
+    );
+
+    entity._packages.api.serviceToTypeFull = buildRelativePath(
+      config.api.server.servicePath,
+      path.join(config.generatedPath, "types", entity._strings.moduleName),
+      config
+    );
+    entity._packages.api.serviceToEntityFull = buildRelativePath(
+      config.api.server.servicePath,
+      path.join(config.entityPath, entity._strings.moduleName),
+      config
+    );
+    entity._packages.api.serviceToServiceInterfaceFull = buildRelativePath(
+      config.api.server.servicePath,
+      path.join(config.generatedPath, "services", entity._strings.moduleName)
+    );
+
+    entity.types.forEach(
+      (t) => (t._packages.api = buildTypePackages(t, config))
+    );
+
     if (requestImport) {
-      entity.api.packages.baseRequest = buildRelativePackage(
-        path.join(config.entityPath, "generated"),
+      entity._packages.api.dispatcherToRequestFull = buildRelativeFull(
+        path.join(config.generatedPath, "dispatchers"),
         requestImport,
         config
       );
-      entity.api.packages.serviceRequest = buildRelativePackage(
+      entity._packages.api.actionToRequestFull = buildRelativeFull(
+        path.join(config.generatedPath, "actions"),
+        requestImport,
+        config
+      );
+      entity._packages.api.serviceInterfaceToRequestFull = buildRelativeFull(
+        path.join(config.generatedPath, "services"),
+        requestImport,
+        config
+      );
+      entity._packages.api.serviceToRequestFull = buildRelativeFull(
         config.api.server.servicePath,
         requestImport,
         config
       );
     }
-    entity.api.packages.baseService = buildRelativePackage(
-      path.join(config.entityPath, "generated"),
-      joinRelativePath(config.api.server.servicePath, kababEntName),
-      config
-    );
-    entity.api.packages.entityService = buildRelativePackage(
-      config.entityPath,
-      joinRelativePath(config.api.server.servicePath, kababEntName),
-      config
-    );
-    entity.api.packages.serviceEntity = buildRelativePackage(
-      config.api.server.servicePath,
-      joinRelativePath(config.entityPath, kababEntName),
-      config
-    );
-    entity.api.packages.serviceInterface = buildRelativePackage(
-      config.api.server.servicePath,
-      joinRelativePath(
-        config.entityPath,
-        "generated",
-        `${kababEntName}-service-interface`
-      ),
-      config
-    );
-    entity.api.packages.serviceType = buildRelativePackage(
-      config.api.server.servicePath,
-      joinRelativePath(config.entityPath, "generated", `${kababEntName}-type`),
-      config
-    );
-    entity.types.filter(utils.isImportType).forEach((type) => {
-      type.packages = type.packages ?? {};
-      type.packages.serviceExternal = buildRelativePackage(
-        config.api.server.servicePath,
-        type.import,
-        config
-      );
-    });
   }
 
   if (config.api.client) {
+    entity._packages.api.clientToTypeFull = buildRelativePath(
+      path.join(config.generatedPath, "clients"),
+      path.join(config.generatedPath, "types", entity._strings.moduleName)
+    );
+
     if (requestImport) {
-      entity.api.packages.clientRequest = buildRelativePackage(
-        config.api.client.clientPath,
+      entity._packages.api.clientToRequestFull = buildRelativeFull(
+        path.join(config.generatedPath, "clients"),
         requestImport,
         config
       );
     }
-    entity.api.packages.clientType = buildRelativePackage(
-      config.api.client.clientPath,
-      joinRelativePath(config.entityPath, "generated", `${kababEntName}-type`),
-      config
-    );
   }
 }
 
@@ -233,37 +338,37 @@ function buildAfterType(entity) /* Code[] */ {
   return [
     "",
     ...(entity.deprecated ? ["/** @deprecated */"] : []),
-    `export type ${entity.api.strings.manyCursor} = {`,
+    `export type ${entity._strings.api.manyCursor} = {`,
     "  count: number;",
     ...entity.fields
-      .filter((f) => f.strings.minVar || f.strings.maxVar)
+      .filter((f) => f._strings.api.minVar || f._strings.api.maxVar)
       .flatMap((field) => [
-        ...(field.strings.minVar
+        ...(field._strings.api.minVar
           ? [
               ...(field.deprecated ? ["  /** @deprecated */"] : []),
-              `  ${field.strings.minVar}: ${field.strings.fieldResponseType} | null;`,
+              `  ${field._strings.api.minVar}: ${field._strings.fieldResponseType} | null;`,
             ]
           : []),
-        ...(field.strings.maxVar
+        ...(field._strings.api.maxVar
           ? [
               ...(field.deprecated ? ["  /** @deprecated */"] : []),
-              `  ${field.strings.maxVar}: ${field.strings.fieldResponseType} | null;`,
+              `  ${field._strings.api.maxVar}: ${field._strings.fieldResponseType} | null;`,
             ]
           : []),
       ]),
     "};",
     "",
     ...(entity.deprecated ? ["/** @deprecated */"] : []),
-    `export type ${entity.api.strings.manyResponse}<S extends ${entity.strings.fieldRequestClass}> = {`,
-    `  cursor: ${entity.api.strings.manyCursor};`,
+    `export type ${entity._strings.api.manyResponse}<S extends ${entity._strings.fieldRequestClass}> = {`,
+    `  cursor: ${entity._strings.api.manyCursor};`,
     ...(entity.deprecated ? ["  /** @deprecated */"] : []),
-    `  ${entity.api.strings.manyEntsVar}: ${entity.strings.selectedResponseClass}<S>[];`,
+    `  ${entity._strings.api.manyEntsVar}: ${entity._strings.selectedResponseClass}<S>[];`,
     "};",
     "",
     ...(entity.deprecated ? ["/** @deprecated */"] : []),
-    `export type ${entity.api.strings.oneResponse}<S extends ${entity.strings.fieldRequestClass}, N extends boolean = false> = {`,
+    `export type ${entity._strings.api.oneResponse}<S extends ${entity._strings.fieldRequestClass}, N extends boolean = false> = {`,
     ...(entity.deprecated ? ["  /** @deprecated */"] : []),
-    `  ${entity.api.strings.oneEntVar}: N extends true ? (${entity.strings.selectedResponseClass}<S> | null) : ${entity.strings.selectedResponseClass}<S>;`,
+    `  ${entity._strings.api.oneEntVar}: N extends true ? (${entity._strings.selectedResponseClass}<S> | null) : ${entity._strings.selectedResponseClass}<S>;`,
     "};",
   ];
 }
@@ -271,7 +376,7 @@ function buildAfterType(entity) /* Code[] */ {
 function buildBeforePresent(entity, policies, utils) /* Code[] */ {
   return [
     "",
-    `protected async beforePresent<S extends ${entity.strings.fieldRequestClass}>(fieldRequest: S): Promise<void> {`,
+    `protected async beforePresent<S extends ${entity._strings.fieldRequestClass}>(fieldRequest: S): Promise<void> {`,
     ...Object.entries(policies).map(([policy, fields]) =>
       fields?.length
         ? `  await this.check${utils.toTitleCase(policy)}Fields(fieldRequest);`
@@ -290,7 +395,7 @@ function buildPolicyChecker(entity, policy, fields, utils) /* Code[] */ {
       "];",
       "",
       `protected async check${utils.toTitleCase(policy)}Fields(fieldRequest: ${
-        entity.strings.fieldRequestClass
+        entity._strings.fieldRequestClass
       }): Promise<void> {`,
       `  const fields = Object.keys(fieldRequest).filter((key) => this.${utils.toCamelCase(
         policy
@@ -336,7 +441,7 @@ function buildBeforeBase(entity, config) /* Code[] */ {
   if (!utils.isPresentableEntity(entity)) {
     return [];
   }
-  return [`import { Awaitable } from '${config.api.baseLibPackage}';`];
+  return [`import { Awaitable } from '${config._packages.api.baseToLibFull}';`];
 }
 
 function buildInsideBase(entity, policies, utils) /* Code[] */ {
@@ -354,7 +459,9 @@ function buildBeforeEntity(entity, config) /* Code[] */ {
   if (!utils.isPresentableEntity(entity)) {
     return [];
   }
-  return [`import { Awaitable } from '${config.api.entityLibPackage}';`];
+  return [
+    `import { Awaitable } from '${config._packages.api.entityToLibFull}';`,
+  ];
 }
 
 function buildInsideEntity(policies, utils) /* Code[] */ {
@@ -369,25 +476,25 @@ function addCode(entity, config, isVerbose) {
   }
 
   const beforeType = buildBeforeType(entity);
-  entity.code.beforeType.push(...beforeType);
+  entity._code.beforeType.push(...beforeType);
 
   const afterType = buildAfterType(entity);
-  entity.code.afterType.push(...afterType);
+  entity._code.afterType.push(...afterType);
 
   const beforeBase = buildBeforeBase(entity, config);
-  entity.code.beforeBase.push(...beforeBase);
+  entity._code.beforeBase.push(...beforeBase);
 
   const beforeEntity = buildBeforeEntity(entity, config);
-  entity.code.beforeEntity.push(...beforeEntity);
+  entity._code.beforeEntity.push(...beforeEntity);
 
   const policies = entity.policies ?? new Map();
   const policyKeys = Object.keys(policies);
   if (policyKeys.length > 0) {
-    entity.code.beforeBase.push("import createHttpError from 'http-errors';");
+    entity._code.beforeBase.push("import createHttpError from 'http-errors';");
     const insideBase = buildInsideBase(entity, policies, utils);
-    entity.code.insideBase.push(...insideBase);
+    entity._code.insideBase.push(...insideBase);
     const insideEntity = buildInsideEntity(policies, utils);
-    entity.code.insideEntity.push(...insideEntity);
+    entity._code.insideEntity.push(...insideEntity);
   }
 
   const apiCallerLines = [
@@ -402,53 +509,52 @@ function addCode(entity, config, isVerbose) {
   const pluralKababEntityName = utils.toKababCase(utils.pluralize(entity.name));
   const singularKababEntityName = utils.toKababCase(entity.name);
 
-  entity.api = entity.api ?? {};
-  entity.api.code = entity.api.code ?? {};
+  entity._code.api = entity._code.api ?? {};
   if (config.api.client) {
-    entity.api.code.beforeClient = entity.api.code.beforeClient ?? [
+    entity._code.api.beforeClient = entity._code.api.beforeClient ?? [
       "// airent imports",
-      `import { fetchJsonOrThrow } from '${config.api.client.clientLibPackage}';`,
+      `import { fetchJsonOrThrow } from '${config._packages.api.clientToLibFull}';`,
       "",
       "// config imports",
-      config.api.client.baseUrlImport,
+      `import { baseUrl } from '${config._packages.api.clientToBaseUrlFull}';`,
     ];
-    entity.api.code.searchCaller = entity.api.code.searchCaller ?? [
+    entity._code.api.searchCaller = entity._code.api.searchCaller ?? [
       `const input = \`\${baseUrl}/search-${pluralKababEntityName}\`;`,
       "const data = { query, fieldRequest };",
       ...apiCallerLines,
       "return presentManyResponse(response, fieldRequest);",
     ];
-    entity.api.code.getManyCaller = entity.api.code.getManyCaller ?? [
+    entity._code.api.getManyCaller = entity._code.api.getManyCaller ?? [
       `const input = \`\${baseUrl}/get-many-${pluralKababEntityName}\`;`,
       "const data = { query, fieldRequest };",
       ...apiCallerLines,
       "return presentManyResponse(response, fieldRequest);",
     ];
-    entity.api.code.getOneCaller = entity.api.code.getOneCaller ?? [
+    entity._code.api.getOneCaller = entity._code.api.getOneCaller ?? [
       `const input = \`\${baseUrl}/get-one-${singularKababEntityName}\`;`,
       "const data = { params, fieldRequest };",
       ...apiCallerLines,
       "return presentOneResponse(response, fieldRequest);",
     ];
-    entity.api.code.getOneSafeCaller = entity.api.code.getOneSafeCaller ?? [
+    entity._code.api.getOneSafeCaller = entity._code.api.getOneSafeCaller ?? [
       `const input = \`\${baseUrl}/get-one-${singularKababEntityName}-safe\`;`,
       "const data = { params, fieldRequest };",
       ...apiCallerLines,
       "return presentOneSafeResponse(response, fieldRequest);",
     ];
-    entity.api.code.createOneCaller = entity.api.code.createOneCaller ?? [
+    entity._code.api.createOneCaller = entity._code.api.createOneCaller ?? [
       `const input = \`\${baseUrl}/create-one-${singularKababEntityName}\`;`,
       "const data = { body, fieldRequest };",
       ...apiCallerLines,
       "return presentOneResponse(response, fieldRequest);",
     ];
-    entity.api.code.updateOneCaller = entity.api.code.updateOneCaller ?? [
+    entity._code.api.updateOneCaller = entity._code.api.updateOneCaller ?? [
       `const input = \`\${baseUrl}/update-one-${singularKababEntityName}\`;`,
       "const data = { params, body, fieldRequest };",
       ...apiCallerLines,
       "return presentOneResponse(response, fieldRequest);",
     ];
-    entity.api.code.deleteOneCaller = entity.api.code.deleteOneCaller ?? [
+    entity._code.api.deleteOneCaller = entity._code.api.deleteOneCaller ?? [
       `const input = \`\${baseUrl}/delete-one-${singularKababEntityName}\`;`,
       "const data = { params, fieldRequest };",
       ...apiCallerLines,
@@ -462,7 +568,10 @@ function augment(data, isVerbose) {
   augmentConfig(config);
   const entityNames = Object.keys(entityMap).sort();
   const entities = entityNames.map((n) => entityMap[n]);
+  entities.forEach((entity) => (entity.api = entity.api ?? {}));
   entities.forEach((entity) => addStrings(entity, config, isVerbose));
+  entities.forEach((entity) => addBooleans(entity));
+  entities.forEach((entity) => addPackages(entity, config, isVerbose));
   entities.forEach((entity) => addCode(entity, config, isVerbose));
 }
 

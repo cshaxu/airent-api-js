@@ -5,10 +5,10 @@ import { Awaitable } from '../../../src/index';
 import { Context } from '../../../test-sources/framework';
 
 // entity imports
-import { UserEntity } from '../user';
+import { UserEntity } from '../../entities/user';
 import {
   UserModel,
-} from './user-type';
+} from '../types/user';
 import {
   SearchUsersQuery,
   GetManyUsersQuery,

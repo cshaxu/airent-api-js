@@ -2,24 +2,23 @@
   "type": "commonjs",
   "schemaPath": "test-schemas",
   "entityPath": "test-output/entities",
+  "generatedPath": "test-output/generated",
   "contextImportPath": "./test-sources/framework",
-  "augmentors": [
-    "resources/augmentor.js"
-  ],
+  "augmentors": ["resources/augmentor.js"],
   "templates": [
     {
       "name": "resources/dispatcher-template.ts.ejs",
-      "outputPath": "{entityPath}/generated/{kababEntityName}-dispatcher.ts",
+      "outputPath": "{generatedPath}/dispatchers/{kababEntityName}.ts",
       "skippable": false
     },
     {
       "name": "resources/actions-template.ts.ejs",
-      "outputPath": "{entityPath}/generated/{kababEntityName}-actions.ts",
+      "outputPath": "{generatedPath}/actions/{kababEntityName}.ts",
       "skippable": false
     },
     {
       "name": "resources/service-interface-template.ts.ejs",
-      "outputPath": "{entityPath}/generated/{kababEntityName}-service-interface.ts",
+      "outputPath": "{generatedPath}/services/{kababEntityName}.ts",
       "skippable": false
     },
     {
@@ -29,7 +28,7 @@
     },
     {
       "name": "resources/client-template.ts.ejs",
-      "outputPath": "{api.client.clientPath}/{kababEntityName}.ts",
+      "outputPath": "{generatedPath}/clients/{kababEntityName}.ts",
       "skippable": false
     },
     {
@@ -45,8 +44,7 @@
       "dispatcherConfigImportPath": "./test-sources/framework"
     },
     "client": {
-      "clientPath": "test-output/clients",
-      "baseUrlImport": "import { baseUrl } from '../../test-sources/fetch';"
+      "baseUrlImportPath": "./test-sources/fetch"
     }
   }
 }

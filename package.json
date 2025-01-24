@@ -36,7 +36,7 @@
     "resources"
   ],
   "dependencies": {
-    "airent": "github:cshaxu/airent-js#b66b9a4e807b56e7516e29030a42be1304db61fe",
+    "airent": "github:cshaxu/airent-js#69aa045ca8c44c0cdb364de9a14e9362b40e0853",
     "http-errors": "^2.0.0",
     "zod": "^3.23.8"
   },

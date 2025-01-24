@@ -1,8 +1,8 @@
 // airent imports
-import { fetchJsonOrThrow } from '../../src/index';
+import { fetchJsonOrThrow } from '../../../src/index';
 
 // config imports
-import { baseUrl } from '../../test-sources/fetch';
+import { baseUrl } from '../../../test-sources/fetch';
 
 // entity imports
 import {
@@ -10,7 +10,7 @@ import {
   MessageFieldRequest,
   ManyMessagesResponse,
   OneMessageResponse,
-} from '../entities/generated/message-type';
+} from '../types/message';
 
 function present<S extends MessageFieldRequest>(
   one: any,

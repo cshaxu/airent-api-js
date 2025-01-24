@@ -1,55 +1,55 @@
-<% if (utils.isPresentableEntity(entity) && entity.api.booleans.hasAny) { -%>
+<% if (utils.isPresentableEntity(entity) && entity._booleans.api.hasAny) { -%>
 // library imports
 import createHttpError from 'http-errors';
 
 // config imports
-import { Context } from '<%- config.api.server.serviceContextPackage %>';
+import { Context } from '<%- config._packages.api.serviceToContextFull %>';
 
 // entity imports
-import { <%= entity.strings.entityClass %> } from '<%- entity.api.packages.serviceEntity %>';
+import { <%= entity._strings.entityClass %> } from '<%- entity._packages.api.serviceToEntityFull %>';
   <%_ entity.types.filter(utils.isImportType).forEach((type) => { -%>
-import { <%= type.strings.externalClass %> } from '<%- type.packages.serviceExternal %>';
+import { <%= type._strings.externalClass %> } from '<%- type._packages.api.serviceToExternalFull %>';
   <%_ }); -%>
 import {
   <%_ entity.types.filter(utils.isCustomType).forEach((type) => { -%>
   <%= type.name %>,
   <%_ }); -%>
-} from '<%- entity.api.packages.serviceType %>';
+} from '<%- entity._packages.api.serviceToTypeFull %>';
 import {
-  <%_ if (entity.api.booleans.hasSearch) { -%>
-  <%= entity.api.strings.searchQuery %>,
+  <%_ if (entity._booleans.api.hasSearch) { -%>
+  <%= entity._strings.api.searchQuery %>,
   <%_ } -%>
-  <%_ if (entity.api.booleans.hasGetMany) { -%>
-  <%= entity.api.strings.getManyQuery %>,
+  <%_ if (entity._booleans.api.hasGetMany) { -%>
+  <%= entity._strings.api.getManyQuery %>,
   <%_ } -%>
-  <%_ if (entity.api.booleans.hasGetOneRequest) { -%>
-  <%= entity.api.strings.getOneParams %>,
+  <%_ if (entity._booleans.api.hasGetOneRequest) { -%>
+  <%= entity._strings.api.getOneParams %>,
   <%_ } -%>
-  <%_ if (entity.api.booleans.hasCreateOne) { -%>
-  <%= entity.api.strings.createOneBody %>,
+  <%_ if (entity._booleans.api.hasCreateOne) { -%>
+  <%= entity._strings.api.createOneBody %>,
   <%_ } -%>
-  <%_ if (entity.api.booleans.hasUpdateOne) { -%>
-  <%= entity.api.strings.updateOneBody %>,
+  <%_ if (entity._booleans.api.hasUpdateOne) { -%>
+  <%= entity._strings.api.updateOneBody %>,
   <%_ } -%>
-} from '<%- entity.api.packages.serviceRequest %>';
-import { <%= entity.api.strings.serviceInterfaceClass %> } from '<%- entity.api.packages.serviceInterface %>';
-  <%_ if (entity.api.booleans.hasSearch) { -%>
-import { <%= entity.api.strings.searchServiceClass %> } from './<%= entity.api.strings.searchServicePackage %>';
+} from '<%- entity._packages.api.serviceToRequestFull %>';
+import { <%= entity._strings.api.serviceInterfaceClass %> } from '<%- entity._packages.api.serviceToServiceInterfaceFull %>';
+  <%_ if (entity._booleans.api.hasSearch) { -%>
+import { <%= entity._strings.api.searchServiceClass %> } from './<%= entity._strings.api.searchServiceModuleName %>';
 
-async function search(query: <%= entity.api.strings.searchQuery %>, context: Context): Promise<<%= entity.strings.entityClass %>[]> {
-  return await new <%= entity.api.strings.searchServiceClass %>().search(query, context);
+async function search(query: <%= entity._strings.api.searchQuery %>, context: Context): Promise<<%= entity._strings.entityClass %>[]> {
+  return await new <%= entity._strings.api.searchServiceClass %>().search(query, context);
 }
   <%_ } -%>
-  <%_ if (entity.api.booleans.hasGetMany) { -%>
+  <%_ if (entity._booleans.api.hasGetMany) { -%>
 
-async function getMany(query: <%= entity.api.strings.getManyQuery %>, context: Context): Promise<<%= entity.strings.entityClass %>[]> {
+async function getMany(query: <%= entity._strings.api.getManyQuery %>, context: Context): Promise<<%= entity._strings.entityClass %>[]> {
   throw createHttpError.NotImplemented();
 }
   <%_ } -%>
-  <%_ if (entity.api.booleans.hasGetOne || entity.api.booleans.hasUpdateOne || entity.api.booleans.hasDeleteOne) { -%>
+  <%_ if (entity._booleans.api.hasGetOne || entity._booleans.api.hasUpdateOne || entity._booleans.api.hasDeleteOne) { -%>
 
-async function getOne(params: <%= entity.api.strings.getOneParams %>, context: Context): Promise<<%= entity.strings.entityClass %>> {
-    <%_ if (entity.api.booleans.hasGetOneSafe) { -%>
+async function getOne(params: <%= entity._strings.api.getOneParams %>, context: Context): Promise<<%= entity._strings.entityClass %>> {
+    <%_ if (entity._booleans.api.hasGetOneSafe) { -%>
   const one = await getOneSafe(params, context);
   if (one === null) {
     throw createHttpError.NotFound();
@@ -60,27 +60,27 @@ async function getOne(params: <%= entity.api.strings.getOneParams %>, context: C
     <%_ } -%>
 }
   <%_ } -%>
-  <%_ if (entity.api.booleans.hasGetOneSafe) { -%>
+  <%_ if (entity._booleans.api.hasGetOneSafe) { -%>
 
-async function getOneSafe(params: <%= entity.api.strings.getOneParams %>, context: Context): Promise<<%= entity.strings.entityClass %> | null> {
+async function getOneSafe(params: <%= entity._strings.api.getOneParams %>, context: Context): Promise<<%= entity._strings.entityClass %> | null> {
   throw createHttpError.NotImplemented();
 }
   <%_ } -%>
-  <%_ if (entity.api.booleans.hasCreateOne) { -%>
+  <%_ if (entity._booleans.api.hasCreateOne) { -%>
 
-async function createOne(body: <%= entity.api.strings.createOneBody %>, context: Context): Promise<<%= entity.strings.entityClass %>> {
+async function createOne(body: <%= entity._strings.api.createOneBody %>, context: Context): Promise<<%= entity._strings.entityClass %>> {
   throw createHttpError.NotImplemented();
 }
   <%_ } -%>
-  <%_ if (entity.api.booleans.hasUpdateOne) { -%>
+  <%_ if (entity._booleans.api.hasUpdateOne) { -%>
 
-async function updateOne(one: <%= entity.strings.entityClass %>, body: <%= entity.api.strings.updateOneBody %>, context: Context): Promise<<%= entity.strings.entityClass %>> {
+async function updateOne(one: <%= entity._strings.entityClass %>, body: <%= entity._strings.api.updateOneBody %>, context: Context): Promise<<%= entity._strings.entityClass %>> {
   throw createHttpError.NotImplemented();
 }
   <%_ } -%>
-  <%_ if (entity.api.booleans.hasDeleteOne) { -%>
+  <%_ if (entity._booleans.api.hasDeleteOne) { -%>
 
-async function deleteOne(one: <%= entity.strings.entityClass %>, context: Context): Promise<<%= entity.strings.entityClass %>> {
+async function deleteOne(one: <%= entity._strings.entityClass %>, context: Context): Promise<<%= entity._strings.entityClass %>> {
   throw createHttpError.NotImplemented();
 }
   <%_ } -%>
@@ -88,29 +88,29 @@ async function deleteOne(one: <%= entity.strings.entityClass %>, context: Contex
   <%_ if (entity.deprecated) { -%>
 /** @deprecated */
   <%_ } -%>
-const <%= entity.api.strings.serviceClass %>: <%= entity.api.strings.serviceInterfaceClass %> = {
-  <%_ if (entity.api.booleans.hasSearch) { -%>
+const <%= entity._strings.api.serviceClass %>: <%= entity._strings.api.serviceInterfaceClass %> = {
+  <%_ if (entity._booleans.api.hasSearch) { -%>
   search,
   <%_ } -%>
-  <%_ if (entity.api.booleans.hasGetMany) { -%>
+  <%_ if (entity._booleans.api.hasGetMany) { -%>
   getMany,
   <%_ } -%>
-  <%_ if (entity.api.booleans.hasGetOne || entity.api.booleans.hasUpdateOne || entity.api.booleans.hasDeleteOne) { -%>
+  <%_ if (entity._booleans.api.hasGetOne || entity._booleans.api.hasUpdateOne || entity._booleans.api.hasDeleteOne) { -%>
   getOne,
   <%_ } -%>
-  <%_ if (entity.api.booleans.hasGetOneSafe) { -%>
+  <%_ if (entity._booleans.api.hasGetOneSafe) { -%>
   getOneSafe,
   <%_ } -%>
-  <%_ if (entity.api.booleans.hasCreateOne) { -%>
+  <%_ if (entity._booleans.api.hasCreateOne) { -%>
   createOne,
   <%_ } -%>
-  <%_ if (entity.api.booleans.hasUpdateOne) { -%>
+  <%_ if (entity._booleans.api.hasUpdateOne) { -%>
   updateOne,
   <%_ } -%>
-  <%_ if (entity.api.booleans.hasDeleteOne) { -%>
+  <%_ if (entity._booleans.api.hasDeleteOne) { -%>
   deleteOne,
   <%_ } -%>
 };
 
-export default <%= entity.api.strings.serviceClass %>;
+export default <%= entity._strings.api.serviceClass %>;
 <% } -%>

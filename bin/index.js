@@ -28,7 +28,6 @@ async function getShouldEnable(name) {
  */
 
 /** @typedef {Object} ApiClientConfig
- * @property {string} clientPath
  * @property {string} baseUrlImport
 
 /** @typedef {Object} ApiConfig
@@ -56,24 +55,24 @@ const API_AUGMENTOR_PATH = `${AIRENT_API_RESOURCES_PATH}/augmentor.js`;
 
 const API_CLIENT_TEMPLATE_CONFIG = {
   name: `${AIRENT_API_RESOURCES_PATH}/client-template.ts.ejs`,
-  outputPath: "{api.client.clientPath}/{kababEntityName}.ts",
+  outputPath: "{generatedPath}/clients/{kababEntityName}.ts",
   skippable: false,
 };
 const API_CLIENT_TEMPLATE_CONFIGS = [API_CLIENT_TEMPLATE_CONFIG];
 
 const API_SERVER_DISPATCHER_TEMPLATE_CONFIG = {
   name: `${AIRENT_API_RESOURCES_PATH}/dispatcher-template.ts.ejs`,
-  outputPath: "{entityPath}/generated/{kababEntityName}-dispatcher.ts",
+  outputPath: "{generatedPath}/dispatchers/{kababEntityName}.ts",
   skippable: false,
 };
 const API_SERVER_ACTIONS_TEMPLATE_CONFIG = {
   name: `${AIRENT_API_RESOURCES_PATH}/actions-template.ts.ejs`,
-  outputPath: "{entityPath}/generated/{kababEntityName}-actions.ts",
+  outputPath: "{generatedPath}/actions/{kababEntityName}.ts",
   skippable: false,
 };
 const API_SERVER_SERVICE_INTERFACE_TEMPLATE_CONFIG = {
   name: `${AIRENT_API_RESOURCES_PATH}/service-interface-template.ts.ejs`,
-  outputPath: "{entityPath}/generated/{kababEntityName}-service-interface.ts",
+  outputPath: "{generatedPath}/services/{kababEntityName}.ts",
   skippable: false,
 };
 const API_SERVER_SERVICE_TEMPLATE_CONFIG = {
@@ -150,11 +149,6 @@ async function configureApiClient(config) {
   API_CLIENT_TEMPLATE_CONFIGS.forEach((t) => addTemplate(config, t));
 
   config.api.client = config.api.client ?? {};
-
-  config.api.client.clientPath = await askQuestion(
-    "Output path for Api Client",
-    config.api.client.clientPath ?? "./src/clients"
-  );
 
   config.api.client.baseUrlImport = await askQuestion(
     "Statement to import 'baseUrl'",

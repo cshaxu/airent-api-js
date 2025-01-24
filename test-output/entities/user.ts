@@ -12,8 +12,8 @@ import {
   UserResponse,
   SelectedUserResponse,
   UserModel,
-} from './generated/user-type';
-import { UserEntityBase } from './generated/user-base';
+} from '../generated/types/user';
+import { UserEntityBase } from '../generated/entities/user';
 
 /** @deprecated */
 export class UserEntity extends UserEntityBase {

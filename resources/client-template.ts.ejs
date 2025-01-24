@@ -1,14 +1,10 @@
 <%
 function isDateTypeField(field) {
-  return field.strings.fieldClass === "Date";
-}
-
-function getApiClientPackage(type) {
-  return `${utils.toKababCase(type.name)}${utils.getModuleSuffix(config)}`;
+  return field._strings.fieldClass === "Date";
 }
 
 function presentEntityTypeField(field) {
-  const presenter = `${field._type._entity.api.strings.apiClientClass}.present`;
+  const presenter = `${field._type._entity._strings.api.apiClientClass}.present`;
   if (utils.isArrayField(field)) {
     return `one.${field.name}.map((nested: any) => ${presenter}(nested, fieldRequest.${field.name}!))`;
   }
@@ -31,44 +27,44 @@ function presentDateTypeField(field) {
 }
 -%>
 <% if (utils.isPresentableEntity(entity)) { -%>
-  <%_ entity.api.code.beforeClient.forEach((line) => { -%>
+  <%_ entity._code.api.beforeClient.forEach((line) => { -%>
 <%- line %>
   <%_ }); -%>
 
 // entity imports
 import {
-  <%= entity.strings.selectedResponseClass %>,
-  <%= entity.strings.fieldRequestClass %>,
-  <%= entity.api.strings.manyResponse %>,
-  <%= entity.api.strings.oneResponse %>,
-} from '<%- entity.api.packages.clientType %>';
+  <%= entity._strings.selectedResponseClass %>,
+  <%= entity._strings.fieldRequestClass %>,
+  <%= entity._strings.api.manyResponse %>,
+  <%= entity._strings.api.oneResponse %>,
+} from '<%- entity._packages.api.clientToTypeFull %>';
   <%_ entity.types.filter(utils.isPresentableEntityType).filter((t) => t.name !== entity.name).forEach((type) => { -%>
-import <%= type._entity.api.strings.apiClientClass %> from './<%= getApiClientPackage(type) %>';
+import <%= type._entity._strings.api.apiClientClass %> from './<%= type._entity._strings.moduleName %>';
   <%_ }); -%>
-  <%_ if (entity.api.booleans.hasAny) { -%>
+  <%_ if (entity._booleans.api.hasAny) { -%>
 import {
-    <%_ if (entity.api.booleans.hasSearch) { -%>
-  <%= entity.api.strings.searchQuery %>,
+    <%_ if (entity._booleans.api.hasSearch) { -%>
+  <%= entity._strings.api.searchQuery %>,
     <%_ } -%>
-    <%_ if (entity.api.booleans.hasGetMany) { -%>
-  <%= entity.api.strings.getManyQuery %>,
+    <%_ if (entity._booleans.api.hasGetMany) { -%>
+  <%= entity._strings.api.getManyQuery %>,
     <%_ } -%>
-    <%_ if (entity.api.booleans.hasGetOneRequest) { -%>
-  <%= entity.api.strings.getOneParams %>,
+    <%_ if (entity._booleans.api.hasGetOneRequest) { -%>
+  <%= entity._strings.api.getOneParams %>,
     <%_ } -%>
-    <%_ if (entity.api.booleans.hasCreateOne) { -%>
-  <%= entity.api.strings.createOneBody %>,
+    <%_ if (entity._booleans.api.hasCreateOne) { -%>
+  <%= entity._strings.api.createOneBody %>,
     <%_ } -%>
-    <%_ if (entity.api.booleans.hasUpdateOne) { -%>
-  <%= entity.api.strings.updateOneBody %>,
+    <%_ if (entity._booleans.api.hasUpdateOne) { -%>
+  <%= entity._strings.api.updateOneBody %>,
     <%_ } -%>
-} from '<%- entity.api.packages.clientRequest %>';
+} from '<%- entity._packages.api.clientToRequestFull %>';
   <%_ } -%>
 
-function present<S extends <%= entity.strings.fieldRequestClass %>>(
+function present<S extends <%= entity._strings.fieldRequestClass %>>(
   one: any,
   fieldRequest: S
-): <%= entity.strings.selectedResponseClass %><S> {
+): <%= entity._strings.selectedResponseClass %><S> {
   return {
     ...one,
   <%_ entity.fields.filter(utils.isPresentableField).filter(isDateTypeField).forEach((field) => { -%>
@@ -80,124 +76,124 @@ function present<S extends <%= entity.strings.fieldRequestClass %>>(
   };
 }
 
-function presentManyResponse<S extends <%= entity.strings.fieldRequestClass %>>(
-  response: { cursor: any, <%= entity.api.strings.manyEntsVar %>: any[] },
+function presentManyResponse<S extends <%= entity._strings.fieldRequestClass %>>(
+  response: { cursor: any, <%= entity._strings.api.manyEntsVar %>: any[] },
   fieldRequest: S
-): <%= entity.api.strings.manyResponse %><S> {
+): <%= entity._strings.api.manyResponse %><S> {
   const cursor = {
     ...response.cursor,
-    <%_ entity.fields.filter((f) => (f.strings.minVar || f.strings.maxVar) && isDateTypeField(f)).forEach((field) => { -%>
-      <%_ if (field.strings.minVar) { -%>
-    <%= field.strings.minVar %>: new Date(response.cursor.<%= field.strings.minVar %>),
+    <%_ entity.fields.filter((f) => (f._strings.api.minVar || f._strings.api.maxVar) && isDateTypeField(f)).forEach((field) => { -%>
+      <%_ if (field._strings.api.minVar) { -%>
+    <%= field._strings.api.minVar %>: new Date(response.cursor.<%= field._strings.api.minVar %>),
       <%_ } -%>
-      <%_ if (field.strings.maxVar) { -%>
-    <%= field.strings.maxVar %>: new Date(response.cursor.<%= field.strings.maxVar %>),
+      <%_ if (field._strings.api.maxVar) { -%>
+    <%= field._strings.api.maxVar %>: new Date(response.cursor.<%= field._strings.api.maxVar %>),
       <%_ } -%>
     <%_ }); -%>
   };
-  const { <%= entity.api.strings.manyEntsVar %>: many } = response;
-  const <%= entity.api.strings.manyEntsVar %> = many.map((one) => present(one, fieldRequest));
-  return { cursor, <%= entity.api.strings.manyEntsVar %> };
+  const { <%= entity._strings.api.manyEntsVar %>: many } = response;
+  const <%= entity._strings.api.manyEntsVar %> = many.map((one) => present(one, fieldRequest));
+  return { cursor, <%= entity._strings.api.manyEntsVar %> };
 }
 
-function presentOneResponse<S extends <%= entity.strings.fieldRequestClass %>>(
-  response: { <%= entity.api.strings.oneEntVar %>: any },
+function presentOneResponse<S extends <%= entity._strings.fieldRequestClass %>>(
+  response: { <%= entity._strings.api.oneEntVar %>: any },
   fieldRequest: S
-): <%= entity.api.strings.oneResponse %><S> {
-  const { <%= entity.api.strings.oneEntVar %>: one } = response;
-  const <%= entity.api.strings.oneEntVar %> = present(one, fieldRequest);
-  return { <%= entity.api.strings.oneEntVar %> };
+): <%= entity._strings.api.oneResponse %><S> {
+  const { <%= entity._strings.api.oneEntVar %>: one } = response;
+  const <%= entity._strings.api.oneEntVar %> = present(one, fieldRequest);
+  return { <%= entity._strings.api.oneEntVar %> };
 }
 
-function presentOneSafeResponse<S extends <%= entity.strings.fieldRequestClass %>>(
-  response: { <%= entity.api.strings.oneEntVar %>: any },
+function presentOneSafeResponse<S extends <%= entity._strings.fieldRequestClass %>>(
+  response: { <%= entity._strings.api.oneEntVar %>: any },
   fieldRequest: S
-): <%= entity.api.strings.oneResponse %><S, true> {
-  const { <%= entity.api.strings.oneEntVar %>: one } = response;
-  const <%= entity.api.strings.oneEntVar %> = one === null ? null : present(one, fieldRequest);
-  return { <%= entity.api.strings.oneEntVar %> };
+): <%= entity._strings.api.oneResponse %><S, true> {
+  const { <%= entity._strings.api.oneEntVar %>: one } = response;
+  const <%= entity._strings.api.oneEntVar %> = one === null ? null : present(one, fieldRequest);
+  return { <%= entity._strings.api.oneEntVar %> };
 }
-  <%_ if (entity.api.booleans.hasSearch) { -%>
+  <%_ if (entity._booleans.api.hasSearch) { -%>
 
-async function search<S extends <%= entity.strings.fieldRequestClass %>>(
-  query: <%= entity.api.strings.searchQuery %>,
+async function search<S extends <%= entity._strings.fieldRequestClass %>>(
+  query: <%= entity._strings.api.searchQuery %>,
   fieldRequest: S,
   options: RequestInit = {}
-): Promise<<%= entity.api.strings.manyResponse %><S>> {
-    <%_ entity.api.code.searchCaller.forEach((line) => { -%>
+): Promise<<%= entity._strings.api.manyResponse %><S>> {
+    <%_ entity._code.api.searchCaller.forEach((line) => { -%>
   <%- line %>
     <%_ }); -%>
 }
   <%_ } -%>
-  <%_ if (entity.api.booleans.hasGetMany) { -%>
+  <%_ if (entity._booleans.api.hasGetMany) { -%>
 
-async function getMany<S extends <%= entity.strings.fieldRequestClass %>>(
-  query: <%= entity.api.strings.getManyQuery %>,
+async function getMany<S extends <%= entity._strings.fieldRequestClass %>>(
+  query: <%= entity._strings.api.getManyQuery %>,
   fieldRequest: S,
   options: RequestInit = {}
-): Promise<<%= entity.api.strings.manyResponse %><S>> {
-    <%_ entity.api.code.getManyCaller.forEach((line) => { -%>
+): Promise<<%= entity._strings.api.manyResponse %><S>> {
+    <%_ entity._code.api.getManyCaller.forEach((line) => { -%>
   <%- line %>
     <%_ }); -%>
 }
   <%_ } -%>
-  <%_ if (entity.api.booleans.hasGetOne) { -%>
+  <%_ if (entity._booleans.api.hasGetOne) { -%>
 
-async function getOne<S extends <%= entity.strings.fieldRequestClass %>>(
-  params: <%= entity.api.strings.getOneParams %>,
+async function getOne<S extends <%= entity._strings.fieldRequestClass %>>(
+  params: <%= entity._strings.api.getOneParams %>,
   fieldRequest: S,
   options: RequestInit = {}
-): Promise<<%= entity.api.strings.oneResponse %><S>> {
-    <%_ entity.api.code.getOneCaller.forEach((line) => { -%>
+): Promise<<%= entity._strings.api.oneResponse %><S>> {
+    <%_ entity._code.api.getOneCaller.forEach((line) => { -%>
   <%- line %>
     <%_ }); -%>
 }
   <%_ } -%>
-  <%_ if (entity.api.booleans.hasGetOneSafe) { -%>
+  <%_ if (entity._booleans.api.hasGetOneSafe) { -%>
 
-async function getOneSafe<S extends <%= entity.strings.fieldRequestClass %>>(
-  params: <%= entity.api.strings.getOneParams %>,
+async function getOneSafe<S extends <%= entity._strings.fieldRequestClass %>>(
+  params: <%= entity._strings.api.getOneParams %>,
   fieldRequest: S,
   options: RequestInit = {}
-): Promise<<%= entity.api.strings.oneResponse %><S, true>> {
-    <%_ entity.api.code.getOneSafeCaller.forEach((line) => { -%>
+): Promise<<%= entity._strings.api.oneResponse %><S, true>> {
+    <%_ entity._code.api.getOneSafeCaller.forEach((line) => { -%>
   <%- line %>
     <%_ }); -%>
 }
   <%_ } -%>
-  <%_ if (entity.api.booleans.hasCreateOne) { -%>
+  <%_ if (entity._booleans.api.hasCreateOne) { -%>
 
-async function createOne<S extends <%= entity.strings.fieldRequestClass %>>(
-  body: <%= entity.api.strings.createOneBody %>,
+async function createOne<S extends <%= entity._strings.fieldRequestClass %>>(
+  body: <%= entity._strings.api.createOneBody %>,
   fieldRequest: S,
   options: RequestInit = {}
-): Promise<<%= entity.api.strings.oneResponse %><S>> {
-    <%_ entity.api.code.createOneCaller.forEach((line) => { -%>
+): Promise<<%= entity._strings.api.oneResponse %><S>> {
+    <%_ entity._code.api.createOneCaller.forEach((line) => { -%>
   <%- line %>
     <%_ }); -%>
 }
   <%_ } -%>
-  <%_ if (entity.api.booleans.hasUpdateOne) { -%>
+  <%_ if (entity._booleans.api.hasUpdateOne) { -%>
 
-async function updateOne<S extends <%= entity.strings.fieldRequestClass %>>(
-  params: <%= entity.api.strings.getOneParams %>,
-  body: <%= entity.api.strings.updateOneBody %>,
+async function updateOne<S extends <%= entity._strings.fieldRequestClass %>>(
+  params: <%= entity._strings.api.getOneParams %>,
+  body: <%= entity._strings.api.updateOneBody %>,
   fieldRequest: S,
   options: RequestInit = {}
-): Promise<<%= entity.api.strings.oneResponse %><S>> {
-    <%_ entity.api.code.updateOneCaller.forEach((line) => { -%>
+): Promise<<%= entity._strings.api.oneResponse %><S>> {
+    <%_ entity._code.api.updateOneCaller.forEach((line) => { -%>
   <%- line %>
     <%_ }); -%>
 }
   <%_ } -%>
-  <%_ if (entity.api.booleans.hasDeleteOne) { -%>
+  <%_ if (entity._booleans.api.hasDeleteOne) { -%>
 
-async function deleteOne<S extends <%= entity.strings.fieldRequestClass %>>(
-  params: <%= entity.api.strings.getOneParams %>,
+async function deleteOne<S extends <%= entity._strings.fieldRequestClass %>>(
+  params: <%= entity._strings.api.getOneParams %>,
   fieldRequest: S,
   options: RequestInit = {}
-): Promise<<%= entity.api.strings.oneResponse %><S>> {
-    <%_ entity.api.code.deleteOneCaller.forEach((line) => { -%>
+): Promise<<%= entity._strings.api.oneResponse %><S>> {
+    <%_ entity._code.api.deleteOneCaller.forEach((line) => { -%>
   <%- line %>
     <%_ }); -%>
 }
@@ -206,33 +202,33 @@ async function deleteOne<S extends <%= entity.strings.fieldRequestClass %>>(
   <%_ if (entity.deprecated) { -%>
 /** @deprecated */
   <%_ } -%>
-const <%= entity.api.strings.apiClientClass %> = {
+const <%= entity._strings.api.apiClientClass %> = {
   present,
   presentManyResponse,
   presentOneResponse,
   presentOneSafeResponse,
-  <%_ if (entity.api.booleans.hasSearch) { -%>
+  <%_ if (entity._booleans.api.hasSearch) { -%>
   search,
   <%_ } -%>
-  <%_ if (entity.api.booleans.hasGetMany) { -%>
+  <%_ if (entity._booleans.api.hasGetMany) { -%>
   getMany,
   <%_ } -%>
-  <%_ if (entity.api.booleans.hasGetOne) { -%>
+  <%_ if (entity._booleans.api.hasGetOne) { -%>
   getOne,
   <%_ } -%>
-  <%_ if (entity.api.booleans.hasGetOneSafe) { -%>
+  <%_ if (entity._booleans.api.hasGetOneSafe) { -%>
   getOneSafe,
   <%_ } -%>
-  <%_ if (entity.api.booleans.hasCreateOne) { -%>
+  <%_ if (entity._booleans.api.hasCreateOne) { -%>
   createOne,
   <%_ } -%>
-  <%_ if (entity.api.booleans.hasUpdateOne) { -%>
+  <%_ if (entity._booleans.api.hasUpdateOne) { -%>
   updateOne,
   <%_ } -%>
-  <%_ if (entity.api.booleans.hasDeleteOne) { -%>
+  <%_ if (entity._booleans.api.hasDeleteOne) { -%>
   deleteOne,
   <%_ } -%>
 };
 
-export default <%= entity.api.strings.apiClientClass %>;
+export default <%= entity._strings.api.apiClientClass %>;
 <% } -%>

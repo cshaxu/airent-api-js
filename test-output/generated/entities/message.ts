@@ -21,7 +21,7 @@ import {
   MessageResponse,
   SelectedMessageResponse,
   MessageModel,
-} from './message-type';
+} from '../types/message';
 
 export class MessageEntityBase extends BaseEntity<
   MessageModel, Context, MessageFieldRequest, MessageResponse

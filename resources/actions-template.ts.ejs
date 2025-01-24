@@ -1,210 +1,210 @@
 <% if (utils.isPresentableEntity(entity)) { -%>
 // airent imports
-import { isFunction, max, min } from '<%- config.api.baseLibPackage %>';
+import { isFunction, max, min } from '<%- config._packages.api.actionToLibFull %>';
 
 // config imports
-import { Context } from '<%- config.baseContextPackage %>';
+import { Context } from '<%- config._packages.api.actionToContextFull %>';
 
 // entity imports
 import {
-  <%= entity.strings.fieldRequestClass %>,
-  <%= entity.api.strings.manyResponse %>,
-  <%= entity.api.strings.oneResponse %>,
-} from './<%= entity.strings.typePackage %>';
-import { <%= entity.strings.entityClass %> } from '../<%= entity.strings.entityPackage %>';
+  <%= entity._strings.fieldRequestClass %>,
+  <%= entity._strings.api.manyResponse %>,
+  <%= entity._strings.api.oneResponse %>,
+} from '<%- entity._packages.api.actionToTypeFull %>';
+import { <%= entity._strings.entityClass %> } from '<%- entity._packages.api.actionToEntityFull %>';
   <%_ entity.types.filter(utils.isImportType).forEach((type) => { -%>
-import { <%= type.strings.externalClass %> } from '<%- type.strings.baseExternalPackage %>';
+import { <%= type._strings.externalClass %> } from '<%- type._packages.api.actionToExternalFull %>';
   <%_ }); -%>
   <%_ entity.types.filter(utils.isCustomType).forEach((type) => { -%>
-import { <%= type.name %> } from './<%= entity.strings.typePackage %>';
+import { <%= type.name %> } from '<%- entity._packages.api.actionToTypeFull %>';
   <%_ }); -%>
-  <%_ if (entity.api.booleans.hasAny) { -%>
+  <%_ if (entity._booleans.api.hasAny) { -%>
 import {
-    <%_ if (entity.api.booleans.hasSearch) { -%>
-  <%= entity.api.strings.searchQuery %>,
+    <%_ if (entity._booleans.api.hasSearch) { -%>
+  <%= entity._strings.api.searchQuery %>,
     <%_ } -%>
-    <%_ if (entity.api.booleans.hasGetMany) { -%>
-  <%= entity.api.strings.getManyQuery %>,
+    <%_ if (entity._booleans.api.hasGetMany) { -%>
+  <%= entity._strings.api.getManyQuery %>,
     <%_ } -%>
-    <%_ if (entity.api.booleans.hasGetOneRequest) { -%>
-  <%= entity.api.strings.getOneParams %>,
+    <%_ if (entity._booleans.api.hasGetOneRequest) { -%>
+  <%= entity._strings.api.getOneParams %>,
     <%_ } -%>
-    <%_ if (entity.api.booleans.hasCreateOne) { -%>
-  <%= entity.api.strings.createOneBody %>,
+    <%_ if (entity._booleans.api.hasCreateOne) { -%>
+  <%= entity._strings.api.createOneBody %>,
     <%_ } -%>
-    <%_ if (entity.api.booleans.hasUpdateOne) { -%>
-  <%= entity.api.strings.updateOneBody %>,
+    <%_ if (entity._booleans.api.hasUpdateOne) { -%>
+  <%= entity._strings.api.updateOneBody %>,
     <%_ } -%>
-} from '<%- entity.api.packages.baseRequest %>';
-import <%= entity.api.strings.serviceClass %> from '<%- entity.api.packages.baseService %>';
+} from '<%- entity._packages.api.actionToRequestFull %>';
+import <%= entity._strings.api.serviceClass %> from '<%- entity._packages.api.actionToServiceFull %>';
   <%_ } -%>
 
 // api response builders
 
-async function buildManyResponse<S extends <%= entity.strings.fieldRequestClass %>>(
-  many: <%= entity.strings.entityClass %>[],
+async function buildManyResponse<S extends <%= entity._strings.fieldRequestClass %>>(
+  many: <%= entity._strings.entityClass %>[],
   fieldRequest: S,
-): Promise<<%= entity.api.strings.manyResponse %><S>> {
-  const <%= entity.api.strings.manyEntsVar %> = await <%= entity.strings.entityClass %>.presentMany(many, fieldRequest);
-  <%_ entity.fields.filter((f) => f.strings.minVar || f.strings.maxVar).forEach((field) => { -%>
+): Promise<<%= entity._strings.api.manyResponse %><S>> {
+  const <%= entity._strings.api.manyEntsVar %> = await <%= entity._strings.entityClass %>.presentMany(many, fieldRequest);
+  <%_ entity.fields.filter((f) => f._strings.api.minVar || f._strings.api.maxVar).forEach((field) => { -%>
   const <%= utils.pluralize(field.name) %> = many.map((one) => one.<%= field.name %>);
-    <%_ if (field.strings.minVar) { -%>
-  const <%= field.strings.minVar %> = min(<%= utils.pluralize(field.name) %>);
+    <%_ if (field._strings.api.minVar) { -%>
+  const <%= field._strings.api.minVar %> = min(<%= utils.pluralize(field.name) %>);
     <%_ } -%>
-    <%_ if (field.strings.maxVar) { -%>
-  const <%= field.strings.maxVar %> = max(<%= utils.pluralize(field.name) %>);
+    <%_ if (field._strings.api.maxVar) { -%>
+  const <%= field._strings.api.maxVar %> = max(<%= utils.pluralize(field.name) %>);
     <%_ } -%>
   <%_ }); -%>
   const cursor = {
     count: many.length,
-  <%_ entity.fields.filter((f) => f.strings.minVar || f.strings.maxVar).forEach((field) => { -%>
-    <%_ if (field.strings.minVar) { -%>
-    <%= field.strings.minVar %>,
+  <%_ entity.fields.filter((f) => f._strings.api.minVar || f._strings.api.maxVar).forEach((field) => { -%>
+    <%_ if (field._strings.api.minVar) { -%>
+    <%= field._strings.api.minVar %>,
     <%_ } -%>
-    <%_ if (field.strings.maxVar) { -%>
-    <%= field.strings.maxVar %>,
+    <%_ if (field._strings.api.maxVar) { -%>
+    <%= field._strings.api.maxVar %>,
     <%_ } -%>
   <%_ }); -%> };
-  return { cursor, <%= entity.api.strings.manyEntsVar %> };
+  return { cursor, <%= entity._strings.api.manyEntsVar %> };
 }
 
-async function buildOneResponse<S extends <%= entity.strings.fieldRequestClass %>>(
-  one: <%= entity.strings.entityClass %>,
+async function buildOneResponse<S extends <%= entity._strings.fieldRequestClass %>>(
+  one: <%= entity._strings.entityClass %>,
   fieldRequest: S,
-): Promise<<%= entity.api.strings.oneResponse %><S>> {
-  const <%= entity.api.strings.oneEntVar %> = await one.present(fieldRequest);
-  return { <%= entity.api.strings.oneEntVar %> };
+): Promise<<%= entity._strings.api.oneResponse %><S>> {
+  const <%= entity._strings.api.oneEntVar %> = await one.present(fieldRequest);
+  return { <%= entity._strings.api.oneEntVar %> };
 }
 
-async function buildOneSafeResponse<S extends <%= entity.strings.fieldRequestClass %>>(
-  one: <%= entity.strings.entityClass %> | null,
+async function buildOneSafeResponse<S extends <%= entity._strings.fieldRequestClass %>>(
+  one: <%= entity._strings.entityClass %> | null,
   fieldRequest: S,
-): Promise<<%= entity.api.strings.oneResponse %><S, true>> {
-  const <%= entity.api.strings.oneEntVar %> = one === null ? null : await one.present(fieldRequest);
-  return { <%= entity.api.strings.oneEntVar %> };
+): Promise<<%= entity._strings.api.oneResponse %><S, true>> {
+  const <%= entity._strings.api.oneEntVar %> = one === null ? null : await one.present(fieldRequest);
+  return { <%= entity._strings.api.oneEntVar %> };
 }
-  <%_ if (entity.api.booleans.hasAny) { -%>
+  <%_ if (entity._booleans.api.hasAny) { -%>
 
 // api executors
   <%_ } -%>
-  <%_ if (entity.api.booleans.hasSearch) { -%>
+  <%_ if (entity._booleans.api.hasSearch) { -%>
 
-async function search<S extends <%= entity.strings.fieldRequestClass %>>(
-  query: <%= entity.api.strings.searchQuery %>,
+async function search<S extends <%= entity._strings.fieldRequestClass %>>(
+  query: <%= entity._strings.api.searchQuery %>,
   fieldRequest: S,
   context: Context,
-): Promise<<%= entity.api.strings.manyResponse %><S>> {
-  if ('beforeSearch' in <%= entity.api.strings.serviceClass %> && isFunction(<%= entity.api.strings.serviceClass %>.beforeSearch)) {
-    await <%= entity.api.strings.serviceClass %>.beforeSearch(query, context);
+): Promise<<%= entity._strings.api.manyResponse %><S>> {
+  if ('beforeSearch' in <%= entity._strings.api.serviceClass %> && isFunction(<%= entity._strings.api.serviceClass %>.beforeSearch)) {
+    await <%= entity._strings.api.serviceClass %>.beforeSearch(query, context);
   }
-  const many = await <%= entity.api.strings.serviceClass %>.search(query, context);
-  if ('afterSearch' in <%= entity.api.strings.serviceClass %> && isFunction(<%= entity.api.strings.serviceClass %>.afterSearch)) {
-    await <%= entity.api.strings.serviceClass %>.afterSearch(many, query, context);
+  const many = await <%= entity._strings.api.serviceClass %>.search(query, context);
+  if ('afterSearch' in <%= entity._strings.api.serviceClass %> && isFunction(<%= entity._strings.api.serviceClass %>.afterSearch)) {
+    await <%= entity._strings.api.serviceClass %>.afterSearch(many, query, context);
   }
   return await buildManyResponse(many, fieldRequest);
 }
   <%_ } -%>
-  <%_ if (entity.api.booleans.hasGetMany) { -%>
+  <%_ if (entity._booleans.api.hasGetMany) { -%>
 
-async function getMany<S extends <%= entity.strings.fieldRequestClass %>>(
-  query: <%= entity.api.strings.getManyQuery %>,
+async function getMany<S extends <%= entity._strings.fieldRequestClass %>>(
+  query: <%= entity._strings.api.getManyQuery %>,
   fieldRequest: S,
   context: Context,
-): Promise<<%= entity.api.strings.manyResponse %><S>> {
-  if ('beforeGetMany' in <%= entity.api.strings.serviceClass %> && isFunction(<%= entity.api.strings.serviceClass %>.beforeGetMany)) {
-    await <%= entity.api.strings.serviceClass %>.beforeGetMany(query, context);
+): Promise<<%= entity._strings.api.manyResponse %><S>> {
+  if ('beforeGetMany' in <%= entity._strings.api.serviceClass %> && isFunction(<%= entity._strings.api.serviceClass %>.beforeGetMany)) {
+    await <%= entity._strings.api.serviceClass %>.beforeGetMany(query, context);
   }
-  const many = await <%= entity.api.strings.serviceClass %>.getMany(query, context);
-  if ('afterGetMany' in <%= entity.api.strings.serviceClass %> && isFunction(<%= entity.api.strings.serviceClass %>.afterGetMany)) {
-    await <%= entity.api.strings.serviceClass %>.afterGetMany(many, query, context);
+  const many = await <%= entity._strings.api.serviceClass %>.getMany(query, context);
+  if ('afterGetMany' in <%= entity._strings.api.serviceClass %> && isFunction(<%= entity._strings.api.serviceClass %>.afterGetMany)) {
+    await <%= entity._strings.api.serviceClass %>.afterGetMany(many, query, context);
   }
   return await buildManyResponse(many, fieldRequest);
 }
   <%_ } -%>
-  <%_ if (entity.api.booleans.hasGetOne) { -%>
+  <%_ if (entity._booleans.api.hasGetOne) { -%>
 
-async function getOne<S extends <%= entity.strings.fieldRequestClass %>>(
-  params: <%= entity.api.strings.getOneParams %>,
+async function getOne<S extends <%= entity._strings.fieldRequestClass %>>(
+  params: <%= entity._strings.api.getOneParams %>,
   fieldRequest: S,
   context: Context,
-): Promise<<%= entity.api.strings.oneResponse %><S>> {
-  if ('beforeGetOne' in <%= entity.api.strings.serviceClass %> && isFunction(<%= entity.api.strings.serviceClass %>.beforeGetOne)) {
-    await <%= entity.api.strings.serviceClass %>.beforeGetOne(params, context);
+): Promise<<%= entity._strings.api.oneResponse %><S>> {
+  if ('beforeGetOne' in <%= entity._strings.api.serviceClass %> && isFunction(<%= entity._strings.api.serviceClass %>.beforeGetOne)) {
+    await <%= entity._strings.api.serviceClass %>.beforeGetOne(params, context);
   }
-  const one = await <%= entity.api.strings.serviceClass %>.getOne(params, context);
-  if ('afterGetOne' in <%= entity.api.strings.serviceClass %> && isFunction(<%= entity.api.strings.serviceClass %>.afterGetOne)) {
-    await <%= entity.api.strings.serviceClass %>.afterGetOne(one, params, context);
+  const one = await <%= entity._strings.api.serviceClass %>.getOne(params, context);
+  if ('afterGetOne' in <%= entity._strings.api.serviceClass %> && isFunction(<%= entity._strings.api.serviceClass %>.afterGetOne)) {
+    await <%= entity._strings.api.serviceClass %>.afterGetOne(one, params, context);
   }
   return await buildOneResponse(one, fieldRequest);
 }
   <%_ } -%>
-  <%_ if (entity.api.booleans.hasGetOneSafe) { -%>
+  <%_ if (entity._booleans.api.hasGetOneSafe) { -%>
 
-async function getOneSafe<S extends <%= entity.strings.fieldRequestClass %>>(
-  params: <%= entity.api.strings.getOneParams %>,
+async function getOneSafe<S extends <%= entity._strings.fieldRequestClass %>>(
+  params: <%= entity._strings.api.getOneParams %>,
   fieldRequest: S,
   context: Context,
-): Promise<<%= entity.api.strings.oneResponse %><S, true>> {
-  if ('beforeGetOneSafe' in <%= entity.api.strings.serviceClass %> && isFunction(<%= entity.api.strings.serviceClass %>.beforeGetOneSafe)) {
-    await <%= entity.api.strings.serviceClass %>.beforeGetOneSafe(params, context);
+): Promise<<%= entity._strings.api.oneResponse %><S, true>> {
+  if ('beforeGetOneSafe' in <%= entity._strings.api.serviceClass %> && isFunction(<%= entity._strings.api.serviceClass %>.beforeGetOneSafe)) {
+    await <%= entity._strings.api.serviceClass %>.beforeGetOneSafe(params, context);
   }
-  const one = await <%= entity.api.strings.serviceClass %>.getOneSafe(params, context);
-  if ('afterGetOneSafe' in <%= entity.api.strings.serviceClass %> && isFunction(<%= entity.api.strings.serviceClass %>.afterGetOneSafe)) {
-    await <%= entity.api.strings.serviceClass %>.afterGetOneSafe(one, params, context);
+  const one = await <%= entity._strings.api.serviceClass %>.getOneSafe(params, context);
+  if ('afterGetOneSafe' in <%= entity._strings.api.serviceClass %> && isFunction(<%= entity._strings.api.serviceClass %>.afterGetOneSafe)) {
+    await <%= entity._strings.api.serviceClass %>.afterGetOneSafe(one, params, context);
   }
   return await buildOneSafeResponse(one, fieldRequest);
 }
   <%_ } -%>
-  <%_ if (entity.api.booleans.hasCreateOne) { -%>
+  <%_ if (entity._booleans.api.hasCreateOne) { -%>
 
-async function createOne<S extends <%= entity.strings.fieldRequestClass %>>(
-  body: <%= entity.api.strings.createOneBody %>,
+async function createOne<S extends <%= entity._strings.fieldRequestClass %>>(
+  body: <%= entity._strings.api.createOneBody %>,
   fieldRequest: S,
   context: Context,
-): Promise<<%= entity.api.strings.oneResponse %><S>> {
-  if ('beforeCreateOne' in <%= entity.api.strings.serviceClass %> && isFunction(<%= entity.api.strings.serviceClass %>.beforeCreateOne)) {
-    await <%= entity.api.strings.serviceClass %>.beforeCreateOne(body, context);
+): Promise<<%= entity._strings.api.oneResponse %><S>> {
+  if ('beforeCreateOne' in <%= entity._strings.api.serviceClass %> && isFunction(<%= entity._strings.api.serviceClass %>.beforeCreateOne)) {
+    await <%= entity._strings.api.serviceClass %>.beforeCreateOne(body, context);
   }
-  const one = await <%= entity.api.strings.serviceClass %>.createOne(body, context);
-  if ('afterCreateOne' in <%= entity.api.strings.serviceClass %> && isFunction(<%= entity.api.strings.serviceClass %>.afterCreateOne)) {
-    await <%= entity.api.strings.serviceClass %>.afterCreateOne(one, body, context);
+  const one = await <%= entity._strings.api.serviceClass %>.createOne(body, context);
+  if ('afterCreateOne' in <%= entity._strings.api.serviceClass %> && isFunction(<%= entity._strings.api.serviceClass %>.afterCreateOne)) {
+    await <%= entity._strings.api.serviceClass %>.afterCreateOne(one, body, context);
   }
   return await buildOneResponse(one, fieldRequest);
 }
   <%_ } -%>
-  <%_ if (entity.api.booleans.hasUpdateOne) { -%>
+  <%_ if (entity._booleans.api.hasUpdateOne) { -%>
 
-async function updateOne<S extends <%= entity.strings.fieldRequestClass %>>(
-  params: <%= entity.api.strings.getOneParams %>,
-  body: <%= entity.api.strings.updateOneBody %>,
+async function updateOne<S extends <%= entity._strings.fieldRequestClass %>>(
+  params: <%= entity._strings.api.getOneParams %>,
+  body: <%= entity._strings.api.updateOneBody %>,
   fieldRequest: S,
   context: Context,
-): Promise<<%= entity.api.strings.oneResponse %><S>> {
-  const one = await <%= entity.api.strings.serviceClass %>.getOne(params, context);
-  if ('beforeUpdateOne' in <%= entity.api.strings.serviceClass %> && isFunction(<%= entity.api.strings.serviceClass %>.beforeUpdateOne)) {
-    await <%= entity.api.strings.serviceClass %>.beforeUpdateOne(one, body, context);
+): Promise<<%= entity._strings.api.oneResponse %><S>> {
+  const one = await <%= entity._strings.api.serviceClass %>.getOne(params, context);
+  if ('beforeUpdateOne' in <%= entity._strings.api.serviceClass %> && isFunction(<%= entity._strings.api.serviceClass %>.beforeUpdateOne)) {
+    await <%= entity._strings.api.serviceClass %>.beforeUpdateOne(one, body, context);
   }
-  const updatedOne = await <%= entity.api.strings.serviceClass %>.updateOne(one, body, context);
-  if ('afterUpdateOne' in <%= entity.api.strings.serviceClass %> && isFunction(<%= entity.api.strings.serviceClass %>.afterUpdateOne)) {
-    await <%= entity.api.strings.serviceClass %>.afterUpdateOne(updatedOne, body, context);
+  const updatedOne = await <%= entity._strings.api.serviceClass %>.updateOne(one, body, context);
+  if ('afterUpdateOne' in <%= entity._strings.api.serviceClass %> && isFunction(<%= entity._strings.api.serviceClass %>.afterUpdateOne)) {
+    await <%= entity._strings.api.serviceClass %>.afterUpdateOne(updatedOne, body, context);
   }
   return await buildOneResponse(updatedOne, fieldRequest);
 }
   <%_ } -%>
-  <%_ if (entity.api.booleans.hasDeleteOne) { -%>
+  <%_ if (entity._booleans.api.hasDeleteOne) { -%>
 
-async function deleteOne<S extends <%= entity.strings.fieldRequestClass %>>(
-  params: <%= entity.api.strings.getOneParams %>,
+async function deleteOne<S extends <%= entity._strings.fieldRequestClass %>>(
+  params: <%= entity._strings.api.getOneParams %>,
   fieldRequest: S,
   context: Context,
-): Promise<<%= entity.api.strings.oneResponse %><S>> {
-  const one = await <%= entity.api.strings.serviceClass %>.getOne(params, context);
-  if ('beforeDeleteOne' in <%= entity.api.strings.serviceClass %> && isFunction(<%= entity.api.strings.serviceClass %>.beforeDeleteOne)) {
-    await <%= entity.api.strings.serviceClass %>.beforeDeleteOne(one, context);
+): Promise<<%= entity._strings.api.oneResponse %><S>> {
+  const one = await <%= entity._strings.api.serviceClass %>.getOne(params, context);
+  if ('beforeDeleteOne' in <%= entity._strings.api.serviceClass %> && isFunction(<%= entity._strings.api.serviceClass %>.beforeDeleteOne)) {
+    await <%= entity._strings.api.serviceClass %>.beforeDeleteOne(one, context);
   }
-  const deletedOne = await <%= entity.api.strings.serviceClass %>.deleteOne(one, context);
-  if ('afterDeleteOne' in <%= entity.api.strings.serviceClass %> && isFunction(<%= entity.api.strings.serviceClass %>.afterDeleteOne)) {
-    await <%= entity.api.strings.serviceClass %>.afterDeleteOne(deletedOne, context);
+  const deletedOne = await <%= entity._strings.api.serviceClass %>.deleteOne(one, context);
+  if ('afterDeleteOne' in <%= entity._strings.api.serviceClass %> && isFunction(<%= entity._strings.api.serviceClass %>.afterDeleteOne)) {
+    await <%= entity._strings.api.serviceClass %>.afterDeleteOne(deletedOne, context);
   }
   return await buildOneResponse(deletedOne, fieldRequest);
 }
@@ -213,32 +213,32 @@ async function deleteOne<S extends <%= entity.strings.fieldRequestClass %>>(
   <%_ if (entity.deprecated) { -%>
 /** @deprecated */
   <%_ } -%>
-const <%= entity.api.strings.actionsClass %> = {
+const <%= entity._strings.api.actionsClass %> = {
   buildManyResponse,
   buildOneResponse,
   buildOneSafeResponse,
-  <%_ if (entity.api.booleans.hasSearch) { -%>
+  <%_ if (entity._booleans.api.hasSearch) { -%>
   search,
   <%_ } -%>
-  <%_ if (entity.api.booleans.hasGetMany) { -%>
+  <%_ if (entity._booleans.api.hasGetMany) { -%>
   getMany,
   <%_ } -%>
-  <%_ if (entity.api.booleans.hasGetOne) { -%>
+  <%_ if (entity._booleans.api.hasGetOne) { -%>
   getOne,
   <%_ } -%>
-  <%_ if (entity.api.booleans.hasGetOneSafe) { -%>
+  <%_ if (entity._booleans.api.hasGetOneSafe) { -%>
   getOneSafe,
   <%_ } -%>
-  <%_ if (entity.api.booleans.hasCreateOne) { -%>
+  <%_ if (entity._booleans.api.hasCreateOne) { -%>
   createOne,
   <%_ } -%>
-  <%_ if (entity.api.booleans.hasUpdateOne) { -%>
+  <%_ if (entity._booleans.api.hasUpdateOne) { -%>
   updateOne,
   <%_ } -%>
-  <%_ if (entity.api.booleans.hasDeleteOne) { -%>
+  <%_ if (entity._booleans.api.hasDeleteOne) { -%>
   deleteOne,
   <%_ } -%>
 };
 
-export default <%= entity.api.strings.actionsClass %>;
+export default <%= entity._strings.api.actionsClass %>;
 <% } -%>

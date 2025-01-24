@@ -3,59 +3,59 @@ function getActionPackage() {
   return `${utils.toKababCase(entity.name)}-actions${utils.getModuleSuffix(config)}`;
 }
 -%>
-<% if (utils.isPresentableEntity(entity) && entity.api.booleans.hasAny) { -%>
+<% if (utils.isPresentableEntity(entity) && entity._booleans.api.hasAny) { -%>
 // airent imports
 import {
-  <%_ if (entity.api.booleans.hasSearch) { -%>
+  <%_ if (entity._booleans.api.hasSearch) { -%>
   dispatchSearchWith,
   <%_ } -%>
-  <%_ if (entity.api.booleans.hasGetMany) { -%>
+  <%_ if (entity._booleans.api.hasGetMany) { -%>
   dispatchGetManyWith,
   <%_ } -%>
-  <%_ if (entity.api.booleans.hasGetOne) { -%>
+  <%_ if (entity._booleans.api.hasGetOne) { -%>
   dispatchGetOneWith,
   <%_ } -%>
-  <%_ if (entity.api.booleans.hasGetOneSafe) { -%>
+  <%_ if (entity._booleans.api.hasGetOneSafe) { -%>
   dispatchGetOneSafeWith,
   <%_ } -%>
-  <%_ if (entity.api.booleans.hasCreateOne) { -%>
+  <%_ if (entity._booleans.api.hasCreateOne) { -%>
   dispatchCreateOneWith,
   <%_ } -%>
-  <%_ if (entity.api.booleans.hasUpdateOne) { -%>
+  <%_ if (entity._booleans.api.hasUpdateOne) { -%>
   dispatchUpdateOneWith,
   <%_ } -%>
-  <%_ if (entity.api.booleans.hasDeleteOne) { -%>
+  <%_ if (entity._booleans.api.hasDeleteOne) { -%>
   dispatchDeleteOneWith,
   <%_ } -%>
-} from '<%- config.api.baseLibPackage %>';
+} from '<%- config._packages.api.dispatcherToLibFull %>';
 
 // config imports
-import { dispatcherConfig } from '<%- config.api.server.dispatcherConfigPackage %>';
+import { dispatcherConfig } from '<%- config._packages.api.dispatcherToDispatcherConfigFull %>';
 
 // entity imports
-import <%= entity.api.strings.actionsClass %> from './<%= getActionPackage() %>';
+import <%= entity._strings.api.actionsClass %> from '<%- entity._packages.api.dispatcherToActionFull %>';
 import {
-  <%_ if (entity.api.booleans.hasSearch) { -%>
-  <%= entity.api.strings.searchQuery %>,
+  <%_ if (entity._booleans.api.hasSearch) { -%>
+  <%= entity._strings.api.searchQuery %>,
   <%_ } -%>
-  <%_ if (entity.api.booleans.hasGetMany) { -%>
-  <%= entity.api.strings.getManyQuery %>,
+  <%_ if (entity._booleans.api.hasGetMany) { -%>
+  <%= entity._strings.api.getManyQuery %>,
   <%_ } -%>
-  <%_ if (entity.api.booleans.hasGetOneRequest) { -%>
-  <%= entity.api.strings.getOneParams %>,
+  <%_ if (entity._booleans.api.hasGetOneRequest) { -%>
+  <%= entity._strings.api.getOneParams %>,
   <%_ } -%>
-  <%_ if (entity.api.booleans.hasCreateOne) { -%>
-  <%= entity.api.strings.createOneBody %>,
+  <%_ if (entity._booleans.api.hasCreateOne) { -%>
+  <%= entity._strings.api.createOneBody %>,
   <%_ } -%>
-  <%_ if (entity.api.booleans.hasUpdateOne) { -%>
-  <%= entity.api.strings.updateOneBody %>,
+  <%_ if (entity._booleans.api.hasUpdateOne) { -%>
+  <%= entity._strings.api.updateOneBody %>,
   <%_ } -%>
-} from '<%- entity.api.packages.baseRequest %>';
-  <%_ if (entity.api.booleans.hasSearch) { -%>
+} from '<%- entity._packages.api.dispatcherToRequestFull %>';
+  <%_ if (entity._booleans.api.hasSearch) { -%>
 
 const searchConfig = {
-  queryZod: <%= entity.api.strings.searchQuery %>,
-  action: <%= entity.api.strings.actionsClass %>.search,
+  queryZod: <%= entity._strings.api.searchQuery %>,
+  action: <%= entity._strings.api.actionsClass %>.search,
   options: <%= entity.api.methods.search ?? '{}' %>,
 };
 
@@ -64,11 +64,11 @@ const search = dispatchSearchWith({
   ...searchConfig,
 });
   <%_ } -%>
-  <%_ if (entity.api.booleans.hasGetMany) { -%>
+  <%_ if (entity._booleans.api.hasGetMany) { -%>
 
 const getManyConfig = {
-  queryZod: <%= entity.api.strings.getManyQuery %>,
-  action: <%= entity.api.strings.actionsClass %>.getMany,
+  queryZod: <%= entity._strings.api.getManyQuery %>,
+  action: <%= entity._strings.api.actionsClass %>.getMany,
   options: <%= entity.api.methods.getMany ?? '{}' %>,
 };
 
@@ -77,11 +77,11 @@ const getMany = dispatchGetManyWith({
   ...getManyConfig,
 });
   <%_ } -%>
-  <%_ if (entity.api.booleans.hasGetOne) { -%>
+  <%_ if (entity._booleans.api.hasGetOne) { -%>
 
 const getOneConfig = {
-  paramsZod: <%= entity.api.strings.getOneParams %>,
-  action: <%= entity.api.strings.actionsClass %>.getOne,
+  paramsZod: <%= entity._strings.api.getOneParams %>,
+  action: <%= entity._strings.api.actionsClass %>.getOne,
   options: <%= entity.api.methods.getOne ?? '{}' %>,
 };
 
@@ -90,11 +90,11 @@ const getOne = dispatchGetOneWith({
   ...getOneConfig,
 });
   <%_ } -%>
-  <%_ if (entity.api.booleans.hasGetOneSafe) { -%>
+  <%_ if (entity._booleans.api.hasGetOneSafe) { -%>
 
 const getOneSafeConfig = {
-  paramsZod: <%= entity.api.strings.getOneParams %>,
-  action: <%= entity.api.strings.actionsClass %>.getOneSafe,
+  paramsZod: <%= entity._strings.api.getOneParams %>,
+  action: <%= entity._strings.api.actionsClass %>.getOneSafe,
   options: <%= entity.api.methods.getOneSafe ?? '{}' %>,
 };
 
@@ -103,11 +103,11 @@ const getOneSafe = dispatchGetOneSafeWith({
   ...getOneSafeConfig,
 });
   <%_ } -%>
-  <%_ if (entity.api.booleans.hasCreateOne) { -%>
+  <%_ if (entity._booleans.api.hasCreateOne) { -%>
 
 const createOneConfig = {
-  bodyZod: <%= entity.api.strings.createOneBody %>,
-  action: <%= entity.api.strings.actionsClass %>.createOne,
+  bodyZod: <%= entity._strings.api.createOneBody %>,
+  action: <%= entity._strings.api.actionsClass %>.createOne,
   options: <%= entity.api.methods.createOne ?? '{}' %>,
 };
 
@@ -116,12 +116,12 @@ const createOne = dispatchCreateOneWith({
   ...createOneConfig,
 });
   <%_ } -%>
-  <%_ if (entity.api.booleans.hasUpdateOne) { -%>
+  <%_ if (entity._booleans.api.hasUpdateOne) { -%>
 
 const updateOneConfig = {
-  paramsZod: <%= entity.api.strings.getOneParams %>,
-  bodyZod: <%= entity.api.strings.updateOneBody %>,
-  action: <%= entity.api.strings.actionsClass %>.updateOne,
+  paramsZod: <%= entity._strings.api.getOneParams %>,
+  bodyZod: <%= entity._strings.api.updateOneBody %>,
+  action: <%= entity._strings.api.actionsClass %>.updateOne,
   options: <%= entity.api.methods.updateOne ?? '{}' %>,
 };
 
@@ -130,11 +130,11 @@ const updateOne = dispatchUpdateOneWith({
   ...updateOneConfig,
 });
   <%_ } -%>
-  <%_ if (entity.api.booleans.hasDeleteOne) { -%>
+  <%_ if (entity._booleans.api.hasDeleteOne) { -%>
 
 const deleteOneConfig = {
-  paramsZod: <%= entity.api.strings.getOneParams %>,
-  action: <%= entity.api.strings.actionsClass %>.deleteOne,
+  paramsZod: <%= entity._strings.api.getOneParams %>,
+  action: <%= entity._strings.api.actionsClass %>.deleteOne,
   options: <%= entity.api.methods.deleteOne ?? '{}' %>,
 };
 
@@ -147,29 +147,29 @@ const deleteOne = dispatchDeleteOneWith({
   <%_ if (entity.deprecated) { -%>
 /** @deprecated */
   <%_ } -%>
-const <%= entity.api.strings.dispatcherClass %> = {
-  <%_ if (entity.api.booleans.hasSearch) { -%>
+const <%= entity._strings.api.dispatcherClass %> = {
+  <%_ if (entity._booleans.api.hasSearch) { -%>
   search,
   <%_ } -%>
-  <%_ if (entity.api.booleans.hasGetMany) { -%>
+  <%_ if (entity._booleans.api.hasGetMany) { -%>
   getMany,
   <%_ } -%>
-  <%_ if (entity.api.booleans.hasGetOne) { -%>
+  <%_ if (entity._booleans.api.hasGetOne) { -%>
   getOne,
   <%_ } -%>
-  <%_ if (entity.api.booleans.hasGetOneSafe) { -%>
+  <%_ if (entity._booleans.api.hasGetOneSafe) { -%>
   getOneSafe,
   <%_ } -%>
-  <%_ if (entity.api.booleans.hasCreateOne) { -%>
+  <%_ if (entity._booleans.api.hasCreateOne) { -%>
   createOne,
   <%_ } -%>
-  <%_ if (entity.api.booleans.hasUpdateOne) { -%>
+  <%_ if (entity._booleans.api.hasUpdateOne) { -%>
   updateOne,
   <%_ } -%>
-  <%_ if (entity.api.booleans.hasDeleteOne) { -%>
+  <%_ if (entity._booleans.api.hasDeleteOne) { -%>
   deleteOne,
   <%_ } -%>
 };
 
-export default <%= entity.api.strings.dispatcherClass %>;
+export default <%= entity._strings.api.dispatcherClass %>;
 <% } -%>
