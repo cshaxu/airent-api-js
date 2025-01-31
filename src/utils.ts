@@ -139,7 +139,7 @@ function mockReadableStream(content: string): ReadableStream<any> {
   return new ReadableStream<any>(underlyingSource);
 }
 
-// url
+// http
 
 function queryStringify(query: Record<string, any>): string {
   const urlSearchParams = new URLSearchParams();
@@ -186,6 +186,38 @@ async function getJsonOrThrow(response: Response): Promise<any> {
   return json;
 }
 
+function buildJsonRequestInit(
+  data: any,
+  options: RequestInit = {}
+): RequestInit {
+  const body = JSON.stringify(data);
+  const headers = buildHeaders(body.length, options.headers);
+  return { credentials: "include", method: "POST", body, ...options, headers };
+}
+
+function buildHeaders(length: number, headers?: HeadersInit): Headers {
+  const entries = headers === undefined ? [] : getHeaderEntries(headers);
+  const results = entries
+    .filter(
+      ([k]) => !["content-type", "content-length"].includes(k.toLowerCase())
+    )
+    .reduce((acc, [k, v]) => ({ ...acc, [k]: v }), {
+      "content-type": "application/json",
+      "content-length": length.toString(),
+    });
+  return new Headers(results);
+}
+
+function getHeaderEntries(headers: HeadersInit): [string, string][] {
+  if (headers instanceof Headers) {
+    return Array.from(headers.entries());
+  }
+  if (Array.isArray(headers)) {
+    return headers;
+  }
+  return Object.entries(headers);
+}
+
 // number
 
 function round(value: number, digits: number): number {
@@ -195,6 +227,7 @@ function round(value: number, digits: number): number {
 
 export {
   bufferify,
+  buildJsonRequestInit,
   existify,
   fetchJsonOrThrow,
   getJsonOrThrow,

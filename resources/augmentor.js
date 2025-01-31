@@ -498,12 +498,7 @@ function addCode(entity, config, isVerbose) {
   }
 
   const apiCallerLines = [
-    "const init = {",
-    "  credentials: 'include' as RequestCredentials,",
-    "  method: 'POST',",
-    "  body: JSON.stringify(data),",
-    "  ...options,",
-    "};",
+    "const init = buildJsonRequestInit(data, options);",
     "const response = await fetchJsonOrThrow(input, init);",
   ];
   const pluralKababEntityName = utils.toKababCase(utils.pluralize(entity.name));
@@ -513,7 +508,7 @@ function addCode(entity, config, isVerbose) {
   if (config.api.client) {
     entity._code.api.beforeClient = entity._code.api.beforeClient ?? [
       "// airent imports",
-      `import { fetchJsonOrThrow } from '${config._packages.api.clientToLibFull}';`,
+      `import { buildJsonRequestInit, fetchJsonOrThrow } from '${config._packages.api.clientToLibFull}';`,
       "",
       "// config imports",
       `import { baseUrl } from '${config._packages.api.clientToBaseUrlFull}';`,

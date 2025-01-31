@@ -18,5 +18,6 @@ declare function queryStringify(query: Record<string, any>): string;
 declare function isUrl(text: string): boolean;
 declare function fetchJsonOrThrow(input: string, init?: RequestInit): Promise<any>;
 declare function getJsonOrThrow(response: Response): Promise<any>;
+declare function buildJsonRequestInit(data: any, options?: RequestInit): RequestInit;
 declare function round(value: number, digits: number): number;
-export { bufferify, existify, fetchJsonOrThrow, getJsonOrThrow, isFunction, isNil, isReadableStream, isUrl, max, min, mockReadableStream, popular, purify, queryStringify, race, round, shuffle, wait, };
+export { bufferify, buildJsonRequestInit, existify, fetchJsonOrThrow, getJsonOrThrow, isFunction, isNil, isReadableStream, isUrl, max, min, mockReadableStream, popular, purify, queryStringify, race, round, shuffle, wait, };

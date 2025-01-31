@@ -1,5 +1,5 @@
 // airent imports
-import { fetchJsonOrThrow } from '../../../src/index';
+import { buildJsonRequestInit, fetchJsonOrThrow } from '../../../src/index';
 
 // config imports
 import { baseUrl } from '../../../test-sources/fetch';
@@ -70,12 +70,7 @@ async function search<S extends UserFieldRequest>(
 ): Promise<ManyUsersResponse<S>> {
   const input = `${baseUrl}/search-users`;
   const data = { query, fieldRequest };
-  const init = {
-    credentials: 'include' as RequestCredentials,
-    method: 'POST',
-    body: JSON.stringify(data),
-    ...options,
-  };
+  const init = buildJsonRequestInit(data, options);
   const response = await fetchJsonOrThrow(input, init);
   return presentManyResponse(response, fieldRequest);
 }
@@ -87,12 +82,7 @@ async function getMany<S extends UserFieldRequest>(
 ): Promise<ManyUsersResponse<S>> {
   const input = `${baseUrl}/get-many-users`;
   const data = { query, fieldRequest };
-  const init = {
-    credentials: 'include' as RequestCredentials,
-    method: 'POST',
-    body: JSON.stringify(data),
-    ...options,
-  };
+  const init = buildJsonRequestInit(data, options);
   const response = await fetchJsonOrThrow(input, init);
   return presentManyResponse(response, fieldRequest);
 }
@@ -104,12 +94,7 @@ async function getOne<S extends UserFieldRequest>(
 ): Promise<OneUserResponse<S>> {
   const input = `${baseUrl}/get-one-user`;
   const data = { params, fieldRequest };
-  const init = {
-    credentials: 'include' as RequestCredentials,
-    method: 'POST',
-    body: JSON.stringify(data),
-    ...options,
-  };
+  const init = buildJsonRequestInit(data, options);
   const response = await fetchJsonOrThrow(input, init);
   return presentOneResponse(response, fieldRequest);
 }
@@ -121,12 +106,7 @@ async function getOneSafe<S extends UserFieldRequest>(
 ): Promise<OneUserResponse<S, true>> {
   const input = `${baseUrl}/get-one-user-safe`;
   const data = { params, fieldRequest };
-  const init = {
-    credentials: 'include' as RequestCredentials,
-    method: 'POST',
-    body: JSON.stringify(data),
-    ...options,
-  };
+  const init = buildJsonRequestInit(data, options);
   const response = await fetchJsonOrThrow(input, init);
   return presentOneSafeResponse(response, fieldRequest);
 }
@@ -138,12 +118,7 @@ async function createOne<S extends UserFieldRequest>(
 ): Promise<OneUserResponse<S>> {
   const input = `${baseUrl}/create-one-user`;
   const data = { body, fieldRequest };
-  const init = {
-    credentials: 'include' as RequestCredentials,
-    method: 'POST',
-    body: JSON.stringify(data),
-    ...options,
-  };
+  const init = buildJsonRequestInit(data, options);
   const response = await fetchJsonOrThrow(input, init);
   return presentOneResponse(response, fieldRequest);
 }
@@ -156,12 +131,7 @@ async function updateOne<S extends UserFieldRequest>(
 ): Promise<OneUserResponse<S>> {
   const input = `${baseUrl}/update-one-user`;
   const data = { params, body, fieldRequest };
-  const init = {
-    credentials: 'include' as RequestCredentials,
-    method: 'POST',
-    body: JSON.stringify(data),
-    ...options,
-  };
+  const init = buildJsonRequestInit(data, options);
   const response = await fetchJsonOrThrow(input, init);
   return presentOneResponse(response, fieldRequest);
 }
@@ -173,12 +143,7 @@ async function deleteOne<S extends UserFieldRequest>(
 ): Promise<OneUserResponse<S>> {
   const input = `${baseUrl}/delete-one-user`;
   const data = { params, fieldRequest };
-  const init = {
-    credentials: 'include' as RequestCredentials,
-    method: 'POST',
-    body: JSON.stringify(data),
-    ...options,
-  };
+  const init = buildJsonRequestInit(data, options);
   const response = await fetchJsonOrThrow(input, init);
   return presentOneResponse(response, fieldRequest);
 }
