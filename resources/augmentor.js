@@ -115,8 +115,8 @@ function hasApiMethod(entity, methodName) {
 // augment entity - add api strings
 
 function addStrings(entity, config, isVerbose) {
-  const pluralEntName = utils.toTitleCase(utils.pluralize(entity.name));
-  const singularEntName = utils.toTitleCase(entity.name);
+  const pluralEntName = utils.toPascalCase(utils.pluralize(entity.name));
+  const singularEntName = utils.toPascalCase(entity.name);
   if (isVerbose) {
     console.log(
       `[AIRENT-API/INFO] augmenting ${entity.name} - add strings ...`
@@ -128,7 +128,7 @@ function addStrings(entity, config, isVerbose) {
     dispatcherClass: `${singularEntName}Dispatcher`,
     actionsClass: `${singularEntName}Actions`,
     serviceClass: `${singularEntName}Service`,
-    searchServiceClass: `${utils.toTitleCase(entity.name)}SearchService`,
+    searchServiceClass: `${utils.toPascalCase(entity.name)}SearchService`,
     searchServiceModuleName: `${utils.toKababCase(
       entity.name
     )}-search${utils.getModuleSuffix(config)}`,
@@ -156,10 +156,10 @@ function addStrings(entity, config, isVerbose) {
     .filter(utils.isPresentableField)
     .forEach((field) => {
       if (field.value === "asc") {
-        field._strings.api.maxVar = `max${utils.toTitleCase(field.name)}`;
+        field._strings.api.maxVar = `max${utils.toPascalCase(field.name)}`;
       }
       if (field.value === "desc") {
-        field._strings.api.minVar = `min${utils.toTitleCase(field.name)}`;
+        field._strings.api.minVar = `min${utils.toPascalCase(field.name)}`;
       }
     });
 }
@@ -379,8 +379,8 @@ function buildBeforePresent(entity, policies, utils) /* Code[] */ {
     `protected async beforePresent<S extends ${entity._strings.fieldRequestClass}>(fieldRequest: S): Promise<void> {`,
     ...Object.entries(policies).map(([policy, fields]) =>
       fields?.length
-        ? `  await this.check${utils.toTitleCase(policy)}Fields(fieldRequest);`
-        : `  await this.check${utils.toTitleCase(policy)}();`
+        ? `  await this.check${utils.toPascalCase(policy)}Fields(fieldRequest);`
+        : `  await this.check${utils.toPascalCase(policy)}();`
     ),
     "}",
   ];
@@ -394,7 +394,7 @@ function buildPolicyChecker(entity, policy, fields, utils) /* Code[] */ {
       ...fields.map((field) => `  '${field}',`),
       "];",
       "",
-      `protected async check${utils.toTitleCase(policy)}Fields(fieldRequest: ${
+      `protected async check${utils.toPascalCase(policy)}Fields(fieldRequest: ${
         entity._strings.fieldRequestClass
       }): Promise<void> {`,
       `  const fields = Object.keys(fieldRequest).filter((key) => this.${utils.toCamelCase(
@@ -403,7 +403,7 @@ function buildPolicyChecker(entity, policy, fields, utils) /* Code[] */ {
       "  if (fields.length === 0) {",
       "    return;",
       "  }",
-      `  const isAuthorized = await this.authorize${utils.toTitleCase(
+      `  const isAuthorized = await this.authorize${utils.toPascalCase(
         policy
       )}();`,
       `  if (!isAuthorized) {`,
@@ -415,8 +415,8 @@ function buildPolicyChecker(entity, policy, fields, utils) /* Code[] */ {
   } else {
     return [
       "",
-      `protected async check${utils.toTitleCase(policy)}(): Promise<void> {`,
-      `  const isAuthorized = await this.authorize${utils.toTitleCase(
+      `protected async check${utils.toPascalCase(policy)}(): Promise<void> {`,
+      `  const isAuthorized = await this.authorize${utils.toPascalCase(
         policy
       )}();`,
       `  if (!isAuthorized) {`,
@@ -431,7 +431,7 @@ function buildPolicyChecker(entity, policy, fields, utils) /* Code[] */ {
 function buildPolicyAuthorizer(policy, utils) /* Code[] */ {
   return [
     "",
-    `protected authorize${utils.toTitleCase(policy)}(): Awaitable<boolean> {`,
+    `protected authorize${utils.toPascalCase(policy)}(): Awaitable<boolean> {`,
     "  throw new Error('not implemented');",
     "}",
   ];

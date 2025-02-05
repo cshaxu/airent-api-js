@@ -29,9 +29,9 @@ export class <%= entity._strings.api.searchServiceClass %> extends SearchService
 > {
   protected engine: SearchEngineBase<<%= entity._strings.api.searchQuery %>, unknown /* ENGINE_QUERY */, unknown /* SCHEMA */>;
 
-  protected indexName = 'TODO: set your search index name for <%= utils.toTitleCase(entity.name) %>';
+  protected indexName = 'TODO: set your search index name for <%= utils.toPascalCase(entity.name) %>';
 
-  protected indexSchema = {/* TODO: set your search index schema for <%= utils.toTitleCase(entity.name) %> */};
+  protected indexSchema = {/* TODO: set your search index schema for <%= utils.toPascalCase(entity.name) %> */};
 
   protected entityKeyMapper(one: <%= entity._strings.entityClass %>): string {
     // TODO: map your entity to a unique key, e.g. `return one.id;`
