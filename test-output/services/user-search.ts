@@ -56,8 +56,8 @@ export class UserSearchService extends SearchServiceBase<
     throw new Error('not implemented.');
   }
 
-  public resetIndex(context: Context): Awaitable<boolean> {
-    // TODO: reset your search index
+  public indexAll(context: Context): Awaitable<boolean> {
+    // TODO: index all data for your search index
     throw new Error('not implemented.');
   }
 }

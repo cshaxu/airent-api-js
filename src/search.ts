@@ -4,8 +4,11 @@ import { existify } from "./utils";
 interface SearchEngineBase<DOCUMENT, ENGINE_QUERY, SCHEMA> {
   create(indexName: string, schema: SCHEMA): Awaitable<boolean>;
   delete(indexName: string): Awaitable<boolean>;
-  alias(indexName: string, aliasIndexName: string): Awaitable<boolean>;
-  unalias(aliasIndexName: string): Awaitable<string | null>;
+  reset(
+    indexName: string,
+    schema: SCHEMA,
+    indexer: () => Awaitable<boolean>
+  ): Awaitable<boolean>;
   index(indexName: string, documents: DOCUMENT[]): Awaitable<boolean[]>;
   unindex(indexName: string, documents: DOCUMENT[]): Awaitable<boolean[]>;
   retrieve(indexName: string, query: ENGINE_QUERY): Awaitable<DOCUMENT[]>;
@@ -44,7 +47,12 @@ abstract class SearchServiceBase<
     context: CONTEXT
   ): Awaitable<ENGINE_QUERY>;
 
-  public abstract resetIndex(context: CONTEXT): Awaitable<boolean>;
+  public abstract indexAll(context: CONTEXT): Awaitable<boolean>;
+
+  public async resetIndex(context: CONTEXT): Promise<boolean> {
+    const indexer = () => this.indexAll(context);
+    return await this.engine.reset(this.indexName, this.indexSchema, indexer);
+  }
 
   public async indexOne(one: ENTITY, context: CONTEXT): Promise<boolean> {
     const documents = await this.dehydrate([one], context);

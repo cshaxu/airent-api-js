@@ -2,8 +2,7 @@ import { Awaitable } from "./types";
 interface SearchEngineBase<DOCUMENT, ENGINE_QUERY, SCHEMA> {
     create(indexName: string, schema: SCHEMA): Awaitable<boolean>;
     delete(indexName: string): Awaitable<boolean>;
-    alias(indexName: string, aliasIndexName: string): Awaitable<boolean>;
-    unalias(aliasIndexName: string): Awaitable<string | null>;
+    reset(indexName: string, schema: SCHEMA, indexer: () => Awaitable<boolean>): Awaitable<boolean>;
     index(indexName: string, documents: DOCUMENT[]): Awaitable<boolean[]>;
     unindex(indexName: string, documents: DOCUMENT[]): Awaitable<boolean[]>;
     retrieve(indexName: string, query: ENGINE_QUERY): Awaitable<DOCUMENT[]>;
@@ -17,7 +16,8 @@ declare abstract class SearchServiceBase<ENTITY, SERVICE_QUERY, CONTEXT, DOCUMEN
     protected abstract dehydrate(entities: ENTITY[], context: CONTEXT): Awaitable<DOCUMENT[]>;
     protected abstract hydrate(documents: DOCUMENT[], context: CONTEXT): Awaitable<ENTITY[]>;
     protected abstract prepareQuery(query: SERVICE_QUERY, context: CONTEXT): Awaitable<ENGINE_QUERY>;
-    abstract resetIndex(context: CONTEXT): Awaitable<boolean>;
+    abstract indexAll(context: CONTEXT): Awaitable<boolean>;
+    resetIndex(context: CONTEXT): Promise<boolean>;
     indexOne(one: ENTITY, context: CONTEXT): Promise<boolean>;
     indexMany(many: ENTITY[], context: CONTEXT): Promise<boolean[]>;
     unindexOne(one: ENTITY, context: CONTEXT): Promise<boolean>;
