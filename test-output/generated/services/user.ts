@@ -15,7 +15,7 @@ import {
   GetOneUserParams,
   CreateOneUserBody,
   UpdateOneUserBody,
-} from '../../../test-sources/user-type';
+} from '../../api-types/user';
 
 /** @deprecated */
 export interface UserServiceInterface {

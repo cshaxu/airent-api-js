@@ -28,10 +28,11 @@ async function getShouldEnable(name) {
  */
 
 /** @typedef {Object} ApiClientConfig
- * @property {string} baseUrlImport
+ * @property {string} baseUrlImportPath
 
 /** @typedef {Object} ApiConfig
  *  @property {?string} libImportPath
+ *  @property {string} typesPath
  *  @property {ApiServerConfig} server
  *  @property {ApiClientConfig} client
  */
@@ -52,6 +53,12 @@ const CONFIG_FILE_PATH = path.join(PROJECT_PATH, "airent.config.json");
 
 const AIRENT_API_RESOURCES_PATH = "node_modules/@airent/api/resources";
 const API_AUGMENTOR_PATH = `${AIRENT_API_RESOURCES_PATH}/augmentor.js`;
+
+const API_TYPE_TEMPLATE_CONFIG = {
+  name: `${AIRENT_API_RESOURCES_PATH}/type-template.ts.ejs`,
+  outputPath: "{api.typesPath}/{kababEntityName}.ts",
+  skippable: true,
+};
 
 const API_CLIENT_TEMPLATE_CONFIG = {
   name: `${AIRENT_API_RESOURCES_PATH}/client-template.ts.ejs`,
@@ -109,6 +116,42 @@ function addTemplate(config, draftTemplate) {
   }
 }
 
+async function configureApiTypes(config) {
+  const { templates } = config;
+  const isApiTypesEnabled = templates.some(
+    (t) => t.name === API_TYPE_TEMPLATE_CONFIG.name
+  );
+  if (!isApiTypesEnabled) {
+    addTemplate(config, API_TYPE_TEMPLATE_CONFIG);
+  }
+
+  config.api.typesPath = await askQuestion(
+    "Output path for Api Type",
+    config.api.typesPath ?? "./src/api-types"
+  );
+}
+
+async function configureApiClient(config) {
+  const { templates } = config;
+  const isApiClientEnabled = templates.some((t) =>
+    API_CLIENT_TEMPLATE_CONFIGS.some((c) => c.name === t.name)
+  );
+  const shouldEnableApiClient = isApiClientEnabled
+    ? true
+    : await getShouldEnable("Api Client");
+  if (!shouldEnableApiClient) {
+    return;
+  }
+  API_CLIENT_TEMPLATE_CONFIGS.forEach((t) => addTemplate(config, t));
+
+  config.api.client = config.api.client ?? {};
+
+  config.api.client.baseUrlImportPath = await askQuestion(
+    'Import path for "baseUrl"',
+    config.api.client.baseUrlImportPath ?? "./config"
+  );
+}
+
 async function configureApiServer(config) {
   const { templates } = config;
   const isApiServerEnabled = templates.some((t) =>
@@ -135,27 +178,6 @@ async function configureApiServer(config) {
   );
 }
 
-async function configureApiClient(config) {
-  const { templates } = config;
-  const isApiClientEnabled = templates.some((t) =>
-    API_CLIENT_TEMPLATE_CONFIGS.some((c) => c.name === t.name)
-  );
-  const shouldEnableApiClient = isApiClientEnabled
-    ? true
-    : await getShouldEnable("Api Client");
-  if (!shouldEnableApiClient) {
-    return;
-  }
-  API_CLIENT_TEMPLATE_CONFIGS.forEach((t) => addTemplate(config, t));
-
-  config.api.client = config.api.client ?? {};
-
-  config.api.client.baseUrlImport = await askQuestion(
-    "Statement to import 'baseUrl'",
-    config.api.client.baseUrlImport ?? "import { baseUrl } from '@/fetch';"
-  );
-}
-
 async function configure() {
   const config = await loadConfig();
   const { augmentors } = config;
@@ -169,6 +191,7 @@ async function configure() {
   }
 
   config.api = config.api ?? {};
+  await configureApiTypes(config);
   await configureApiServer(config);
   await configureApiClient(config);
 

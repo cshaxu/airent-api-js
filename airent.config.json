@@ -7,6 +7,11 @@
   "augmentors": ["resources/augmentor.js"],
   "templates": [
     {
+      "name": "resources/type-template.ts.ejs",
+      "outputPath": "{api.typesPath}/{kababEntityName}.ts",
+      "skippable": false
+    },
+    {
       "name": "resources/dispatcher-template.ts.ejs",
       "outputPath": "{generatedPath}/dispatchers/{kababEntityName}.ts",
       "skippable": false
@@ -45,6 +50,7 @@
     },
     "client": {
       "baseUrlImportPath": "./test-sources/fetch"
-    }
+    },
+    "typesPath": "./test-output/api-types"
   }
 }

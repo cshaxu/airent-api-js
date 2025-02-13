@@ -18,7 +18,7 @@ import {
   GetOneUserParams,
   CreateOneUserBody,
   UpdateOneUserBody,
-} from '../../../test-sources/user-type';
+} from '../../api-types/user';
 import UserService from '../../services/user';
 
 // api response builders

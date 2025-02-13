@@ -15,7 +15,7 @@ import {
   GetOneUserParams,
   CreateOneUserBody,
   UpdateOneUserBody,
-} from '../../test-sources/user-type';
+} from '../api-types/user';
 import { UserServiceInterface } from '../generated/services/user';
 import { UserSearchService } from './user-search';
 

@@ -18,7 +18,7 @@ import {
   GetOneUserParams,
   CreateOneUserBody,
   UpdateOneUserBody,
-} from '../../../test-sources/user-type';
+} from '../../api-types/user';
 
 function present<S extends UserFieldRequest>(
   one: any,

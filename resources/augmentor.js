@@ -231,8 +231,6 @@ function addPackages(entity, config, isVerbose) {
   entity._packages = entity._packages ?? {};
   entity._packages.api = entity._packages.api ?? {};
 
-  const requestImport = entity.api.request?.import;
-
   if (config.api.server) {
     entity._packages.api.dispatcherToActionFull = buildRelativePath(
       path.join(config.generatedPath, "dispatchers"),
@@ -254,24 +252,20 @@ function addPackages(entity, config, isVerbose) {
 
     entity._packages.api.serviceInterfaceToTypeFull = buildRelativePath(
       path.join(config.generatedPath, "services"),
-      path.join(config.generatedPath, "types", entity._strings.moduleName),
-      config
+      path.join(config.generatedPath, "types", entity._strings.moduleName)
     );
     entity._packages.api.serviceInterfaceToEntityFull = buildRelativePath(
       path.join(config.generatedPath, "services"),
-      path.join(config.entityPath, entity._strings.moduleName),
-      config
+      path.join(config.entityPath, entity._strings.moduleName)
     );
 
     entity._packages.api.serviceToTypeFull = buildRelativePath(
       config.api.server.servicePath,
-      path.join(config.generatedPath, "types", entity._strings.moduleName),
-      config
+      path.join(config.generatedPath, "types", entity._strings.moduleName)
     );
     entity._packages.api.serviceToEntityFull = buildRelativePath(
       config.api.server.servicePath,
-      path.join(config.entityPath, entity._strings.moduleName),
-      config
+      path.join(config.entityPath, entity._strings.moduleName)
     );
     entity._packages.api.serviceToServiceInterfaceFull = buildRelativePath(
       config.api.server.servicePath,
@@ -282,28 +276,22 @@ function addPackages(entity, config, isVerbose) {
       (t) => (t._packages.api = buildTypePackages(t, config))
     );
 
-    if (requestImport) {
-      entity._packages.api.dispatcherToRequestFull = buildRelativeFull(
-        path.join(config.generatedPath, "dispatchers"),
-        requestImport,
-        config
-      );
-      entity._packages.api.actionToRequestFull = buildRelativeFull(
-        path.join(config.generatedPath, "actions"),
-        requestImport,
-        config
-      );
-      entity._packages.api.serviceInterfaceToRequestFull = buildRelativeFull(
-        path.join(config.generatedPath, "services"),
-        requestImport,
-        config
-      );
-      entity._packages.api.serviceToRequestFull = buildRelativeFull(
-        config.api.server.servicePath,
-        requestImport,
-        config
-      );
-    }
+    entity._packages.api.dispatcherToRequestFull = buildRelativePath(
+      path.join(config.generatedPath, "dispatchers"),
+      path.join(config.api.typesPath, entity._strings.moduleName)
+    );
+    entity._packages.api.actionToRequestFull = buildRelativePath(
+      path.join(config.generatedPath, "actions"),
+      path.join(config.api.typesPath, entity._strings.moduleName)
+    );
+    entity._packages.api.serviceInterfaceToRequestFull = buildRelativePath(
+      path.join(config.generatedPath, "services"),
+      path.join(config.api.typesPath, entity._strings.moduleName)
+    );
+    entity._packages.api.serviceToRequestFull = buildRelativePath(
+      config.api.server.servicePath,
+      path.join(config.api.typesPath, entity._strings.moduleName)
+    );
   }
 
   if (config.api.client) {
@@ -311,14 +299,10 @@ function addPackages(entity, config, isVerbose) {
       path.join(config.generatedPath, "clients"),
       path.join(config.generatedPath, "types", entity._strings.moduleName)
     );
-
-    if (requestImport) {
-      entity._packages.api.clientToRequestFull = buildRelativeFull(
-        path.join(config.generatedPath, "clients"),
-        requestImport,
-        config
-      );
-    }
+    entity._packages.api.clientToRequestFull = buildRelativePath(
+      path.join(config.generatedPath, "clients"),
+      path.join(config.api.typesPath, entity._strings.moduleName)
+    );
   }
 }
 

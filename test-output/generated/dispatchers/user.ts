@@ -20,7 +20,7 @@ import {
   GetOneUserParams,
   CreateOneUserBody,
   UpdateOneUserBody,
-} from '../../../test-sources/user-type';
+} from '../../api-types/user';
 
 const searchConfig = {
   queryZod: SearchUsersQuery,

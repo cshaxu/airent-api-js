@@ -6,7 +6,7 @@ import { Context } from '../../test-sources/framework';
 
 // entity imports
 import { UserEntity } from '../entities/user';
-import { SearchUsersQuery } from '../../test-sources/user-type';
+import { SearchUsersQuery } from '../api-types/user';
 
 /** @deprecated */
 export type UserSearchDocument = {

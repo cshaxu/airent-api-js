@@ -1,0 +1,39 @@
+<% if (utils.isPresentableEntity(entity) && entity._booleans.api.hasAny) { -%>
+// library imports
+import * as z from 'zod';
+  <%_ if (entity._booleans.api.hasSearch || entity._booleans.api.hasGetMany) { -%>
+
+// query
+  <%_ } -%>
+  <%_ if (entity._booleans.api.hasSearch) { -%>
+
+export const <%= entity._strings.api.searchQuery %> = z.object({});
+export type <%= entity._strings.api.searchQuery %> = z.infer<typeof <%= entity._strings.api.searchQuery %>>;
+  <%_ } -%>
+  <%_ if (entity._booleans.api.hasGetMany) { -%>
+
+export const <%= entity._strings.api.getManyQuery %> = z.object({});
+export type <%= entity._strings.api.getManyQuery %> = z.infer<typeof <%= entity._strings.api.getManyQuery %>>;
+  <%_ } -%>
+  <%_ if (entity._booleans.api.hasGetOneRequest) { -%>
+
+// params
+
+export const <%= entity._strings.api.getOneParams %> = z.object({});
+export type <%= entity._strings.api.getOneParams %> = z.infer<typeof <%= entity._strings.api.getOneParams %>>;
+  <%_ } -%>
+  <%_ if (entity._booleans.api.hasCreateOne || entity._booleans.api.hasUpdateOne) { -%>
+
+// body
+  <%_ } -%>
+  <%_ if (entity._booleans.api.hasCreateOne) { -%>
+
+export const <%= entity._strings.api.createOneBody %> = z.object({});
+export type <%= entity._strings.api.createOneBody %> = z.infer<typeof <%= entity._strings.api.createOneBody %>>;
+  <%_ } -%>
+  <%_ if (entity._booleans.api.hasUpdateOne) { -%>
+
+export const <%= entity._strings.api.updateOneBody %> = z.object({});
+export type <%= entity._strings.api.updateOneBody %> = z.infer<typeof <%= entity._strings.api.updateOneBody %>>;
+  <%_ } -%>
+<% } -%>

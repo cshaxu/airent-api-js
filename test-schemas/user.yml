@@ -1,8 +1,6 @@
 name: User
 deprecated: true
 api:
-  request:
-    import: "./test-sources/user-type"
   cursors:
     - createdAt: asc
     - createdAt: desc
