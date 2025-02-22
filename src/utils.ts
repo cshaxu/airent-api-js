@@ -10,19 +10,6 @@ function isNil(value: any): value is null | undefined {
   return value === undefined || value === null;
 }
 
-function isReadableStream(value: any): value is ReadableStream {
-  return (
-    value instanceof ReadableStream ||
-    (!isNil(value) &&
-      isFunction(value.cancel) &&
-      isFunction(value.cancel) &&
-      isFunction(value.getReader) &&
-      isFunction(value.pipeTo) &&
-      isFunction(value.pipeThrough) &&
-      isFunction(value.tee))
-  );
-}
-
 // container modifications
 
 function existify<T>(array: T[]): NonNullable<T>[] {
@@ -233,7 +220,6 @@ export {
   getJsonOrThrow,
   isFunction,
   isNil,
-  isReadableStream,
   isUrl,
   max,
   min,
