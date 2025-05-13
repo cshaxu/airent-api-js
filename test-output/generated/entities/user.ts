@@ -29,10 +29,10 @@ import {
 export class UserEntityBase extends BaseEntity<
   UserModel, Context, UserFieldRequest, UserResponse
 > {
-  public id: string;
-  public createdAt: Date;
-  public name: string;
-  public email: string;
+  public id!: string;
+  public createdAt!: Date;
+  public name!: string;
+  public email!: string;
 
   protected messages?: MessageEntity[];
 
@@ -43,13 +43,33 @@ export class UserEntityBase extends BaseEntity<
     lock: AsyncLock,
   ) {
     super(context, group, lock);
-
-    this.id = model.id;
-    this.createdAt = model.createdAt;
-    this.name = model.name;
-    this.email = model.email;
-
+    this.fromModel(model);
     this.initialize(model, context);
+  }
+
+  public fromModel(model: Partial<UserModel>): void {
+    if ('id' in model && model['id'] !== undefined) {
+      this.id = model.id;
+    }
+    if ('createdAt' in model && model['createdAt'] !== undefined) {
+      this.createdAt = model.createdAt;
+    }
+    if ('name' in model && model['name'] !== undefined) {
+      this.name = model.name;
+    }
+    if ('email' in model && model['email'] !== undefined) {
+      this.email = model.email;
+    }
+    this.messages = undefined;
+  }
+
+  public toModel(): Partial<UserModel> {
+    return {
+      id: this.id,
+      createdAt: this.createdAt,
+      name: this.name,
+      email: this.email,
+    };
   }
 
   public async present<S extends UserFieldRequest>(fieldRequest: S): Promise<SelectedUserResponse<S>> {

@@ -26,10 +26,10 @@ import {
 export class MessageEntityBase extends BaseEntity<
   MessageModel, Context, MessageFieldRequest, MessageResponse
 > {
-  public id: string;
-  public createdAt: Date;
-  public userId: string;
-  public text: string | null;
+  public id!: string;
+  public createdAt!: Date;
+  public userId!: string;
+  public text!: string | null;
 
   public constructor(
     model: MessageModel,
@@ -38,13 +38,32 @@ export class MessageEntityBase extends BaseEntity<
     lock: AsyncLock,
   ) {
     super(context, group, lock);
-
-    this.id = model.id;
-    this.createdAt = model.createdAt;
-    this.userId = model.userId;
-    this.text = model.text;
-
+    this.fromModel(model);
     this.initialize(model, context);
+  }
+
+  public fromModel(model: Partial<MessageModel>): void {
+    if ('id' in model && model['id'] !== undefined) {
+      this.id = model.id;
+    }
+    if ('createdAt' in model && model['createdAt'] !== undefined) {
+      this.createdAt = model.createdAt;
+    }
+    if ('userId' in model && model['userId'] !== undefined) {
+      this.userId = model.userId;
+    }
+    if ('text' in model && model['text'] !== undefined) {
+      this.text = model.text;
+    }
+  }
+
+  public toModel(): Partial<MessageModel> {
+    return {
+      id: this.id,
+      createdAt: this.createdAt,
+      userId: this.userId,
+      text: this.text,
+    };
   }
 
   public async present<S extends MessageFieldRequest>(fieldRequest: S): Promise<SelectedMessageResponse<S>> {
