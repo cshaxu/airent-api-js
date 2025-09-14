@@ -29,6 +29,8 @@ import {
 export class UserEntityBase extends BaseEntity<
   UserModel, Context, UserFieldRequest, UserResponse
 > {
+  private originalModel: UserModel;
+
   public id!: string;
   public createdAt!: Date;
   public name!: string;
@@ -43,6 +45,7 @@ export class UserEntityBase extends BaseEntity<
     lock: AsyncLock,
   ) {
     super(context, group, lock);
+    this.originalModel = { ...model };
     this.fromModel(model);
     this.initialize(model, context);
   }
@@ -70,6 +73,23 @@ export class UserEntityBase extends BaseEntity<
       name: this.name,
       email: this.email,
     };
+  }
+
+  public toDirtyModel(): Partial<UserModel> {
+    const dirtyModel: Partial<UserModel> = {};
+    if ('id' in this.originalModel && this.originalModel['id'] !== this.id) {
+      dirtyModel['id'] = this.id;
+    }
+    if ('createdAt' in this.originalModel && this.originalModel['createdAt'] !== this.createdAt) {
+      dirtyModel['createdAt'] = this.createdAt;
+    }
+    if ('name' in this.originalModel && this.originalModel['name'] !== this.name) {
+      dirtyModel['name'] = this.name;
+    }
+    if ('email' in this.originalModel && this.originalModel['email'] !== this.email) {
+      dirtyModel['email'] = this.email;
+    }
+    return dirtyModel;
   }
 
   public async present<S extends UserFieldRequest>(fieldRequest: S): Promise<SelectedUserResponse<S>> {

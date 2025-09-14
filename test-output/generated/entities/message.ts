@@ -26,6 +26,8 @@ import {
 export class MessageEntityBase extends BaseEntity<
   MessageModel, Context, MessageFieldRequest, MessageResponse
 > {
+  private originalModel: MessageModel;
+
   public id!: string;
   public createdAt!: Date;
   public userId!: string;
@@ -38,6 +40,7 @@ export class MessageEntityBase extends BaseEntity<
     lock: AsyncLock,
   ) {
     super(context, group, lock);
+    this.originalModel = { ...model };
     this.fromModel(model);
     this.initialize(model, context);
   }
@@ -64,6 +67,23 @@ export class MessageEntityBase extends BaseEntity<
       userId: this.userId,
       text: this.text,
     };
+  }
+
+  public toDirtyModel(): Partial<MessageModel> {
+    const dirtyModel: Partial<MessageModel> = {};
+    if ('id' in this.originalModel && this.originalModel['id'] !== this.id) {
+      dirtyModel['id'] = this.id;
+    }
+    if ('createdAt' in this.originalModel && this.originalModel['createdAt'] !== this.createdAt) {
+      dirtyModel['createdAt'] = this.createdAt;
+    }
+    if ('userId' in this.originalModel && this.originalModel['userId'] !== this.userId) {
+      dirtyModel['userId'] = this.userId;
+    }
+    if ('text' in this.originalModel && this.originalModel['text'] !== this.text) {
+      dirtyModel['text'] = this.text;
+    }
+    return dirtyModel;
   }
 
   public async present<S extends MessageFieldRequest>(fieldRequest: S): Promise<SelectedMessageResponse<S>> {
