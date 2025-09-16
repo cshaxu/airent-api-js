@@ -26,7 +26,7 @@ import {
 export class MessageEntityBase extends BaseEntity<
   MessageModel, Context, MessageFieldRequest, MessageResponse
 > {
-  private originalModel: MessageModel;
+  private _originalModel: MessageModel;
 
   public id!: string;
   public createdAt!: Date;
@@ -40,22 +40,26 @@ export class MessageEntityBase extends BaseEntity<
     lock: AsyncLock,
   ) {
     super(context, group, lock);
-    this.originalModel = { ...model };
+    this._originalModel = { ...model };
     this.fromModel(model);
     this.initialize(model, context);
   }
 
   public fromModel(model: Partial<MessageModel>): void {
     if ('id' in model && model['id'] !== undefined) {
+      this._originalModel['id'] = model['id'];
       this.id = model.id;
     }
     if ('createdAt' in model && model['createdAt'] !== undefined) {
-      this.createdAt = model.createdAt;
+      this._originalModel['createdAt'] = model['createdAt'];
+      this.createdAt = structuredClone(model.createdAt);
     }
     if ('userId' in model && model['userId'] !== undefined) {
+      this._originalModel['userId'] = model['userId'];
       this.userId = model.userId;
     }
     if ('text' in model && model['text'] !== undefined) {
+      this._originalModel['text'] = model['text'];
       this.text = model.text;
     }
   }
@@ -63,7 +67,7 @@ export class MessageEntityBase extends BaseEntity<
   public toModel(): Partial<MessageModel> {
     return {
       id: this.id,
-      createdAt: this.createdAt,
+      createdAt: structuredClone(this.createdAt),
       userId: this.userId,
       text: this.text,
     };
@@ -71,16 +75,16 @@ export class MessageEntityBase extends BaseEntity<
 
   public toDirtyModel(): Partial<MessageModel> {
     const dirtyModel: Partial<MessageModel> = {};
-    if ('id' in this.originalModel && this.originalModel['id'] !== this.id) {
+    if ('id' in this._originalModel && this._originalModel['id'] !== this.id) {
       dirtyModel['id'] = this.id;
     }
-    if ('createdAt' in this.originalModel && this.originalModel['createdAt'] !== this.createdAt) {
-      dirtyModel['createdAt'] = this.createdAt;
+    if ('createdAt' in this._originalModel && JSON.stringify(this._originalModel['createdAt']) !== JSON.stringify(this.createdAt)) {
+      dirtyModel['createdAt'] = structuredClone(this.createdAt);
     }
-    if ('userId' in this.originalModel && this.originalModel['userId'] !== this.userId) {
+    if ('userId' in this._originalModel && this._originalModel['userId'] !== this.userId) {
       dirtyModel['userId'] = this.userId;
     }
-    if ('text' in this.originalModel && this.originalModel['text'] !== this.text) {
+    if ('text' in this._originalModel && this._originalModel['text'] !== this.text) {
       dirtyModel['text'] = this.text;
     }
     return dirtyModel;
