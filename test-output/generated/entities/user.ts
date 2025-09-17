@@ -46,25 +46,37 @@ export class UserEntityBase extends BaseEntity<
   ) {
     super(context, group, lock);
     this._originalModel = { ...model };
-    this.fromModel(model);
+    this.fromModelInner(model, false);
     this.initialize(model, context);
   }
 
   public fromModel(model: Partial<UserModel>): void {
+    this.fromModelInner(model, false);
+  }
+
+  private fromModelInner(model: Partial<UserModel>, isResetOriginalModel: boolean): void {
     if ('id' in model && model['id'] !== undefined) {
-      this._originalModel['id'] = model['id'];
+      if (isResetOriginalModel) {
+        this._originalModel['id'] = model['id'];
+      }
       this.id = model.id;
     }
     if ('createdAt' in model && model['createdAt'] !== undefined) {
-      this._originalModel['createdAt'] = model['createdAt'];
+      if (isResetOriginalModel) {
+        this._originalModel['createdAt'] = model['createdAt'];
+      }
       this.createdAt = structuredClone(model.createdAt);
     }
     if ('name' in model && model['name'] !== undefined) {
-      this._originalModel['name'] = model['name'];
+      if (isResetOriginalModel) {
+        this._originalModel['name'] = model['name'];
+      }
       this.name = model.name;
     }
     if ('email' in model && model['email'] !== undefined) {
-      this._originalModel['email'] = model['email'];
+      if (isResetOriginalModel) {
+        this._originalModel['email'] = model['email'];
+      }
       this.email = model.email;
     }
     this.messages = undefined;

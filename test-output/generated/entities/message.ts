@@ -41,25 +41,37 @@ export class MessageEntityBase extends BaseEntity<
   ) {
     super(context, group, lock);
     this._originalModel = { ...model };
-    this.fromModel(model);
+    this.fromModelInner(model, false);
     this.initialize(model, context);
   }
 
   public fromModel(model: Partial<MessageModel>): void {
+    this.fromModelInner(model, false);
+  }
+
+  private fromModelInner(model: Partial<MessageModel>, isResetOriginalModel: boolean): void {
     if ('id' in model && model['id'] !== undefined) {
-      this._originalModel['id'] = model['id'];
+      if (isResetOriginalModel) {
+        this._originalModel['id'] = model['id'];
+      }
       this.id = model.id;
     }
     if ('createdAt' in model && model['createdAt'] !== undefined) {
-      this._originalModel['createdAt'] = model['createdAt'];
+      if (isResetOriginalModel) {
+        this._originalModel['createdAt'] = model['createdAt'];
+      }
       this.createdAt = structuredClone(model.createdAt);
     }
     if ('userId' in model && model['userId'] !== undefined) {
-      this._originalModel['userId'] = model['userId'];
+      if (isResetOriginalModel) {
+        this._originalModel['userId'] = model['userId'];
+      }
       this.userId = model.userId;
     }
     if ('text' in model && model['text'] !== undefined) {
-      this._originalModel['text'] = model['text'];
+      if (isResetOriginalModel) {
+        this._originalModel['text'] = model['text'];
+      }
       this.text = model.text;
     }
   }
