@@ -1,4 +1,4 @@
-import { Awaitable } from "./types";
+import { Awaitable } from "airent";
 import { existify } from "./utils";
 
 interface SearchEngineBase<DOCUMENT, ENGINE_QUERY, SCHEMA> {

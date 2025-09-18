@@ -1,4 +1,3 @@
-type Awaitable<T> = T | Promise<T>;
 type CommonResponse<RESULT = unknown, ERROR = unknown> = {
     code: number;
     result?: RESULT;
@@ -15,4 +14,4 @@ type NormalizedError = {
     stack?: string[];
     original?: any;
 };
-export { Awaitable, CommonResponse, FieldRequest, FieldRequestInterface, NormalizedError, };
+export { CommonResponse, FieldRequest, FieldRequestInterface, NormalizedError };

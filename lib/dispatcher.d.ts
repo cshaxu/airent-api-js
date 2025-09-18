@@ -1,4 +1,5 @@
-import { Awaitable, CommonResponse } from "./types";
+import { Awaitable } from "airent";
+import { CommonResponse } from "./types";
 type Authorizer<CONTEXT, OPTIONS> = (context: CONTEXT, options?: OPTIONS) => Awaitable<void>;
 type Parser<CONTEXT, DATA, PARSED> = (data: DATA, context: CONTEXT) => Awaitable<PARSED>;
 type Executor<PARSED, CONTEXT, RESULT> = (parsed: PARSED, context: CONTEXT) => Awaitable<RESULT>;

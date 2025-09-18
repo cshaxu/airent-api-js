@@ -1,4 +1,5 @@
-import { Awaitable, CommonResponse } from "./types";
+import { Awaitable } from "airent";
+import { CommonResponse } from "./types";
 
 type Authorizer<CONTEXT, OPTIONS> = (
   context: CONTEXT,

@@ -421,13 +421,6 @@ function buildPolicyAuthorizer(policy, utils) /* Code[] */ {
   ];
 }
 
-function buildBeforeBase(entity, config) /* Code[] */ {
-  if (!utils.isPresentableEntity(entity)) {
-    return [];
-  }
-  return [`import { Awaitable } from '${config._packages.api.baseToLibFull}';`];
-}
-
 function buildInsideBase(entity, policies, utils) /* Code[] */ {
   const policyCheckerAndAuthorizerBundles = Object.entries(policies).flatMap(
     ([policy, fields]) => [
@@ -437,15 +430,6 @@ function buildInsideBase(entity, policies, utils) /* Code[] */ {
   );
   const beforePresent = buildBeforePresent(entity, policies, utils);
   return [...policyCheckerAndAuthorizerBundles, ...beforePresent];
-}
-
-function buildBeforeEntity(entity, config) /* Code[] */ {
-  if (!utils.isPresentableEntity(entity)) {
-    return [];
-  }
-  return [
-    `import { Awaitable } from '${config._packages.api.entityToLibFull}';`,
-  ];
 }
 
 function buildInsideEntity(policies, utils) /* Code[] */ {
@@ -464,12 +448,6 @@ function addCode(entity, config, isVerbose) {
 
   const afterType = buildAfterType(entity);
   entity._code.afterType.push(...afterType);
-
-  const beforeBase = buildBeforeBase(entity, config);
-  entity._code.beforeBase.push(...beforeBase);
-
-  const beforeEntity = buildBeforeEntity(entity, config);
-  entity._code.beforeEntity.push(...beforeEntity);
 
   const policies = entity.policies ?? new Map();
   const policyKeys = Object.keys(policies);

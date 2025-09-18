@@ -1,5 +1,6 @@
 // airent imports
-import { Awaitable, SearchEngineBase, SearchServiceBase } from '../../src/index';
+import { Awaitable } from "airent";
+import { SearchEngineBase, SearchServiceBase } from '../../src/index';
 
 // config imports
 import { Context } from '../../test-sources/framework';

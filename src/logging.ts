@@ -1,4 +1,5 @@
-import { Awaitable, NormalizedError } from "./types";
+import { Awaitable } from "airent";
+import { NormalizedError } from "./types";
 
 async function logTime<T>(
   fn: () => Awaitable<T>,

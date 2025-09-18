@@ -1,13 +1,15 @@
-import { Awaitable } from '../../../src/index';
 import createHttpError from 'http-errors';
 // airent imports
 import {
   AsyncLock,
+  Awaitable,
   BaseEntity,
   EntityConstructor,
   LoadConfig,
   LoadKey,
   Select,
+  batch,
+  clone,
   sequential,
   toArrayMap,
   toObjectMap,
@@ -29,8 +31,6 @@ import {
 export class UserEntityBase extends BaseEntity<
   UserModel, Context, UserFieldRequest, UserResponse
 > {
-  private _originalModel: UserModel;
-
   public id!: string;
   public createdAt!: Date;
   public name!: string;
@@ -45,67 +45,16 @@ export class UserEntityBase extends BaseEntity<
     lock: AsyncLock,
   ) {
     super(context, group, lock);
-    this._originalModel = { ...model };
-    this.fromModelInner(model, false);
+    this._aliasMapFromModel['id'] = 'id';
+    this._aliasMapToModel['id'] = 'id';
+    this._aliasMapFromModel['createdAt'] = 'createdAt';
+    this._aliasMapToModel['createdAt'] = 'createdAt';
+    this._aliasMapFromModel['name'] = 'name';
+    this._aliasMapToModel['name'] = 'name';
+    this._aliasMapFromModel['email'] = 'email';
+    this._aliasMapToModel['email'] = 'email';
+    this.fromModelInner(model, true);
     this.initialize(model, context);
-  }
-
-  public fromModel(model: Partial<UserModel>): void {
-    this.fromModelInner(model, false);
-  }
-
-  private fromModelInner(model: Partial<UserModel>, isResetOriginalModel: boolean): void {
-    if ('id' in model && model['id'] !== undefined) {
-      if (isResetOriginalModel) {
-        this._originalModel['id'] = model['id'];
-      }
-      this.id = model.id;
-    }
-    if ('createdAt' in model && model['createdAt'] !== undefined) {
-      if (isResetOriginalModel) {
-        this._originalModel['createdAt'] = model['createdAt'];
-      }
-      this.createdAt = structuredClone(model.createdAt);
-    }
-    if ('name' in model && model['name'] !== undefined) {
-      if (isResetOriginalModel) {
-        this._originalModel['name'] = model['name'];
-      }
-      this.name = model.name;
-    }
-    if ('email' in model && model['email'] !== undefined) {
-      if (isResetOriginalModel) {
-        this._originalModel['email'] = model['email'];
-      }
-      this.email = model.email;
-    }
-    this.messages = undefined;
-  }
-
-  public toModel(): Partial<UserModel> {
-    return {
-      id: this.id,
-      createdAt: structuredClone(this.createdAt),
-      name: this.name,
-      email: this.email,
-    };
-  }
-
-  public toDirtyModel(): Partial<UserModel> {
-    const dirtyModel: Partial<UserModel> = {};
-    if ('id' in this._originalModel && this._originalModel['id'] !== this.id) {
-      dirtyModel['id'] = this.id;
-    }
-    if ('createdAt' in this._originalModel && JSON.stringify(this._originalModel['createdAt']) !== JSON.stringify(this.createdAt)) {
-      dirtyModel['createdAt'] = structuredClone(this.createdAt);
-    }
-    if ('name' in this._originalModel && this._originalModel['name'] !== this.name) {
-      dirtyModel['name'] = this.name;
-    }
-    if ('email' in this._originalModel && this._originalModel['email'] !== this.email) {
-      dirtyModel['email'] = this.email;
-    }
-    return dirtyModel;
   }
 
   public async present<S extends UserFieldRequest>(fieldRequest: S): Promise<SelectedUserResponse<S>> {
@@ -128,14 +77,26 @@ export class UserEntityBase extends BaseEntity<
     return await sequential(entities.map((one) => () => one.present(fieldRequest)));
   }
 
+  /** self creator */
+
+  public static async createOne<ENTITY extends UserEntityBase>(
+    this: EntityConstructor<UserModel, Context, ENTITY>,
+    model: Partial<UserModel>,
+    context: Context
+  ): Promise<ENTITY | null> {
+    const createdModel = {/* TODO: create model for UserEntity */};
+    return (this as any).fromOne(createdModel, context);
+  }
+
   /** self loaders */
 
   public static async getOne<ENTITY extends UserEntityBase>(
     this: EntityConstructor<UserModel, Context, ENTITY>,
-    key: LoadKey
+    key: LoadKey,
+    context: Context
   ): Promise<ENTITY | null> {
     return await (this as any)
-      .getMany([key])
+      .getMany([key], context)
       .then((array: ENTITY[]) => array.length > 0 ? array[0] : null);
   }
 

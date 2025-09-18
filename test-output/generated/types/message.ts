@@ -1,5 +1,5 @@
 // airent imports
-import { Select } from 'airent';
+import { Awaitable, Select } from 'airent';
 
 // entity imports
 

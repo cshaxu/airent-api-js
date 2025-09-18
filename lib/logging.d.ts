@@ -1,4 +1,5 @@
-import { Awaitable, NormalizedError } from "./types";
+import { Awaitable } from "airent";
+import { NormalizedError } from "./types";
 declare function logTime<T>(fn: () => Awaitable<T>, callerDepth?: number): Promise<T>;
 declare function logDebug(props?: any, callerDepth?: number): void;
 declare function logInfo(props?: any, callerDepth?: number): void;

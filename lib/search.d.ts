@@ -1,4 +1,4 @@
-import { Awaitable } from "./types";
+import { Awaitable } from "airent";
 interface SearchEngineBase<DOCUMENT, ENGINE_QUERY, SCHEMA> {
     create(indexName: string, schema: SCHEMA): Awaitable<boolean>;
     delete(indexName: string): Awaitable<boolean>;

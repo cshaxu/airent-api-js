@@ -1,6 +1,7 @@
 <% if (utils.isPresentableEntity(entity) && entity._booleans.api.hasSearch) { -%>
 // airent imports
-import { Awaitable, SearchEngineBase, SearchServiceBase } from '<%- config._packages.api.serviceToLibFull %>';
+import { Awaitable } from "airent";
+import { SearchEngineBase, SearchServiceBase } from '<%- config._packages.api.serviceToLibFull %>';
 
 // config imports
 import { Context } from '<%- config._packages.api.serviceToContextFull %>';

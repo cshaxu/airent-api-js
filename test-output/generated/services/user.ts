@@ -1,5 +1,5 @@
 // airent imports
-import { Awaitable } from '../../../src/index';
+import { Awaitable } from 'airent';
 
 // config imports
 import { Context } from '../../../test-sources/framework';
