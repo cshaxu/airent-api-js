@@ -47,7 +47,11 @@ async function buildManyResponse<S extends <%= entity._strings.fieldRequestClass
 ): Promise<<%= entity._strings.api.manyResponse %><S>> {
   const <%= entity._strings.api.manyEntsVar %> = await <%= entity._strings.entityClass %>.presentMany(many, fieldRequest);
   <%_ entity.fields.filter((f) => f._strings.api.minVar || f._strings.api.maxVar).forEach((field) => { -%>
-  const <%= utils.pluralize(field.name) %> = many.map((one) => one.<%= field.name %>);
+    <%_ if (utils.isSyncField(field)) { -%>
+  const <%= utils.pluralize(field.name) %> = many.map((one) => one.<%= field._strings.fieldGetter %>);
+    <%_ } else { -%>
+  const <%= utils.pluralize(field.name) %> = await Promise.all(many.map((one) => one.<%= field._strings.fieldGetter %>));
+    <%_ } -%>
     <%_ if (field._strings.api.minVar) { -%>
   const <%= field._strings.api.minVar %> = min(<%= utils.pluralize(field.name) %>);
     <%_ } -%>

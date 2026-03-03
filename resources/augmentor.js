@@ -152,9 +152,13 @@ function addStrings(entity, config, isVerbose) {
   (entity.api?.cursors ?? [])
     .flatMap((c) => Object.keys(c).map((n) => ({ name: n, value: c[n] })))
     .map((c) => ({ ...utils.queryField(c.name, entity), value: c.value }))
-    .filter(utils.isPrimitiveField)
-    .filter(utils.isPresentableField)
     .forEach((field) => {
+      if (Object.keys(field) === 0) {
+        console.error("[AIRENT-API/ERROR] invalid cursor field - missing");
+      }
+      if (!utils.isPresentableField(field)) {
+        console.error("[AIRENT-API/ERROR] invalid cursor field - internal");
+      }
       if (field.value === "asc") {
         field._strings.api.maxVar = `max${utils.toPascalCase(field.name)}`;
       }
