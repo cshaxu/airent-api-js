@@ -36,9 +36,9 @@
     "resources"
   ],
   "dependencies": {
-    "airent": "github:cshaxu/airent-js#fabf9c9448f2e72f476236341f9632e40651b970",
+    "airent": "github:cshaxu/airent-js#4758b95011c7ca26a81d797e179690eeefcaf800",
     "http-errors": "^2.0.1",
-    "zod": "^3.25.76"
+    "zod": "^4.3.6"
   },
   "devDependencies": {
     "@types/async-lock": "^1.4.2",

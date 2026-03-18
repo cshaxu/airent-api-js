@@ -53,94 +53,66 @@ import {
 } from '<%- entity._packages.api.dispatcherToRequestFull %>';
   <%_ if (entity._booleans.api.hasSearch) { -%>
 
-const searchConfig = {
+const search = dispatchSearchWith({
+  ...dispatcherConfig,
   queryZod: <%= entity._strings.api.searchQuery %>,
   action: <%= entity._strings.api.actionsClass %>.search,
   options: <%= entity.api.methods.search ?? '{}' %>,
-};
-
-const search = dispatchSearchWith({
-  ...dispatcherConfig,
-  ...searchConfig,
 });
   <%_ } -%>
   <%_ if (entity._booleans.api.hasGetMany) { -%>
 
-const getManyConfig = {
+const getMany = dispatchGetManyWith({
+  ...dispatcherConfig,
   queryZod: <%= entity._strings.api.getManyQuery %>,
   action: <%= entity._strings.api.actionsClass %>.getMany,
   options: <%= entity.api.methods.getMany ?? '{}' %>,
-};
-
-const getMany = dispatchGetManyWith({
-  ...dispatcherConfig,
-  ...getManyConfig,
 });
   <%_ } -%>
   <%_ if (entity._booleans.api.hasGetOne) { -%>
 
-const getOneConfig = {
+const getOne = dispatchGetOneWith({
+  ...dispatcherConfig,
   paramsZod: <%= entity._strings.api.getOneParams %>,
   action: <%= entity._strings.api.actionsClass %>.getOne,
   options: <%= entity.api.methods.getOne ?? '{}' %>,
-};
-
-const getOne = dispatchGetOneWith({
-  ...dispatcherConfig,
-  ...getOneConfig,
 });
   <%_ } -%>
   <%_ if (entity._booleans.api.hasGetOneSafe) { -%>
 
-const getOneSafeConfig = {
+const getOneSafe = dispatchGetOneSafeWith({
+  ...dispatcherConfig,
   paramsZod: <%= entity._strings.api.getOneParams %>,
   action: <%= entity._strings.api.actionsClass %>.getOneSafe,
   options: <%= entity.api.methods.getOneSafe ?? '{}' %>,
-};
-
-const getOneSafe = dispatchGetOneSafeWith({
-  ...dispatcherConfig,
-  ...getOneSafeConfig,
 });
   <%_ } -%>
   <%_ if (entity._booleans.api.hasCreateOne) { -%>
 
-const createOneConfig = {
+const createOne = dispatchCreateOneWith({
+  ...dispatcherConfig,
   bodyZod: <%= entity._strings.api.createOneBody %>,
   action: <%= entity._strings.api.actionsClass %>.createOne,
   options: <%= entity.api.methods.createOne ?? '{}' %>,
-};
-
-const createOne = dispatchCreateOneWith({
-  ...dispatcherConfig,
-  ...createOneConfig,
 });
   <%_ } -%>
   <%_ if (entity._booleans.api.hasUpdateOne) { -%>
 
-const updateOneConfig = {
+const updateOne = dispatchUpdateOneWith({
+  ...dispatcherConfig,
   paramsZod: <%= entity._strings.api.getOneParams %>,
   bodyZod: <%= entity._strings.api.updateOneBody %>,
   action: <%= entity._strings.api.actionsClass %>.updateOne,
   options: <%= entity.api.methods.updateOne ?? '{}' %>,
-};
-
-const updateOne = dispatchUpdateOneWith({
-  ...dispatcherConfig,
-  ...updateOneConfig,
 });
   <%_ } -%>
   <%_ if (entity._booleans.api.hasDeleteOne) { -%>
 
-const deleteOneConfig = {
+const deleteOne = dispatchDeleteOneWith({
+  ...dispatcherConfig,
   paramsZod: <%= entity._strings.api.getOneParams %>,
   action: <%= entity._strings.api.actionsClass %>.deleteOne,
   options: <%= entity.api.methods.deleteOne ?? '{}' %>,
-};
-
-const deleteOne = dispatchDeleteOneWith({
-  ...dispatcherConfig,
-  ...deleteOneConfig,
 });
   <%_ } -%>
 

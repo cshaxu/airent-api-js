@@ -22,82 +22,54 @@ import {
   UpdateOneUserBody,
 } from '../../api-types/user';
 
-const searchConfig = {
+const search = dispatchSearchWith({
+  ...dispatcherConfig,
   queryZod: SearchUsersQuery,
   action: UserActions.search,
   options: { requireLogin: false },
-};
-
-const search = dispatchSearchWith({
-  ...dispatcherConfig,
-  ...searchConfig,
 });
-
-const getManyConfig = {
-  queryZod: GetManyUsersQuery,
-  action: UserActions.getMany,
-  options: { requireAdmin: true },
-};
 
 const getMany = dispatchGetManyWith({
   ...dispatcherConfig,
-  ...getManyConfig,
+  queryZod: GetManyUsersQuery,
+  action: UserActions.getMany,
+  options: { requireAdmin: true },
 });
-
-const getOneConfig = {
-  paramsZod: GetOneUserParams,
-  action: UserActions.getOne,
-  options: { requireLogin: false },
-};
 
 const getOne = dispatchGetOneWith({
   ...dispatcherConfig,
-  ...getOneConfig,
-});
-
-const getOneSafeConfig = {
   paramsZod: GetOneUserParams,
-  action: UserActions.getOneSafe,
+  action: UserActions.getOne,
   options: { requireLogin: false },
-};
+});
 
 const getOneSafe = dispatchGetOneSafeWith({
   ...dispatcherConfig,
-  ...getOneSafeConfig,
-});
-
-const createOneConfig = {
-  bodyZod: CreateOneUserBody,
-  action: UserActions.createOne,
+  paramsZod: GetOneUserParams,
+  action: UserActions.getOneSafe,
   options: { requireLogin: false },
-};
+});
 
 const createOne = dispatchCreateOneWith({
   ...dispatcherConfig,
-  ...createOneConfig,
+  bodyZod: CreateOneUserBody,
+  action: UserActions.createOne,
+  options: { requireLogin: false },
 });
 
-const updateOneConfig = {
+const updateOne = dispatchUpdateOneWith({
+  ...dispatcherConfig,
   paramsZod: GetOneUserParams,
   bodyZod: UpdateOneUserBody,
   action: UserActions.updateOne,
   options: { requireLogin: true },
-};
-
-const updateOne = dispatchUpdateOneWith({
-  ...dispatcherConfig,
-  ...updateOneConfig,
 });
-
-const deleteOneConfig = {
-  paramsZod: GetOneUserParams,
-  action: UserActions.deleteOne,
-  options: { requireLogin: true },
-};
 
 const deleteOne = dispatchDeleteOneWith({
   ...dispatcherConfig,
-  ...deleteOneConfig,
+  paramsZod: GetOneUserParams,
+  action: UserActions.deleteOne,
+  options: { requireLogin: true },
 });
 
 /** @deprecated */

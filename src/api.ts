@@ -153,7 +153,7 @@ type UpdateOneDispatcherConfig<
   ERROR
 > = {
   paramsZod: PARAMS_ZOD;
-  bodyZod: z.ZodTypeAny;
+  bodyZod: BODY_ZOD;
   action: UpdateOneAction<
     z.infer<PARAMS_ZOD>,
     z.infer<BODY_ZOD>,
@@ -455,7 +455,7 @@ function dispatchUpdateOneWith<
 ): Dispatcher<CONTEXT, DATA, any, ERROR> {
   const parser = parseUpdateOneWith<CONTEXT, DATA, PARAMS_ZOD, BODY_ZOD>(
     config.paramsZod,
-    config.bodyZod as BODY_ZOD
+    config.bodyZod
   );
   const executor = executeUpdateOneWith(config.action);
   return dispatchWith({ ...config, parser, executor });

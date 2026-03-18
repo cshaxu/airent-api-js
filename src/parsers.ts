@@ -1,5 +1,7 @@
 import * as z from "zod";
 
+type AnyZodObject = z.ZodObject<any, any>;
+
 const parseBodyWith =
   <Z extends z.ZodTypeAny>(bodyZod: Z) =>
   (request: Request) =>
@@ -13,11 +15,11 @@ async function parseBody<Z extends z.ZodTypeAny>(
 }
 
 const parseQueryWith =
-  <Z extends z.AnyZodObject>(queryZod: Z, arrayKeys?: string[]) =>
+  <Z extends AnyZodObject>(queryZod: Z, arrayKeys?: string[]) =>
   (request: Request) =>
     parseQuery(request, queryZod, arrayKeys);
 
-async function parseQuery<Z extends z.AnyZodObject>(
+async function parseQuery<Z extends AnyZodObject>(
   request: Request,
   queryZod: Z,
   arrayKeys?: string[]
@@ -27,11 +29,11 @@ async function parseQuery<Z extends z.AnyZodObject>(
 }
 
 const parseFormWith =
-  <Z extends z.AnyZodObject>(bodyZod: Z, arrayKeys?: string[]) =>
+  <Z extends AnyZodObject>(bodyZod: Z, arrayKeys?: string[]) =>
   (request: Request) =>
     parseForm(request, bodyZod, arrayKeys);
 
-async function parseForm<Z extends z.AnyZodObject>(
+async function parseForm<Z extends AnyZodObject>(
   request: Request,
   bodyZod: Z,
   arrayKeys?: string[]
@@ -42,7 +44,7 @@ async function parseForm<Z extends z.AnyZodObject>(
   return await parse(formData, bodyZod, arrayKeys);
 }
 
-async function parse<Z extends z.AnyZodObject>(
+async function parse<Z extends AnyZodObject>(
   urlSearchParams: URLSearchParams,
   zodObject: Z,
   arrayKeys?: string[]
@@ -52,7 +54,7 @@ async function parse<Z extends z.AnyZodObject>(
   return await zodObject.parseAsync(parsedRaw);
 }
 
-function getArrayKeys(zodObject: z.AnyZodObject): string[] {
+function getArrayKeys(zodObject: AnyZodObject): string[] {
   const keys = Object.keys(zodObject.shape);
   return keys.filter((key) => isZodArray(zodObject.shape[key]));
 }
@@ -60,7 +62,7 @@ function getArrayKeys(zodObject: z.AnyZodObject): string[] {
 function isZodArray(zodType: z.ZodTypeAny): boolean {
   let zt = zodType;
   while (zt instanceof z.ZodOptional || zt instanceof z.ZodNullable) {
-    zt = zt._def.innerType;
+    zt = zt.unwrap() as z.ZodTypeAny;
   }
   return zt instanceof z.ZodArray;
 }

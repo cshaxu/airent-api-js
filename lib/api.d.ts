@@ -42,7 +42,7 @@ type CreateOneDispatcherConfig<OPTIONS, CONTEXT, DATA extends object, BODY_ZOD e
 } & Omit<DispatcherConfig<OPTIONS, CONTEXT, DATA, CreateOneParsed<z.infer<BODY_ZOD>>, RESULT, ERROR>, "parser" | "executor">;
 type UpdateOneDispatcherConfig<OPTIONS, CONTEXT, DATA extends object, PARAMS_ZOD extends z.ZodTypeAny, BODY_ZOD extends z.ZodTypeAny, RESULT, ERROR> = {
     paramsZod: PARAMS_ZOD;
-    bodyZod: z.ZodTypeAny;
+    bodyZod: BODY_ZOD;
     action: UpdateOneAction<z.infer<PARAMS_ZOD>, z.infer<BODY_ZOD>, CONTEXT, RESULT>;
 } & Omit<DispatcherConfig<OPTIONS, CONTEXT, DATA, UpdateOneParsed<z.infer<PARAMS_ZOD>, z.infer<BODY_ZOD>>, RESULT, ERROR>, "parser" | "executor">;
 type SearchDispatcherConfig<OPTIONS, CONTEXT, DATA extends object, QUERY_ZOD extends z.ZodTypeAny, RESULT, ERROR> = GetManyDispatcherConfig<OPTIONS, CONTEXT, DATA, QUERY_ZOD, RESULT, ERROR>;
