@@ -13,7 +13,7 @@ import {
 } from 'airent';
 
 // config imports
-import { Context } from '../../test-sources/framework';
+import { Context } from '../framework';
 
 // entity imports
 import {

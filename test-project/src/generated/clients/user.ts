@@ -1,8 +1,8 @@
 // airent imports
-import { buildJsonRequestInit, fetchJsonOrThrow } from '../../../src/index';
+import { buildJsonRequestInit, fetchJsonOrThrow } from '../../../../src/index';
 
 // config imports
-import { baseUrl } from '../../../test-sources/fetch';
+import { baseUrl } from '../../fetch';
 
 // entity imports
 import {

@@ -7,10 +7,10 @@ import {
   dispatchCreateOneWith,
   dispatchUpdateOneWith,
   dispatchDeleteOneWith,
-} from '../../../src/index';
+} from '../../../../src/index';
 
 // config imports
-import { dispatcherConfig } from '../../../test-sources/framework';
+import { dispatcherConfig } from '../../framework';
 
 // entity imports
 import UserActions from '../actions/user';

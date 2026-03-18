@@ -1,8 +1,8 @@
 // airent imports
-import { isFunction, max, min } from '../../../src/index';
+import { isFunction, max, min } from '../../../../src/index';
 
 // config imports
-import { Context } from '../../../test-sources/framework';
+import { Context } from '../../framework';
 
 // entity imports
 import {

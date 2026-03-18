@@ -8,7 +8,7 @@
   },
   "scripts": {
     "build": "rm -rf ./lib && tsc -p tsconfig.json && crlf --set=LF bin/*",
-    "test": "rm -rf ./test-output && airent"
+    "test": "rm -rf ./test-project/src/api-types && rm -rf ./test-project/src/entities && rm -rf ./test-project/src/generated && rm -rf ./test-project/src/services && airent"
   },
   "repository": {
     "type": "git",

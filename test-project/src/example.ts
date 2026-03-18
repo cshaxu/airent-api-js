@@ -1,5 +1,5 @@
 import * as z from "zod";
-import { dispatchUpdateOneWith } from "../src/api";
+import { dispatchUpdateOneWith } from "../../src/api";
 
 const paramsZod = z.object({
   id: z.string(),

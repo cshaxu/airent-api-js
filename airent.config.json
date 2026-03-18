@@ -1,9 +1,9 @@
 {
   "type": "commonjs",
-  "schemaPath": "test-schemas",
-  "entityPath": "test-output/entities",
-  "generatedPath": "test-output/generated",
-  "contextImportPath": "./test-sources/framework",
+  "schemaPath": "test-project/schemas",
+  "entityPath": "test-project/src/entities",
+  "generatedPath": "test-project/src/generated",
+  "contextImportPath": "./test-project/src/framework",
   "augmentors": ["resources/augmentor.js"],
   "templates": [
     {
@@ -45,12 +45,12 @@
   "api": {
     "libImportPath": "./src/index",
     "server": {
-      "servicePath": "test-output/services",
-      "dispatcherConfigImportPath": "./test-sources/framework"
+      "servicePath": "test-project/src/services",
+      "dispatcherConfigImportPath": "./test-project/src/framework"
     },
     "client": {
-      "baseUrlImportPath": "./test-sources/fetch"
+      "baseUrlImportPath": "./test-project/src/fetch"
     },
-    "typesPath": "./test-output/api-types"
+    "typesPath": "./test-project/src/api-types"
   }
 }
