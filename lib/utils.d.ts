@@ -1,5 +1,3 @@
-/// <reference types="node" />
-/// <reference types="node" />
 import { Readable } from "stream";
 declare function isFunction(value: any): value is Function;
 declare function isNil(value: any): value is null | undefined;

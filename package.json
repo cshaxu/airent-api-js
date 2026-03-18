@@ -36,15 +36,15 @@
     "resources"
   ],
   "dependencies": {
-    "airent": "github:cshaxu/airent-js#6ab375bd0e9fdd4b9e2b7c732380aa1cb9660e67",
-    "http-errors": "^2.0.0",
-    "zod": "^3.23.8"
+    "airent": "github:cshaxu/airent-js#fabf9c9448f2e72f476236341f9632e40651b970",
+    "http-errors": "^2.0.1",
+    "zod": "^3.25.76"
   },
   "devDependencies": {
     "@types/async-lock": "^1.4.2",
-    "@types/http-errors": "^2.0.4",
-    "@types/node": "^20.12.12",
+    "@types/http-errors": "^2.0.5",
+    "@types/node": "^25.5.0",
     "crlf": "^1.1.1",
-    "typescript": "^5.4.5"
+    "typescript": "^5.9.3"
   }
 }
