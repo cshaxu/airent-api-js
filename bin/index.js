@@ -2,25 +2,18 @@
 
 const fs = require("fs");
 const path = require("path");
-const readline = require("readline");
 
-const rl = readline.createInterface({
-  input: process.stdin,
-  output: process.stdout,
-});
-
-// Function to ask a question and store the answer in the config object
-async function askQuestion(question, defaultAnswer) {
-  const a = await new Promise((resolve) =>
-    rl.question(`${question} (${defaultAnswer}): `, resolve)
-  );
-  return a?.length ? a : defaultAnswer;
-}
-
-async function getShouldEnable(name) {
-  const shouldEnable = await askQuestion(`Enable "${name}"`, "yes");
-  return shouldEnable === "yes";
-}
+const configUtils = require("airent/resources/utils/configurator.js");
+const {
+  addTemplate,
+  createPrompt,
+  getShouldEnable,
+  loadJsonConfig,
+  normalizeConfigCollections,
+  writeJsonConfig,
+} = configUtils;
+const prompt = createPrompt();
+const { askQuestion } = prompt;
 
 /** @typedef {Object} ApiServerConfig
  *  @property {string} servicePath
@@ -28,7 +21,8 @@ async function getShouldEnable(name) {
  */
 
 /** @typedef {Object} ApiClientConfig
- * @property {string} baseUrlImportPath
+ *  @property {string} baseUrlImportPath
+ */
 
 /** @typedef {Object} ApiConfig
  *  @property {?string} libImportPath
@@ -101,19 +95,7 @@ const API_SERVER_TEMPLATE_CONFIGS = [
 ];
 
 async function loadConfig() {
-  const configContent = await fs.promises.readFile(CONFIG_FILE_PATH, "utf8");
-  const config = JSON.parse(configContent);
-  const augmentors = config.augmentors ?? [];
-  const templates = config.templates ?? [];
-  return { ...config, augmentors, templates };
-}
-
-function addTemplate(config, draftTemplate) {
-  const { templates } = config;
-  const template = templates.find((t) => t.name === draftTemplate.name);
-  if (template === undefined) {
-    templates.push(draftTemplate);
-  }
+  return normalizeConfigCollections(await loadJsonConfig(CONFIG_FILE_PATH));
 }
 
 async function configureApiTypes(config) {
@@ -138,7 +120,7 @@ async function configureApiClient(config) {
   );
   const shouldEnableApiClient = isApiClientEnabled
     ? true
-    : await getShouldEnable("Api Client");
+    : await getShouldEnable(askQuestion, "Api Client");
   if (!shouldEnableApiClient) {
     return;
   }
@@ -159,7 +141,7 @@ async function configureApiServer(config) {
   );
   const shouldEnableApiServer = isApiServerEnabled
     ? true
-    : await getShouldEnable("Api Server");
+    : await getShouldEnable(askQuestion, "Api Server");
   if (!shouldEnableApiServer) {
     return;
   }
@@ -182,7 +164,9 @@ async function configure() {
   const config = await loadConfig();
   const { augmentors } = config;
   const isApiEnabled = augmentors.includes(API_AUGMENTOR_PATH);
-  const shouldEnableApi = isApiEnabled ? true : await getShouldEnable("Api");
+  const shouldEnableApi = isApiEnabled
+    ? true
+    : await getShouldEnable(askQuestion, "Api");
   if (!shouldEnableApi) {
     return;
   }
@@ -195,8 +179,7 @@ async function configure() {
   await configureApiServer(config);
   await configureApiClient(config);
 
-  const content = JSON.stringify(config, null, 2) + "\n";
-  await fs.promises.writeFile(CONFIG_FILE_PATH, content);
+  await writeJsonConfig(CONFIG_FILE_PATH, config);
   console.log(`[AIRENT-API/INFO] Package configured.`);
 }
 
@@ -208,7 +191,7 @@ async function main() {
 
     await configure();
   } finally {
-    rl.close();
+    prompt.close();
   }
 }
 

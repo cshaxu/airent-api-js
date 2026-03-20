@@ -1,103 +1,105 @@
 const path = require("path");
-const utils = require("airent/resources/utils.js");
 
-function buildRelativePath(sourcePath, targetPath) /* string */ {
-  const rawRelativePath = path
-    .relative(sourcePath, targetPath)
-    .replaceAll("\\", "/");
-  return rawRelativePath.startsWith(".")
-    ? rawRelativePath
-    : `./${rawRelativePath}`;
-}
-
-function buildRelativeFull(sourcePath, targetPath, config) /* string */ {
-  if (!targetPath.startsWith(".")) {
-    return targetPath;
-  }
-  const suffix = utils.getModuleSuffix(config);
-  const relativePath = buildRelativePath(sourcePath, targetPath);
-  return `${relativePath}${suffix}`;
-}
+const codeUtils = require("airent/resources/utils/code.js");
+const pathUtils = require("airent/resources/utils/path.js");
 
 // build config
 
 function augmentConfig(config) /* void */ {
   config._packages.api = config._packages.api ?? {};
   config._packages.api.baseToLibFull = config.api.libImportPath
-    ? buildRelativeFull(
+    ? pathUtils.buildRelativeFull(
         path.join(config.generatedPath, "entities"),
         config.api.libImportPath,
-        config
+        config,
+        codeUtils.getModuleSuffix
       )
     : "@airent/api";
   config._packages.api.entityToLibFull = config.api.libImportPath
-    ? buildRelativeFull(config.entityPath, config.api.libImportPath, config)
+    ? pathUtils.buildRelativeFull(
+        config.entityPath,
+        config.api.libImportPath,
+        config,
+        codeUtils.getModuleSuffix
+      )
     : "@airent/api";
 
   if (config.api.server) {
     config._packages.api.dispatcherToLibFull = config.api.libImportPath
-      ? buildRelativeFull(
+      ? pathUtils.buildRelativeFull(
           path.join(config.generatedPath, "dispatchers"),
           config.api.libImportPath,
-          config
+          config,
+          codeUtils.getModuleSuffix
         )
       : "@airent/api";
     config._packages.api.actionToLibFull = config.api.libImportPath
-      ? buildRelativeFull(
+      ? pathUtils.buildRelativeFull(
           path.join(config.generatedPath, "actions"),
           config.api.libImportPath,
-          config
+          config,
+          codeUtils.getModuleSuffix
         )
       : "@airent/api";
     config._packages.api.serviceInterfaceToLibFull = config.api.libImportPath
-      ? buildRelativeFull(
+      ? pathUtils.buildRelativeFull(
           path.join(config.generatedPath, "services"),
           config.api.libImportPath,
-          config
+          config,
+          codeUtils.getModuleSuffix
         )
       : "@airent/api";
     config._packages.api.serviceToLibFull = config.api.libImportPath
-      ? buildRelativeFull(
+      ? pathUtils.buildRelativeFull(
           config.api.server.servicePath,
           config.api.libImportPath,
-          config
+          config,
+          codeUtils.getModuleSuffix
         )
       : "@airent/api";
 
-    config._packages.api.actionToContextFull = buildRelativeFull(
+    config._packages.api.actionToContextFull = pathUtils.buildRelativeFull(
       path.join(config.generatedPath, "actions"),
       config.contextImportPath,
-      config
+      config,
+      codeUtils.getModuleSuffix
     );
-    config._packages.api.serviceInterfaceToContextFull = buildRelativeFull(
-      path.join(config.generatedPath, "services"),
-      config.contextImportPath,
-      config
-    );
-    config._packages.api.serviceToContextFull = buildRelativeFull(
+    config._packages.api.serviceInterfaceToContextFull =
+      pathUtils.buildRelativeFull(
+        path.join(config.generatedPath, "services"),
+        config.contextImportPath,
+        config,
+        codeUtils.getModuleSuffix
+      );
+    config._packages.api.serviceToContextFull = pathUtils.buildRelativeFull(
       config.api.server.servicePath,
       config.contextImportPath,
-      config
+      config,
+      codeUtils.getModuleSuffix
     );
-    config._packages.api.dispatcherToDispatcherConfigFull = buildRelativeFull(
-      path.join(config.generatedPath, "dispatchers"),
-      config.api.server.dispatcherConfigImportPath,
-      config
-    );
+    config._packages.api.dispatcherToDispatcherConfigFull =
+      pathUtils.buildRelativeFull(
+        path.join(config.generatedPath, "dispatchers"),
+        config.api.server.dispatcherConfigImportPath,
+        config,
+        codeUtils.getModuleSuffix
+      );
   }
 
   if (config.api.client) {
     config._packages.api.clientToLibFull = config.api.libImportPath
-      ? buildRelativeFull(
+      ? pathUtils.buildRelativeFull(
           path.join(config.generatedPath, "clients"),
           config.api.libImportPath,
-          config
+          config,
+          codeUtils.getModuleSuffix
         )
       : "@airent/api";
-    config._packages.api.clientToBaseUrlFull = buildRelativeFull(
+    config._packages.api.clientToBaseUrlFull = pathUtils.buildRelativeFull(
       path.join(config.generatedPath, "clients"),
       config.api.client.baseUrlImportPath,
-      config
+      config,
+      codeUtils.getModuleSuffix
     );
   }
 }
@@ -115,23 +117,23 @@ function hasApiMethod(entity, methodName) {
 // augment entity - add api strings
 
 function addStrings(entity, config, isVerbose) {
-  const pluralEntName = utils.toPascalCase(utils.pluralize(entity.name));
-  const singularEntName = utils.toPascalCase(entity.name);
+  const pluralEntName = codeUtils.toPascalCase(codeUtils.pluralize(entity.name));
+  const singularEntName = codeUtils.toPascalCase(entity.name);
   if (isVerbose) {
     console.log(
       `[AIRENT-API/INFO] augmenting ${entity.name} - add strings ...`
     );
   }
   entity._strings.api = {
-    manyEntsVar: utils.toCamelCase(utils.pluralize(entity.name)),
-    oneEntVar: utils.toCamelCase(entity.name),
+    manyEntsVar: codeUtils.toCamelCase(codeUtils.pluralize(entity.name)),
+    oneEntVar: codeUtils.toCamelCase(entity.name),
     dispatcherClass: `${singularEntName}Dispatcher`,
     actionsClass: `${singularEntName}Actions`,
     serviceClass: `${singularEntName}Service`,
-    searchServiceClass: `${utils.toPascalCase(entity.name)}SearchService`,
-    searchServiceModuleName: `${utils.toKababCase(
+    searchServiceClass: `${codeUtils.toPascalCase(entity.name)}SearchService`,
+    searchServiceModuleName: `${codeUtils.toKababCase(
       entity.name
-    )}-search${utils.getModuleSuffix(config)}`,
+    )}-search${codeUtils.getModuleSuffix(config)}`,
     serviceInterfaceClass: `${singularEntName}ServiceInterface`,
     apiClientClass: `${singularEntName}ApiClient`,
     manyCursor: `Many${pluralEntName}Cursor`,
@@ -151,19 +153,19 @@ function addStrings(entity, config, isVerbose) {
 
   (entity.api?.cursors ?? [])
     .flatMap((c) => Object.keys(c).map((n) => ({ name: n, value: c[n] })))
-    .map((c) => ({ ...utils.queryField(c.name, entity), value: c.value }))
+    .map((c) => ({ ...codeUtils.queryField(c.name, entity), value: c.value }))
     .forEach((field) => {
       if (Object.keys(field) === 0) {
         console.error("[AIRENT-API/ERROR] invalid cursor field - missing");
       }
-      if (!utils.isPresentableField(field)) {
+      if (!codeUtils.isPresentableField(field)) {
         console.error("[AIRENT-API/ERROR] invalid cursor field - internal");
       }
       if (field.value === "asc") {
-        field._strings.api.maxVar = `max${utils.toPascalCase(field.name)}`;
+        field._strings.api.maxVar = `max${codeUtils.toPascalCase(field.name)}`;
       }
       if (field.value === "desc") {
-        field._strings.api.minVar = `min${utils.toPascalCase(field.name)}`;
+        field._strings.api.minVar = `min${codeUtils.toPascalCase(field.name)}`;
       }
     });
 }
@@ -197,30 +199,33 @@ function addBooleans(entity) {
 function buildTypePackages(type, config) /* Object */ {
   if (type._entity !== undefined) {
     return {};
-  } else if (utils.isImportType(type)) {
-    const actionToExternalFull = buildRelativeFull(
+  } else if (codeUtils.isImportType(type)) {
+    const actionToExternalFull = pathUtils.buildRelativeFull(
       path.join(config.generatedPath, "actions"),
       type.import,
-      config
+      config,
+      codeUtils.getModuleSuffix
     );
-    const serviceInterfaceToExternalFull = buildRelativeFull(
+    const serviceInterfaceToExternalFull = pathUtils.buildRelativeFull(
       path.join(config.generatedPath, "services"),
       type.import,
-      config
+      config,
+      codeUtils.getModuleSuffix
     );
-    const serviceToExternalFull = buildRelativeFull(
+    const serviceToExternalFull = pathUtils.buildRelativeFull(
       path.join(config.api.server.servicePath),
       type.import,
-      config
+      config,
+      codeUtils.getModuleSuffix
     );
     return {
       actionToExternalFull,
       serviceInterfaceToExternalFull,
       serviceToExternalFull,
     };
-  } else if (utils.isDefineType(type)) {
+  } else if (codeUtils.isDefineType(type)) {
     return {};
-  } else if (utils.isEnumType(type)) {
+  } else if (codeUtils.isEnumType(type)) {
     return {};
   }
 }
@@ -236,74 +241,78 @@ function addPackages(entity, config, isVerbose) {
   entity._packages.api = entity._packages.api ?? {};
 
   if (config.api.server) {
-    entity._packages.api.dispatcherToActionFull = buildRelativePath(
+    entity._packages.api.dispatcherToActionFull = pathUtils.buildRelativePath(
       path.join(config.generatedPath, "dispatchers"),
       path.join(config.generatedPath, "actions", entity._strings.moduleName)
     );
 
-    entity._packages.api.actionToTypeFull = buildRelativePath(
+    entity._packages.api.actionToTypeFull = pathUtils.buildRelativePath(
       path.join(config.generatedPath, "actions"),
       path.join(config.generatedPath, "types", entity._strings.moduleName)
     );
-    entity._packages.api.actionToEntityFull = buildRelativePath(
+    entity._packages.api.actionToEntityFull = pathUtils.buildRelativePath(
       path.join(config.generatedPath, "actions"),
       path.join(config.entityPath, entity._strings.moduleName)
     );
-    entity._packages.api.actionToServiceFull = buildRelativePath(
+    entity._packages.api.actionToServiceFull = pathUtils.buildRelativePath(
       path.join(config.generatedPath, "actions"),
       path.join(config.api.server.servicePath, entity._strings.moduleName)
     );
 
-    entity._packages.api.serviceInterfaceToTypeFull = buildRelativePath(
+    entity._packages.api.serviceInterfaceToTypeFull =
+      pathUtils.buildRelativePath(
       path.join(config.generatedPath, "services"),
       path.join(config.generatedPath, "types", entity._strings.moduleName)
     );
-    entity._packages.api.serviceInterfaceToEntityFull = buildRelativePath(
-      path.join(config.generatedPath, "services"),
-      path.join(config.entityPath, entity._strings.moduleName)
-    );
+    entity._packages.api.serviceInterfaceToEntityFull =
+      pathUtils.buildRelativePath(
+        path.join(config.generatedPath, "services"),
+        path.join(config.entityPath, entity._strings.moduleName)
+      );
 
-    entity._packages.api.serviceToTypeFull = buildRelativePath(
+    entity._packages.api.serviceToTypeFull = pathUtils.buildRelativePath(
       config.api.server.servicePath,
       path.join(config.generatedPath, "types", entity._strings.moduleName)
     );
-    entity._packages.api.serviceToEntityFull = buildRelativePath(
+    entity._packages.api.serviceToEntityFull = pathUtils.buildRelativePath(
       config.api.server.servicePath,
       path.join(config.entityPath, entity._strings.moduleName)
     );
-    entity._packages.api.serviceToServiceInterfaceFull = buildRelativePath(
-      config.api.server.servicePath,
-      path.join(config.generatedPath, "services", entity._strings.moduleName)
-    );
+    entity._packages.api.serviceToServiceInterfaceFull =
+      pathUtils.buildRelativePath(
+        config.api.server.servicePath,
+        path.join(config.generatedPath, "services", entity._strings.moduleName)
+      );
 
     entity.types.forEach(
       (t) => (t._packages.api = buildTypePackages(t, config))
     );
 
-    entity._packages.api.dispatcherToRequestFull = buildRelativePath(
+    entity._packages.api.dispatcherToRequestFull = pathUtils.buildRelativePath(
       path.join(config.generatedPath, "dispatchers"),
       path.join(config.api.typesPath, entity._strings.moduleName)
     );
-    entity._packages.api.actionToRequestFull = buildRelativePath(
+    entity._packages.api.actionToRequestFull = pathUtils.buildRelativePath(
       path.join(config.generatedPath, "actions"),
       path.join(config.api.typesPath, entity._strings.moduleName)
     );
-    entity._packages.api.serviceInterfaceToRequestFull = buildRelativePath(
-      path.join(config.generatedPath, "services"),
-      path.join(config.api.typesPath, entity._strings.moduleName)
-    );
-    entity._packages.api.serviceToRequestFull = buildRelativePath(
+    entity._packages.api.serviceInterfaceToRequestFull =
+      pathUtils.buildRelativePath(
+        path.join(config.generatedPath, "services"),
+        path.join(config.api.typesPath, entity._strings.moduleName)
+      );
+    entity._packages.api.serviceToRequestFull = pathUtils.buildRelativePath(
       config.api.server.servicePath,
       path.join(config.api.typesPath, entity._strings.moduleName)
     );
   }
 
   if (config.api.client) {
-    entity._packages.api.clientToTypeFull = buildRelativePath(
+    entity._packages.api.clientToTypeFull = pathUtils.buildRelativePath(
       path.join(config.generatedPath, "clients"),
       path.join(config.generatedPath, "types", entity._strings.moduleName)
     );
-    entity._packages.api.clientToRequestFull = buildRelativePath(
+    entity._packages.api.clientToRequestFull = pathUtils.buildRelativePath(
       path.join(config.generatedPath, "clients"),
       path.join(config.api.typesPath, entity._strings.moduleName)
     );
@@ -313,14 +322,14 @@ function addPackages(entity, config, isVerbose) {
 // augment entity - add api code
 
 function buildBeforeType(entity) /* Code[] */ {
-  if (!utils.isPresentableEntity(entity)) {
+  if (!codeUtils.isPresentableEntity(entity)) {
     return [];
   }
   return [];
 }
 
 function buildAfterType(entity) /* Code[] */ {
-  if (!utils.isPresentableEntity(entity)) {
+  if (!codeUtils.isPresentableEntity(entity)) {
     return [];
   }
   return [
@@ -457,9 +466,9 @@ function addCode(entity, config, isVerbose) {
   const policyKeys = Object.keys(policies);
   if (policyKeys.length > 0) {
     entity._code.beforeBase.push("import createHttpError from 'http-errors';");
-    const insideBase = buildInsideBase(entity, policies, utils);
+    const insideBase = buildInsideBase(entity, policies, codeUtils);
     entity._code.insideBase.push(...insideBase);
-    const insideEntity = buildInsideEntity(policies, utils);
+    const insideEntity = buildInsideEntity(policies, codeUtils);
     entity._code.insideEntity.push(...insideEntity);
   }
 
@@ -467,8 +476,8 @@ function addCode(entity, config, isVerbose) {
     "const init = buildJsonRequestInit(data, options);",
     "const response = await fetchJsonOrThrow(input, init);",
   ];
-  const pluralKababEntityName = utils.toKababCase(utils.pluralize(entity.name));
-  const singularKababEntityName = utils.toKababCase(entity.name);
+  const pluralKababEntityName = codeUtils.toKababCase(codeUtils.pluralize(entity.name));
+  const singularKababEntityName = codeUtils.toKababCase(entity.name);
 
   entity._code.api = entity._code.api ?? {};
   if (config.api.client) {
