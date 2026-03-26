@@ -1,12 +1,5 @@
 import { Awaitable } from "airent";
-interface SearchEngineBase<DOCUMENT, ENGINE_QUERY, SCHEMA> {
-    create(indexName: string, schema: SCHEMA): Awaitable<boolean>;
-    delete(indexName: string): Awaitable<boolean>;
-    reset(indexName: string, schema: SCHEMA, indexer: () => Awaitable<boolean>): Awaitable<boolean>;
-    index(indexName: string, documents: DOCUMENT[]): Awaitable<boolean[]>;
-    unindex(indexName: string, documents: DOCUMENT[]): Awaitable<boolean[]>;
-    retrieve(indexName: string, query: ENGINE_QUERY): Awaitable<DOCUMENT[]>;
-}
+import { SearchEngineBase } from "./engine";
 declare abstract class SearchServiceBase<ENTITY, SERVICE_QUERY, CONTEXT, DOCUMENT, ENGINE_QUERY, SCHEMA> {
     protected abstract engine: SearchEngineBase<DOCUMENT, ENGINE_QUERY, SCHEMA>;
     protected abstract indexName: string;
@@ -24,4 +17,4 @@ declare abstract class SearchServiceBase<ENTITY, SERVICE_QUERY, CONTEXT, DOCUMEN
     unindexMany(many: ENTITY[], context: CONTEXT): Promise<boolean[]>;
     search(query: SERVICE_QUERY, context: CONTEXT): Promise<(ENTITY & {})[]>;
 }
-export { SearchEngineBase, SearchServiceBase };
+export { SearchServiceBase };

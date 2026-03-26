@@ -1,18 +1,6 @@
 import { Awaitable } from "airent";
-import { existify } from "./utils";
-
-interface SearchEngineBase<DOCUMENT, ENGINE_QUERY, SCHEMA> {
-  create(indexName: string, schema: SCHEMA): Awaitable<boolean>;
-  delete(indexName: string): Awaitable<boolean>;
-  reset(
-    indexName: string,
-    schema: SCHEMA,
-    indexer: () => Awaitable<boolean>
-  ): Awaitable<boolean>;
-  index(indexName: string, documents: DOCUMENT[]): Awaitable<boolean[]>;
-  unindex(indexName: string, documents: DOCUMENT[]): Awaitable<boolean[]>;
-  retrieve(indexName: string, query: ENGINE_QUERY): Awaitable<DOCUMENT[]>;
-}
+import { existify } from "../utils";
+import { SearchEngineBase } from "./engine";
 
 abstract class SearchServiceBase<
   ENTITY,
@@ -95,4 +83,4 @@ abstract class SearchServiceBase<
   }
 }
 
-export { SearchEngineBase, SearchServiceBase };
+export { SearchServiceBase };
